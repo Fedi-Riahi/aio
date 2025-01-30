@@ -1,0 +1,101 @@
+import React from "react";
+import Image from "next/image";
+import { eventData } from "@/data/data";
+import Link from "next/link";
+
+interface EventCardProps {
+  searchQuery: string;
+  selectedCategory: string;
+  onItemClick: (category: string) => void;
+}
+
+const EventCard: React.FC<EventCardProps> = ({
+  searchQuery,
+  selectedCategory,
+}) => {
+  const filteredEvents = eventData.filter((event) => {
+    const matchesSearchQuery = event.event_name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory
+      ? event.categories === selectedCategory
+      : true;
+    return matchesSearchQuery && matchesCategory;
+  });
+
+  return (
+    <div className="max-w-7xl md:mx-auto px-4 mx-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 mx-auto mt-10">
+        {filteredEvents.map((event, index) => {
+          const day = new Date(event.periods[0].start_day).getDate();
+          const month = new Date(event.periods[0].start_day).toLocaleString("default", {
+            month: "short",
+          });
+
+          return (
+            <div
+              key={index}
+              className="relative rounded-lg overflow-hidden shadow-lg h-[200px] hover:scale-105 transition duration-300"
+            >
+              <div className="relative w-full h-full">
+                <Image
+                  src={event.thumbnail}
+                  alt={`${event.event_name} Event`}
+                  layout="fill"
+                  objectFit="cover"
+                  className="absolute top-0 left-0 w-full h-full"
+                />
+              </div>
+
+              {/* Organizer Image and Name */}
+              <div className="absolute top-1 left-1 flex items-center space-x-3 p-3 rounded-full z-10">
+                <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-main">
+                  {/* Optionally include organizer image */}
+                </div>
+                <span className="text-white font-bold">{event.owner}</span>
+              </div>
+
+              {/* Event Details */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4 z-10">
+                <div className="flex items-center justify-between gap-10 my-4">
+                  <div>
+                    <Link href={`/event-details/${event.id}`}>
+                      <span className="text-xl font-bold text-white cursor-pointer">
+                        {event.event_name}
+                      </span>
+                    </Link>
+                  </div>
+                  <div>
+                    <span className="absolute bottom-6 right-2 bg-white px-4 py-2 rounded-full font-medium text-black">
+                      {event.periods.map((period, index) => {
+                        return period.locations.map((location, locationIndex) => {
+                          return (
+                            <div key={`${index}-${locationIndex}`}>
+                              <span>
+                                {event.visibility === "Public"
+                                  ? `${location.times[0]?.tickets[0]?.price || 0}.00 DT`
+                                  : "Private"}
+                              </span>
+                            </div>
+                          );
+                        });
+                      })}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Date Display */}
+              <div className="absolute top-2 right-2 p-3 z-10 text-white bg-main rounded-xl flex flex-col items-center">
+                <span className="text-xl font-bold">{day + 1}</span>
+                <span className="text-sm">{month}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+export default EventCard;
