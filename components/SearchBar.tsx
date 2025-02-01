@@ -73,11 +73,11 @@ const SearchBar: React.FC<HeaderProps> = ({ searchQuery, onSearchChange, onSearc
           type="text"
           value={searchQuery}
           onChange={onSearchChange}
-          className="w-full p-3 pl-14 pr-14 text-black bg-white  rounded-full backdrop-blur-lg shadow-lg focus:outline-none focus:ring-1 focus:ring-black"
+          className="w-full p-3 pl-14 pr-14 text-foreground bg-black/50  rounded-full backdrop-blur-lg shadow-lg focus:outline-none focus:ring-1 focus:ring-black"
           placeholder={placeholders[currentPlaceholder]} 
         />
 
-        <IconSearch className="absolute right-4 top-1/2 transform -translate-y-1/2 text-black w-5 h-5 cursor-pointer" />
+        <IconSearch className="absolute right-4 top-1/2 transform -translate-y-1/2 text-foreground w-5 h-5 cursor-pointer" />
       </form>
 
 

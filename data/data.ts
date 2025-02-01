@@ -419,5 +419,64 @@ export const eventData: Event[] = [
     globalTickets: [
       { ticket: 'global_ticket_id_10', discount: 5 }
     ]
+  },
+  {
+    id: '11',
+    event_name: 'Un parfait inconnu',
+    creation_date: new Date('2025-01-28T00:00:00'),
+    periods: [
+      {
+        start_day: new Date('2025-07-01T00:00:00'),
+        end_day: new Date('2025-07-15T23:59:59'),
+        locations: [
+          {
+            location: 'Carthage Amphitheatre, Tunis',
+            times: [
+              {
+                start_time: new Date('2025-07-01T20:00:00'),
+                end_time: new Date('2025-07-01T23:00:00'),
+                tickets: [
+                  { ticket_id: 't1', type: 'Solo', count: 200, price: 60 },
+                  { ticket_id: 't2', type: 'VIP', count: 50, price: 150 }
+                ],
+              }
+            ]
+          }
+        ]
+      },
+      {
+        start_day: new Date('2025-08-01T00:00:00'),
+        end_day: new Date('2025-08-10T23:59:59'),
+        locations: [
+          {
+            location: 'Carthage Amphitheatre, Tunis',
+            times: [
+              {
+                start_time: new Date('2025-08-01T21:00:00'),
+                end_time: new Date('2025-08-01T23:30:00'),
+                tickets: [
+                  { ticket_id: 't5', type: 'Solo', count: 150, price: 70 },
+                  { ticket_id: 't6', type: 'VIP', count: 30, price: 180 }
+                ],
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    visibility: 'Public',
+    description: 'Experience the grandeur of the annual **Festival International de Carthage**, one of Tunisia’s most iconic cultural events, featuring world-class performances.',
+    sponsored: true,
+    thumbnail: ['https://tunis.events/_next/image?url=https%3A%2F%2Fapi.tunis.events%2Fstorage%2Fbb1a6b910d7baafda1649bc53dfb73206.jpg&w=640&q=75','https://media.pathe.tn/movie/mx/43294/lg/34/media'],
+    views: 3000,
+    purchased_tickets: 'ticket_data_id_1',
+    likes: ['user1', 'user2', 'user3'],
+    comments: ['comment1', 'comment2'],
+    owner: 'organizer1',
+    isValid: true,
+    categories: ['Cinema', 'Festival'],
+    paymentMethods: ['Online'],
+    globalTickets: [{ ticket: 'global_ticket_id_1', discount: 10 }],
+    delivery_threshold: 50,
   }
 ];

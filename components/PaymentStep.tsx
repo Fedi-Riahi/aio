@@ -67,7 +67,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                 placeholder="Enter your name"
                 value={deliveryDetails.name}
                 onChange={(e) => handleDeliveryChange("name", e.target.value)}
-                className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-main"
+                className="p-3 border border-gray-300 text-background rounded-lg focus:outline-none focus:ring-2 focus:ring-main"
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -77,7 +77,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                 placeholder="Enter your prename"
                 value={deliveryDetails.prename}
                 onChange={(e) => handleDeliveryChange("prename", e.target.value)}
-                className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-main"
+                className="p-3 border border-gray-300 text-background rounded-lg focus:outline-none focus:ring-2 focus:ring-main"
               />
             </div>
             <div className="flex flex-col gap-2 col-span-2">
@@ -87,7 +87,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                 placeholder="Enter your address"
                 value={deliveryDetails.address}
                 onChange={(e) => handleDeliveryChange("address", e.target.value)}
-                className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-main"
+                className="p-3 border border-gray-300 text-background rounded-lg focus:outline-none focus:ring-2 focus:ring-main"
               />
             </div>
           </div>
@@ -105,7 +105,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
               placeholder="Enter coupon code"
               value={couponCode}
               onChange={handleCouponChange}
-              className="flex-1 p-2 focus:outline-none"
+              className="flex-1 p-2 focus:outline-none text-background"
             />
           </div>
           <Button
@@ -123,7 +123,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         <div className="flex flex-col gap-2">
           <div className="flex justify-between">
             <span className="text-gray-700">Subtotal</span>
-            <span className="font-medium">{calculateTotal().subtotal} DT</span>
+            <span className="font-medium text-background">{calculateTotal().subtotal} DT</span>
           </div>
           {discount > 0 && (
             <div className="flex justify-between">
@@ -133,7 +133,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           )}
           <div className="flex justify-between">
           <span className="text-gray-700">Fee</span>
-            <span className="font-medium">
+            <span className="font-medium text-background">
             {paymentMode === "delivery" 
                 ? "8 DT" 
                 : paymentMode === "online" 

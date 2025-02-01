@@ -9,12 +9,15 @@ import Events from "@/components/Events";
 
 
 
+
 const Home: React.FC = () => {
   return (
+
+
     <div className="min-h-screen  ">
       {/* <div className="min-h-screen max-w-7xl justify-center items-center mx-auto ">
         <Intro />
-      </div> */}
+        </div> */}
 
       <div className="mx-auto min-h-screen max-w-7xl my-40 ">
         <div className="flex items-center justify-center flex-col gap-6">
@@ -26,6 +29,7 @@ const Home: React.FC = () => {
         <Events />
       </div>
     </div>
+
   );
 };
 

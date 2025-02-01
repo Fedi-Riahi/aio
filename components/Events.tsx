@@ -54,12 +54,12 @@ const Events: React.FC = () => {
         />
       </motion.div>
 
-      {visibleEvents === 9 && (
+      {visibleEvents === 10 && (
 
-        <div className="flex justify-center mt-6">
+        <div className="flex justify-center mt-14">
         <button
           onClick={loadMoreEvents}
-          className="px-6 py-2 bg-main text-white rounded-lg hover:bg-main/90 transition-colors"
+          className="px-6 py-2  text-foreground border-b  hover:text-main hover:border-main hover:tracking-wide transition duration-300"
           >
           Load More
         </button>

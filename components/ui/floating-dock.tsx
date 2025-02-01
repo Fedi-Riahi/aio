@@ -68,7 +68,7 @@ const FloatingDockMobile = ({
             >
               {/* Icon Container */}
               <motion.div
-                className={`h-12 w-12 rounded-full bg-white dark:bg-neutral-900 flex items-center justify-center shadow-lg ${
+                className={`h-12 w-12 rounded-full bg-white text-background dark:bg-neutral-900 flex items-center justify-center shadow-lg ${
                   activeCategory === item.title
                     ? "!bg-main text-white border-2 border-main"
                     : ""
@@ -92,7 +92,7 @@ const FloatingDockMobile = ({
                     initial={{ opacity: 0, y: 10, x: "-50%" }}
                     animate={{ opacity: 1, y: 0, x: "-50%" }}
                     exit={{ opacity: 0, y: 2, x: "-50%" }}
-                    className="px-2 py-0.5 whitespace-pre rounded-md bg-gray-100 border shadow-xl dark:bg-neutral-800 dark:border-neutral-900 dark:text-white border-gray-200 text-neutral-700 absolute left-1/2 -translate-x-1/2 -top-8 w-fit text-xs"
+                    className="px-2 py-0.5 whitespace-pre rounded-md bg-gray-100 border shadow-xl dark:bg-neutral-800 dark:border-neutral-900 dark:text-white border-gray-200 text-background absolute left-1/2 -translate-x-1/2 -top-8 w-fit text-xs"
                   >
                     {item.title ? `${item.title}` : "All"}
                   </motion.div>
@@ -206,8 +206,8 @@ function IconContainer({
         style={{ width, height }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)} 
-        className={`aspect-square rounded-full bg-white text-black  shadow-lg  flex items-center justify-center relative ${
-           activeCategory === title ? "!bg-main text-white border-2 border-main" : ""
+        className={`aspect-square rounded-full bg-white text-background  shadow-lg  flex items-center justify-center relative ${
+           activeCategory === title ? "!bg-main text-foreground border-2 border-main" : ""
         }`} // Highlight active category
       >
         <AnimatePresence>
@@ -225,7 +225,7 @@ function IconContainer({
         <motion.div
           style={{ width: widthIcon, height: heightIcon }}
           className={`flex items-center justify-center ${
-            activeCategory === title ? "text-white" : ""
+            activeCategory === title ? "text-foreground" : ""
           }`}
         >
           {icon}

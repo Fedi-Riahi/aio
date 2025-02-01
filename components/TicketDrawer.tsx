@@ -8,6 +8,7 @@ import EnterNamesStep from "@/components/EnterNamesStep";
 import PaymentStep from "@/components/PaymentStep";
 import ConfirmationStep from "@/components/ConfirmationStep";
 import { XIcon } from "lucide-react";
+
 interface TicketDrawerProps {
   tickets: Ticket[];
   isOpen: boolean;
@@ -94,7 +95,6 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({ tickets, isOpen, onClose })
         alert("Please select at least one ticket.");
       }
     } else if (step === "enterNames") {
-
       const allNamesEntered = Object.entries(selectedTickets).every(([ticketId, quantity]) => {
         const ticketUsers = userNames[ticketId] || [];
         return ticketUsers.length === quantity && ticketUsers.every((name) => name.trim() !== "");
@@ -123,9 +123,9 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({ tickets, isOpen, onClose })
   return (
     <Drawer open={isOpen} onClose={onClose}>
       <DrawerContent className="bg-background flex items-center justify-center">
-        <DrawerHeader className="w-1/2">
+        <DrawerHeader className="w-full md:w-1/2">
           <div className="flex justify-between items-center w-full">
-            <DrawerTitle className="text-foreground relative text-2xl">
+            <DrawerTitle className="text-foreground relative text-xl md:text-2xl">
               {step === "selectQuantity"
                 ? "Select Ticket Quantity"
                 : step === "enterNames"
@@ -134,11 +134,11 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({ tickets, isOpen, onClose })
                 ? "Payment"
                 : "Confirmation"}
             </DrawerTitle>
-              <XIcon className="w-6 h-6 text-foreground hover:text-foreground/90 cursor-pointer" onClick={handleCancel}/>
+            <XIcon className="w-6 h-6 text-foreground hover:text-foreground/90 cursor-pointer" onClick={handleCancel}/>
           </div>
         </DrawerHeader>
 
-        <div className="p-4 flex flex-col gap-4 w-1/2">
+        <div className="p-4 flex flex-col gap-4 w-full md:w-1/2">
           {step === "selectQuantity" && (
             <SelectQuantityStep
               tickets={tickets}
@@ -175,12 +175,12 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({ tickets, isOpen, onClose })
           )}
         </div>
 
-        <DrawerFooter>
+        <DrawerFooter className="w-full md:w-1/2">
           <div className="flex gap-4">
             {step && (
               <Button
                 onClick={handleBack}
-                className={`text-foreground  transition duration-300 ${step === "selectQuantity" ? "cursor-not-allowed" : "hover:bg-black/10 hover:border-transparent"}`}
+                className={`text-foreground transition duration-300 ${step === "selectQuantity" ? "cursor-not-allowed" : "hover:bg-black/10 hover:border-transparent"}`}
               >
                 Back
               </Button>

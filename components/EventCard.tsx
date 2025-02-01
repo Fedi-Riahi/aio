@@ -4,7 +4,7 @@ import { eventData } from '@/data/data';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { IconArrowRight } from '@tabler/icons-react';
+import { IconBolt  } from '@tabler/icons-react';
 interface EventCardProps {
   searchQuery: string;
   selectedCategory: string;
@@ -49,9 +49,9 @@ const EventCard: React.FC<EventCardProps> = ({
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
             >
-              <div className=" border-2 border-transparent rounded-lg overflow-hidden shadow-sm bg-foreground/10 backdrop-blur-sm hover:shadow-xl transition-all duration-300 flex hover:border-gray-200">
+              <div className=" border-2 border-transparent rounded-lg overflow-hidden shadow-sm bg-foreground/10 backdrop-blur-lg hover:shadow-xl transition-all duration-300 flex hover:border-gray-200">
 
-                <div className="relative w-1/3 h-48 overflow-hidden">
+                <div className="relative w-1/3 h-51 overflow-hidden">
                   <Image
                     src={event.thumbnail[0]}
                     alt={event.event_name}
@@ -59,7 +59,7 @@ const EventCard: React.FC<EventCardProps> = ({
                     layout='fill'
                   />
                   {price && (
-                    <div className="absolute top-4 right-4 bg-white text-black px-3 py-1 rounded-full text-sm font-semibold">
+                    <div className="absolute top-4 right-4 bg-black/30 backdrop-blur-lg text-white px-3 py-1 rounded-full text-sm font-semibold">
                       {price}.00 DT
                     </div>
                   )}
@@ -67,9 +67,12 @@ const EventCard: React.FC<EventCardProps> = ({
 
 
                 <div className="w-2/3 p-4">
-
+                <div className='flex items-center gap-1 rounded-md'>
+                        <IconBolt size={20} className='text-yellow-500'/>
+                        <span className='text-sm'>Instant Reservation</span>
+                      </div>
                   <Link href={`/event-details/${event.id}`}>
-                    <h3 className="text-lg font-semibold text-white mb-3 hover:text-main cursor-pointer">
+                    <h3 className="text-lg font-semibold text-white my-3 hover:text-main cursor-pointer">
                       {event.event_name}
                     </h3>
                   </Link>
@@ -113,11 +116,11 @@ const EventCard: React.FC<EventCardProps> = ({
                   <div className="mt-4 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       {event.visibility === "Public" ? (
-                        <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                        <span className="px-3 py-1 bg-green-100 text-green-500  rounded-full text-xs font-medium">
                           {event.visibility}
                         </span>
                       ) : (
-                        <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
+                        <span className="px-3 py-1 bg-green-100 text-black rounded-full text-xs font-medium">
                           {event.visibility}
                         </span>
                       )}
@@ -126,7 +129,7 @@ const EventCard: React.FC<EventCardProps> = ({
                           {event.categories.map((category, idx) => (
                             <span
                               key={idx}
-                              className="px-3 py-1 bg-purple-100 text-main rounded-full text-xs font-medium"
+                              className="px-3 py-1 bg-foreground/10 text-foreground rounded-full text-xs font-medium"
                             >
                               {category}
                             </span>
@@ -134,12 +137,7 @@ const EventCard: React.FC<EventCardProps> = ({
                         </div>
                       )}
                     </div>
-                    <Link href={`/event-details/${event.id}`} className='flex items-center justify-center gap-1 text-main hover:text-main/90'>
-                      <button className="text-sm font-medium">
-                        View Details
-                      </button>
-                      <IconArrowRight width={18} height={18} />
-                    </Link>
+                      
                   </div>
                 </div>
               </div>

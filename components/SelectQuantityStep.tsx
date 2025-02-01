@@ -31,7 +31,7 @@ const SelectQuantityStep: React.FC<SelectQuantityStepProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 ">
 
       {tickets.map((ticket) => {
         const ticketQuantity = selectedTickets[ticket.ticket_id] || 0;

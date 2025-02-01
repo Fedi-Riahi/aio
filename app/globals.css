@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* Custom styling for the Drawer */
+.custom-drawer-content {
+    transform: translateX(100%); /* Move Drawer out of view to the right initially */
+    transition: transform 0.3s ease-in-out; /* Smooth transition */
+  }
+  
+  .custom-drawer-content[data-state="open"] {
+    transform: translateX(0); /* Move the Drawer to the right when it's open */
+  }
+  
