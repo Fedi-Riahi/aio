@@ -3,7 +3,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input"; // Assuming Shadcn's Input component
+import { Input } from "@/components/ui/input"; 
 import { DatePickerDemo } from "./DatePickerDemo";
 import { IconLockOpen, IconUser, IconMail, IconBuildingEstate, IconPhone } from '@tabler/icons-react';
 import { CheckboxDemo } from "./Checkbox";
@@ -27,7 +27,7 @@ export const SignUp = () => {
   } = useForm<SignUpFormData>();
 
   const handleSignUp = async (data: SignUpFormData) => {
-    console.log(data); // Add your submission logic here
+    console.log(data); 
   };
 
   const password = watch("password");
@@ -37,7 +37,7 @@ export const SignUp = () => {
       onSubmit={handleSubmit(handleSignUp)}
       className=" my-8 w-full max-w-lg mx-auto space-y-4"
     >
-      {/* Username */}
+
       <div className="relative">
         <IconUser className="absolute left-3 top-4 h-5 w-5 text-gray-400" />
         <Input
@@ -53,7 +53,7 @@ export const SignUp = () => {
         )}
       </div>
 
-      {/* Email */}
+
       <div className="relative">
         <IconMail className="absolute left-3 top-4 h-5 w-5 text-gray-400" />
         <Input
@@ -73,7 +73,7 @@ export const SignUp = () => {
         )}
       </div>
 
-      {/* Phone */}
+ 
       <div className="relative">
       <IconPhone className="absolute left-3 top-4 h-5 w-5 text-gray-400" />
         <Input
@@ -93,7 +93,7 @@ export const SignUp = () => {
         )}
       </div>
 
-      {/* Birthday */}
+  
       <div>
         <DatePickerDemo />
         {errors.birthday && (
@@ -101,7 +101,7 @@ export const SignUp = () => {
         )}
       </div>
 
-      {/* State */}
+
       <div className="relative">
         <IconBuildingEstate className="absolute left-3 top-4 h-5 w-5 text-gray-400" />
         <Input
@@ -117,7 +117,7 @@ export const SignUp = () => {
         )}
       </div>
 
-      {/* Password */}
+
       <div className="relative">
         <IconLockOpen className="absolute left-3 top-4 h-5 w-5 text-gray-400" />
         <Input
@@ -137,7 +137,7 @@ export const SignUp = () => {
         )}
       </div>
 
-      {/* Password Confirmation */}
+ 
       <div className="relative">
         <IconLockOpen className="absolute left-3 top-4 h-5 w-5 text-gray-400" />
         <Input
@@ -155,7 +155,7 @@ export const SignUp = () => {
       </div>
             <CheckboxDemo />
 
-      {/* Submit Button */}
+  
       <Button type="submit" className="w-full py-3 text-md bg-main text-white rounded-lg hover:bg-main/90 focus:outline-none">
         Sign Up
       </Button>

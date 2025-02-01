@@ -9,7 +9,7 @@ interface AuthModalProps {
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
-  const [isLogin, setIsLogin] = useState(true); // Toggles between Login and Signup
+  const [isLogin, setIsLogin] = useState(true); 
 
   const toggleAuthMode = () => setIsLogin(!isLogin);
 
@@ -21,16 +21,16 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
-          onClick={onClose} // Close modal on outside click
+          onClick={onClose} 
         >
           <motion.div
             initial={{ y: -50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -50, opacity: 0 }}
             className="bg-white dark:bg-neutral-900 rounded-lg p-6 w-full max-w-md relative"
-            onClick={(e) => e.stopPropagation()} // Prevent clicks inside modal from closing it
+            onClick={(e) => e.stopPropagation()}
           >
-            {/* Close Button */}
+
             <button
               onClick={onClose}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
@@ -38,12 +38,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               <X className="w-6 h-6" />
             </button>
 
-            {/* Title */}
             <h2 className="text-2xl font-bold mb-6 text-center">
               {isLogin ? "Login" : "Sign Up"}
             </h2>
 
-            {/* Form */}
+
             <form className="space-y-4">
               {!isLogin && (
                 <div>
@@ -93,7 +92,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 </div>
               )}
 
-              {/* Submit Button */}
+
               <button
                 type="submit"
                 className="w-full px-4 py-2 bg-main text-white rounded-lg hover:bg-main/90 transition-colors"
@@ -102,7 +101,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               </button>
             </form>
 
-            {/* Toggle Auth Mode */}
+
             <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
               {isLogin ? "Don't have an account? " : "Already have an account? "}
               <button

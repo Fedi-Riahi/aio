@@ -4,7 +4,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input"; // Assuming you have Shadcn's Input component available
+import { Input } from "@/components/ui/input"; 
 import { IconLockOpen, IconUser } from '@tabler/icons-react';
 
 
@@ -17,9 +17,9 @@ export const Login = () => {
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
   const [error, setError] = React.useState<string>("");
 
-  // Handle form submission
+ 
   const handleLogin = async (data: LoginFormData) => {
-    setError(""); // Reset error state on submit
+    setError(""); 
 
     const result = await signIn("credentials", {
       redirect: false,
@@ -36,7 +36,7 @@ export const Login = () => {
     <form onSubmit={handleSubmit(handleLogin)} className="space-y-4 my-8">
       {error && <p className="text-red-500 text-sm">{error}</p>}
 
-      {/* Email input with icon */}
+ 
       <div className="relative">
         <IconUser className="absolute left-3 top-4 h-5 w-5 text-gray-400" />
         <Input
@@ -54,7 +54,7 @@ export const Login = () => {
       </div>
       {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
 
-      {/* Password input with icon */}
+ 
       <div className="relative">
         <IconLockOpen className="absolute left-3 top-4 h-5 w-5 text-gray-400" />
         <Input
