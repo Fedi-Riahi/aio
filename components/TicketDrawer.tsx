@@ -122,7 +122,13 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({ tickets, isOpen, onClose })
 
   return (
     <Drawer open={isOpen} onClose={onClose}>
-      <DrawerContent className="bg-background flex items-center justify-center">
+            <div
+        className={`fixed inset-0 bg-background/10 backdrop-blur-sm z-50 transition-opacity duration-300 ${
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        aria-hidden="true"
+      />
+      <DrawerContent className="bg-background flex items-center justify-center border border-offwhite">
         <DrawerHeader className="w-full md:w-1/2">
           <div className="flex justify-between items-center w-full">
             <DrawerTitle className="text-foreground relative text-xl md:text-2xl">

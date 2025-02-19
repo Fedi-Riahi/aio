@@ -30,81 +30,81 @@ export const FloatingDock = ({
         onItemClick={onItemClick}
         activeCategory={activeCategory} // Pass activeCategory to FloatingDockDesktop
       />
-      <FloatingDockMobile
+      {/* <FloatingDockMobile
         items={items}
         className={mobileClassName}
         onItemClick={onItemClick}
         activeCategory={activeCategory} // Pass activeCategory to FloatingDockMobile
-      />
+      /> */}
     </>
   );
 };
 
-const FloatingDockMobile = ({
-  items,
-  className,
-  onItemClick,
-  activeCategory,
-}: {
-  items: { title: string; icon: React.ReactNode; href: string }[];
-  className?: string;
-  onItemClick: (category: string) => void;
-  activeCategory: string;
-}) => {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null); // Track hovered item index
+// const FloatingDockMobile = ({
+//   items,
+//   className,
+//   onItemClick,
+//   activeCategory,
+// }: {
+//   items: { title: string; icon: React.ReactNode; href: string }[];
+//   className?: string;
+//   onItemClick: (category: string) => void;
+//   activeCategory: string;
+// }) => {
+//   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null); // Track hovered item index
 
-  return (
-    <div className={cn("relative block md:hidden", className)}>
-      {/* Scrollable Container */}
-      <div className="overflow-x-auto no-scrollbar py-2">
-        <div className="flex gap-3 items-center w-max px-4">
-          {items.map((item, idx) => (
-            <motion.div
-              key={item.title}
-              onHoverStart={() => setHoveredIndex(idx)} // Show tooltip on hover
-              onHoverEnd={() => setHoveredIndex(null)} // Hide tooltip when not hovered
-              onClick={() => onItemClick(item.title)} // Handle click to set active category
-              className="relative"
-            >
-              {/* Icon Container */}
-              <motion.div
-                className={`h-12 w-12 rounded-full bg-white text-background dark:bg-neutral-900 flex items-center justify-center shadow-lg ${
-                  activeCategory === item.title
-                    ? "!bg-main text-white border-2 border-main"
-                    : ""
-                }`}
-                whileHover={{ scale: 1.1 }} // Scale up on hover
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              >
-                <motion.div
-                  className={`h-5 w-5 flex items-center justify-center ${
-                    activeCategory === item.title ? "text-white" : ""
-                  }`}
-                >
-                  {item.icon}
-                </motion.div>
-              </motion.div>
+//   return (
+//     <div className={cn("relative block md:hidden", className)}>
+//       {/* Scrollable Container */}
+//       <div className="overflow-x-auto no-scrollbar py-2">
+//         <div className="flex gap-3 items-center w-max px-4">
+//           {items.map((item, idx) => (
+//             <motion.div
+//               key={item.title}
+//               onHoverStart={() => setHoveredIndex(idx)} // Show tooltip on hover
+//               onHoverEnd={() => setHoveredIndex(null)} // Hide tooltip when not hovered
+//               onClick={() => onItemClick(item.title)} // Handle click to set active category
+//               className="relative"
+//             >
+//               {/* Icon Container */}
+//               <motion.div
+//                 className={`h-12 w-12 rounded-full bg-offwhite text-foregorund dark:bg-neutral-900 flex items-center justify-center shadow-lg cursor-pointer ${
+//                   activeCategory === item.title
+//                     ? "!bg-main text-white border-2 border-main"
+//                     : ""
+//                 }`}
+//                 whileHover={{ scale: 1.1 }} // Scale up on hover
+//                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
+//               >
+//                 <motion.div
+//                   className={`h-5 w-5 flex items-center justify-center ${
+//                     activeCategory === item.title ? "text-white" : ""
+//                   }`}
+//                 >
+//                   {item.icon}
+//                 </motion.div>
+//               </motion.div>
 
-              {/* Tooltip */}
-              <AnimatePresence>
-                {hoveredIndex === idx && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10, x: "-50%" }}
-                    animate={{ opacity: 1, y: 0, x: "-50%" }}
-                    exit={{ opacity: 0, y: 2, x: "-50%" }}
-                    className="px-2 py-0.5 whitespace-pre rounded-md bg-gray-100 border shadow-xl dark:bg-neutral-800 dark:border-neutral-900 dark:text-white border-gray-200 text-background absolute left-1/2 -translate-x-1/2 -top-8 w-fit text-xs"
-                  >
-                    {item.title ? `${item.title}` : "All"}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
+//               {/* Tooltip */}
+//               <AnimatePresence>
+//                 {hoveredIndex === idx && (
+//                   <motion.div
+//                     initial={{ opacity: 0, y: 10, x: "-50%" }}
+//                     animate={{ opacity: 1, y: 0, x: "-50%" }}
+//                     exit={{ opacity: 0, y: 2, x: "-50%" }}
+//                     className="px-2 py-0.5 whitespace-pre rounded-md bg-gray-100 border shadow-xl dark:bg-neutral-800 dark:border-neutral-900 dark:text-white border-gray-200 text-background absolute left-1/2 -translate-x-1/2 -top-8 w-fit text-xs"
+//                   >
+//                     {item.title ? `${item.title}` : "All"}
+//                   </motion.div>
+//                 )}
+//               </AnimatePresence>
+//             </motion.div>
+//           ))}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
 
 const FloatingDockDesktop = ({
   items,
@@ -206,7 +206,7 @@ function IconContainer({
         style={{ width, height }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)} 
-        className={`aspect-square rounded-full bg-white text-background  shadow-lg  flex items-center justify-center relative ${
+        className={`aspect-square rounded-full bg-offwhite text-foreground  shadow-lg  flex items-center justify-center relative ${
            activeCategory === title ? "!bg-main text-foreground border-2 border-main" : ""
         }`} // Highlight active category
       >

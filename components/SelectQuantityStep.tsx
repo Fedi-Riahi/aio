@@ -39,7 +39,7 @@ const SelectQuantityStep: React.FC<SelectQuantityStepProps> = ({
         return (
           <div
             key={ticket.ticket_id}
-            className="flex flex-col md:flex-row justify-between items-center p-6 border border-gray-200  bg-white backdrop-blur-sm rounded-xl border-white/20 shadow-sm hover:bg-foreground/90 hover:shadow-md transition duration-300"
+            className="flex flex-col md:flex-row justify-between items-center p-6   bg-offwhite backdrop-blur-sm rounded-xl  shadow-sm hover:bg-offwhite90 hover:shadow-md transition duration-300"
           >
 
             <div className="flex items-center gap-6">
@@ -47,7 +47,7 @@ const SelectQuantityStep: React.FC<SelectQuantityStepProps> = ({
                 <IconTicket stroke={2} width={32} height={32} className="text-main" />
               </div>
               <div>
-                <h4 className="text-xl font-semibold text-black">{ticket.type} Ticket</h4>
+                <h4 className="text-xl font-semibold text-white">{ticket.type} Ticket</h4>
                 <p className="text-lg text-main font-medium">{ticket.price}.00 DT</p>
               </div>
             </div>
@@ -56,7 +56,7 @@ const SelectQuantityStep: React.FC<SelectQuantityStepProps> = ({
               <button
                 className={`flex items-center justify-center p-2 rounded-lg transition-all ${
                   ticketQuantity === 0
-                    ? "bg-gray-200 cursor-not-allowed"
+                    ? "bg-gray-500 cursor-not-allowed"
                     : "bg-main text-white hover:bg-main/90"
                 }`}
                 onClick={() =>
@@ -66,7 +66,7 @@ const SelectQuantityStep: React.FC<SelectQuantityStepProps> = ({
               >
                 <IconMinus stroke={2} width={20} height={20} />
               </button>
-              <span className="text-xl font-medium text-black">{ticketQuantity}</span>
+              <span className="text-xl font-medium text-white">{ticketQuantity}</span>
               <button
                 className={`flex items-center justify-center p-2 rounded-lg  transition-all ${ticketQuantity >= ticket.count ? "bg-gray-200 cursor-not-allowed": "bg-main text-white hover:bg-main/90"}`}
                 onClick={() =>
@@ -83,8 +83,8 @@ const SelectQuantityStep: React.FC<SelectQuantityStepProps> = ({
 
 
       <div className="flex justify-end mt-6">
-        <div className="p-6 border   bg-white backdrop-blur-sm rounded-xl border-white/20 shadow-sm">
-          <h3 className="text-2xl font-semibold text-black">
+        <div className="p-6 border   bg-offwhite backdrop-blur-sm rounded-xl border-white/20 shadow-sm">
+          <h3 className="text-2xl font-semibold text-white">
             Total : <span className="text-main">{total}.00 DT</span>
           </h3>
         </div>

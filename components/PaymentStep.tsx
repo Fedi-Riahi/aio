@@ -26,7 +26,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   calculateTotal,
 }) => {
   return (
-    <div className="flex flex-col gap-8 p-6 bg-white rounded-lg shadow-md">
+    <div className="flex flex-col gap-8 p-6 bg-offwhite rounded-lg shadow-md">
 
       <div className="flex flex-col gap-4">
         <h2 className="text-xl font-semibold text-gray-800">Select Payment Mode</h2>
@@ -34,8 +34,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           <Button
             className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 text-lg shadow-sm hover:shadow-md font-medium brounded-lg transition duration-300 ${
               paymentMode === "delivery"
-                ? "bg-main text-white border-main"
-                : "bg-black/10 text-black  hover:bg-black/20"
+                ? "bg-main text-foreground border-main"
+                : "bg-offwhite text-foreground  hover:bg-black/10"
             }`}
             onClick={() => handlePaymentModeChange("delivery")}
           >
@@ -45,8 +45,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           <Button
             className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 text-lg shadow-sm hover:shadow-md font-medium  rounded-lg transition duration-300 ${
               paymentMode === "online"
-                ? "bg-main text-white border-main"
-                : "bg-black/10 text-black  hover:bg-black/20"
+                ? "bg-main text-foreground border-main"
+                : "bg-offwhite text-foreground  hover:bg-black/10"
             }`}
             onClick={() => handlePaymentModeChange("online")}
           >
@@ -61,33 +61,33 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           <h2 className="text-xl font-semibold text-gray-800">Delivery Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-gray-700">Name</label>
+              <label className="text-sm font-medium text-foreground">Name</label>
               <input
                 type="text"
                 placeholder="Enter your name"
                 value={deliveryDetails.name}
                 onChange={(e) => handleDeliveryChange("name", e.target.value)}
-                className="p-3 border border-gray-300 text-background rounded-lg focus:outline-none focus:ring-2 focus:ring-main"
+                className="p-3  bg-offwhite  text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-gray-700">Prename</label>
+              <label className="text-sm font-medium text-foreground">Prename</label>
               <input
                 type="text"
                 placeholder="Enter your prename"
                 value={deliveryDetails.prename}
                 onChange={(e) => handleDeliveryChange("prename", e.target.value)}
-                className="p-3 border border-gray-300 text-background rounded-lg focus:outline-none focus:ring-2 focus:ring-main"
+                className="p-3  bg-offwhite  text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
               />
             </div>
             <div className="flex flex-col gap-2 col-span-2">
-              <label className="text-sm font-medium text-gray-700">Address</label>
+              <label className="text-sm font-medium text-foreground">Address</label>
               <input
                 type="text"
                 placeholder="Enter your address"
                 value={deliveryDetails.address}
                 onChange={(e) => handleDeliveryChange("address", e.target.value)}
-                className="p-3 border border-gray-300 text-background rounded-lg focus:outline-none focus:ring-2 focus:ring-main"
+                className="p-3  bg-offwhite  text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
               />
             </div>
           </div>
@@ -95,21 +95,21 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       )}
 
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 ">
         <h2 className="text-xl font-semibold text-gray-800">Apply Coupon</h2>
         <div className="flex gap-4">
-          <div className="flex-1 flex items-center gap-2 p-3 border border-gray-300 rounded-lg">
+          <div className="flex-1 flex items-center gap-2 p-3 border border-gray-500 rounded-lg">
             <IconDiscount stroke={1.5} size={24} className="text-gray-500" />
             <input
               type="text"
               placeholder="Enter coupon code"
               value={couponCode}
               onChange={handleCouponChange}
-              className="flex-1 p-2 focus:outline-none text-background"
+              className="flex-1 p-3 rounded-lg focus:outline-none text-foreground bg-offwhite"
             />
           </div>
           <Button
-            className="px-6 py-3 bg-main text-white rounded-lg hover:bg-main/90 transition-all"
+            className="px-6 py-3 bg-main text-foreground rounded-lg hover:bg-main/90 transition-all"
             onClick={applyCoupon}
           >
             Apply
@@ -122,18 +122,18 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         <h2 className="text-xl font-semibold text-gray-800">Order Summary</h2>
         <div className="flex flex-col gap-2">
           <div className="flex justify-between">
-            <span className="text-gray-700">Subtotal</span>
-            <span className="font-medium text-background">{calculateTotal().subtotal} DT</span>
+            <span className="text-foreground">Subtotal</span>
+            <span className="font-medium text-foreground">{calculateTotal().subtotal} DT</span>
           </div>
           {discount > 0 && (
             <div className="flex justify-between">
-              <span className="text-gray-700">Discount</span>
+              <span className="text-foreground">Discount</span>
               <span className="font-medium text-green-600">-{discount}%</span>
             </div>
           )}
           <div className="flex justify-between">
-          <span className="text-gray-700">Fee</span>
-            <span className="font-medium text-background">
+          <span className="text-foreground">Fee</span>
+            <span className="font-medium text-foreground">
             {paymentMode === "delivery" 
                 ? "8 DT" 
                 : paymentMode === "online" 
@@ -141,8 +141,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                 : "0 DT"}
             </span>
           </div>
-          <div className="flex justify-between border-t pt-2">
-            <span className="text-gray-700 font-semibold">Total</span>
+          <div className="flex justify-between border-offwhite border-t pt-2">
+            <span className="text-foreground font-semibold">Total</span>
             <span className="font-bold text-main">{calculateTotal().total} DT</span>
           </div>
         </div>

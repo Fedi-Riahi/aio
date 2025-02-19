@@ -49,9 +49,9 @@ const EventCard: React.FC<EventCardProps> = ({
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
             >
-              <div className=" border-2 border-transparent rounded-lg overflow-hidden shadow-sm bg-foreground/10 backdrop-blur-lg hover:shadow-xl transition-all duration-300 flex hover:border-gray-200">
+              <div className=" border-2 border-transparent rounded-lg overflow-hidden shadow-sm bg-offwhite backdrop-blur-lg hover:shadow-xl transition-all duration-300 flex hover:border-gray-200">
 
-                <div className="relative w-1/3 h-51 overflow-hidden">
+                <div className="relative lg:w-1/3 w-2/3 h-51 overflow-hidden">
                   <Image
                     src={event.thumbnail[0]}
                     alt={event.event_name}

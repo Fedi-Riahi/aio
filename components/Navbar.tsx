@@ -5,8 +5,8 @@ import Image from "next/image";
 import { TicketsSheet } from "./TicketsSheet";
 import { ProfileDrawer } from "./ProfileDrawer";
 import { useSession } from "next-auth/react";
-import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { IconMenuDeep } from '@tabler/icons-react';
 import {
   Sheet,
   SheetContent,
@@ -90,15 +90,8 @@ export default function Navbar() {
 
 
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="md:hidden"
-                  aria-label="Menu"
-                >
-                  <Menu className="h-6 w-6" />
-                </Button>
+              <SheetTrigger asChild className="md:hidden">
+                  <IconMenuDeep className="w-8 h-8 text-foreground" />
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] sm:w-[400px] p-0">
                 <div className="flex flex-col h-full">

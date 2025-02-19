@@ -66,14 +66,14 @@ const SearchBar: React.FC<HeaderProps> = ({ searchQuery, onSearchChange, onSearc
   };
 
   return (
-    <div className="flex justify-center flex-col items-center mt-10 mx-10">
+    <div className="flex justify-center flex-col items-center mt-10 lg:mx-10 mx-2">
 
-      <form onSubmit={onSearchSubmit} className="relative w-full max-w-screen-lg">
+      <form onSubmit={onSearchSubmit} className="relative w-full lg:max-w-screen-lg sm:max-w-screen-sm">
         <input
           type="text"
           value={searchQuery}
           onChange={onSearchChange}
-          className="w-full p-3 pl-14 pr-14 text-foreground bg-black/50  rounded-full backdrop-blur-lg shadow-lg focus:outline-none focus:ring-1 focus:ring-black"
+          className="w-full p-3 pl-14 pr-14 text-foreground bg-offwhite  rounded-full backdrop-blur-lg shadow-lg focus:outline-none focus:ring-1 focus:ring-black"
           placeholder={placeholders[currentPlaceholder]} 
         />
 
@@ -84,7 +84,7 @@ const SearchBar: React.FC<HeaderProps> = ({ searchQuery, onSearchChange, onSearc
       <style jsx>{`
         input::placeholder {
           transition: transform 0.5s ease, opacity 0.5s ease;
-          transform: translateY(${animateDown ? "30px" : animateUp ? "-45px" : "0px"});
+          transform: translateY(${animateDown ? "35px" : animateUp ? "-45px" : "0px"});
           opacity: ${animateDown || animateUp ? "0.5" : "1"};
         }
 

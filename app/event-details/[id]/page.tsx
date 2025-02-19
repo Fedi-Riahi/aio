@@ -36,20 +36,20 @@ const EventDetails: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-10" />
         <Image src={event.thumbnail[1] || event.thumbnail[0]  } alt={event.event_name} layout="fill" className="object-cover" quality={100} />
         <div className="absolute top-4 right-4 z-20">
-            <IconCopy stroke={2} className="w-10 h-10 rounded-lg text-white bg-black/20 p-2 cursor-pointer hover:bg-black/40 transition duration-300" />
+            <IconCopy stroke={2} className="w-10 h-10 rounded-lg text-foreground bg-black/20 p-2 cursor-pointer hover:bg-black/40 transition duration-300" />
         </div>
         <div className="absolute bottom-6 left-6 z-20">
           <div className="flex items-center gap-4 mb-4">
-            <span className="px-3 py-1 bg-white/10 text-white rounded-full text-sm font-medium flex items-center gap-1">
+            <span className="px-3 py-1 bg-foreground/10 text-foreground rounded-full text-sm font-medium flex items-center gap-1">
               <Tag className="w-4 h-4" />
               {event.categories}
             </span>
-            <span className="px-3 py-1 bg-white/10 text-white rounded-full text-sm font-medium flex items-center gap-1">
+            <span className="px-3 py-1 bg-foreground/10 text-foreground rounded-full text-sm font-medium flex items-center gap-1">
               <Users className="w-4 h-4" />
               {event.views} Views
             </span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white">{event.event_name}</h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground">{event.event_name}</h1>
         </div>
       </div>
 
@@ -68,7 +68,7 @@ const EventDetails: React.FC = () => {
                   className={`px-6 py-3 rounded-lg font-medium transition duration-300 ${
                     selectedPeriod === period
                       ? 'bg-main text-foreground'
-                      : 'bg-foreground/10 border border-white/20 text-foreground hover:bg-foreground/20'
+                      : 'bg-offwhite  text-foreground hover:bg-foreground/20'
                   }`}
                 >
                   {period.start_day ? new Date(period.start_day).toLocaleDateString("en-US", { day: "numeric", month: "short" }) : "N/A"} -{" "}
@@ -96,10 +96,10 @@ const EventDetails: React.FC = () => {
                             setSelectedLocation(location);
                             setSelectedTime(time);
                           }}
-                          className={`px-6 py-2 rounded-lg font-medium transition duration-300 ${
+                          className={`px-6 py-3 rounded-lg font-medium transition duration-300 ${
                             selectedTime === time
-                              ? 'bg-main text-white'
-                              : 'bg-foreground/10 border border-white/20 text-foreground hover:bg-foreground/20'
+                              ? 'bg-main text-foreground'
+                              : 'bg-offwhite  text-foreground hover:bg-foreground/20'
                           }`}
                         >
                           {new Date(time.start_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
@@ -120,20 +120,20 @@ const EventDetails: React.FC = () => {
                 {selectedTime.tickets.map((ticket, ticketIndex) => (
                   <div
                     key={ticketIndex}
-                    className="bg-white backdrop-blur-sm rounded-xl p-6 border border-black/10 hover:border-black/20 shadow-sm hover:shadow-lg flex items-center justify-between  transition duration-300"
+                    className="bg-offwhite backdrop-blur-sm rounded-xl p-6 border border-black/10 hover:border-black/20 shadow-sm hover:shadow-lg flex items-center justify-between  transition duration-300"
                   >
                     <div className="flex items-center gap-4">
                       <div className="p-3 bg-main/10 rounded-full">
                         <Ticket size={24} className="text-main" />
                       </div>
                       <div>
-                        <h4 className="text-lg font-semibold text-black">{ticket.type} Ticket</h4>
+                        <h4 className="text-lg font-semibold text-foreground">{ticket.type} Ticket</h4>
                         <p className="text-lg font-bold text-main">{ticket.price}.00 DT</p>
                       </div>
                     </div>
                     <button
                       onClick={openDrawer}
-                      className="bg-main text-white px-6 py-2 rounded-lg hover:bg-main transition duration-300"
+                      className="bg-main text-foreground px-6 py-2 rounded-lg hover:bg-main transition duration-300"
                     >
                       Buy Now
                     </button>
@@ -151,7 +151,7 @@ const EventDetails: React.FC = () => {
 
         <div className="w-full lg:w-1/2">
           <h2 className="text-2xl font-bold text-blacks mb-4">Event Description</h2>
-          <div className="bg-foreground/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+          <div className="bg-offwhite backdrop-blur-sm rounded-xl p-6 ">
             <p className="text-lg text-foreground/80 leading-relaxed">{event.description}</p>
           </div>
         </div>
