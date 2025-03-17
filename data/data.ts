@@ -1,4 +1,4 @@
-import { Event } from '@/types/event'; 
+import { Event } from '@/types/event';
 
 export const eventData: Event[] = [
   {
@@ -45,6 +45,7 @@ export const eventData: Event[] = [
         ]
       }
     ],
+    eventType: 'Cinema',
     visibility: 'Public',
     description: 'Experience the grandeur of the annual **Festival International de Carthage**, one of Tunisia’s most iconic cultural events, featuring world-class performances.',
     sponsored: true,
@@ -55,7 +56,7 @@ export const eventData: Event[] = [
     comments: ['comment1', 'comment2'],
     owner: 'organizer1',
     isValid: true,
-    categories: ['Cinema', 'Festival'],
+    categories: ['Cinéma', 'Festivals'],
     paymentMethods: ['Online'],
     globalTickets: [{ ticket: 'global_ticket_id_1', discount: 10 }],
     delivery_threshold: 50,
@@ -88,6 +89,7 @@ export const eventData: Event[] = [
       }
     ],
     visibility: 'Public',
+    eventType: 'Cinema',
     description: 'Discover the historic charm of the **Festival de la Médina de Tunis**, a celebration of traditional Tunisian music and crafts.',
     sponsored: false,
     thumbnail: ['https://tunis.events/_next/image?url=https%3A%2F%2Fapi.tunis.events%2Fstorage%2Fb83af033bb105dd6832d8dbbd761a589f.jpg&w=640&q=75','https://media.pathe.tn/movie/id/43544/backdrop/183947/lg/1/capture.PNG'],
@@ -133,6 +135,7 @@ export const eventData: Event[] = [
       }
     ],
     visibility: 'Public',
+    eventType: 'Cinema',
     description: 'Join the **Journées Musicales de Carthage**, where artists from around the world perform in the beautiful Carthage Amphitheatre.',
     sponsored: true,
     thumbnail: ['https://tunis.events/_next/image?url=https%3A%2F%2Fapi.tunis.events%2Fstorage%2F18e9188264db81976572554c4093cbd6.jpg&w=640&q=75'],
@@ -172,6 +175,7 @@ export const eventData: Event[] = [
       }
     ],
     visibility: 'Public',
+    eventType: 'Cinema',
     description: 'Celebrate **Fête de la Musique Tunisienne** with live performances from the best local musicians in the heart of Tunis!',
     sponsored: false,
     thumbnail: ['https://tunis.events/_next/image?url=https%3A%2F%2Fapi.tunis.events%2Fstorage%2Fbe41a2c1f6710f1ed1ccb73526ec66f23.png&w=640&q=75'],
@@ -211,6 +215,7 @@ export const eventData: Event[] = [
       }
     ],
     visibility: 'Private',
+    eventType: 'Cinema',
     description: 'Join us for **Tunis Fashion Week**, where top designers showcase their latest collections in a stunning cultural setting.',
     sponsored: true,
     thumbnail: ['https://tunis.events/_next/image?url=https%3A%2F%2Fapi.tunis.events%2Fstorage%2F2f76b4f713472fa99178f8e6f9aee027.jpg&w=640&q=75'],
@@ -250,6 +255,7 @@ export const eventData: Event[] = [
       }
     ],
     visibility: 'Public',
+    eventType: 'Cinema',
     description: 'Celebrate the best of cinema at the **Festival du Film de Tunis**, featuring screenings of national and international films.',
     sponsored: false,
     thumbnail: ['https://media.pathe.tn/movie/alex/HO00000640/poster/md/1/movie&uuid=DE963EBF-A9CF-4B14-95EF-CE712E9DF76D'],
@@ -289,6 +295,7 @@ export const eventData: Event[] = [
       }
     ],
     visibility: 'Public',
+    eventType: 'Cinema',
     description: 'Join the **International Trade Fair of Tunis**, where business professionals meet to showcase innovations and establish partnerships.',
     sponsored: true,
     thumbnail: ['https://tunis.events/_next/image?url=https%3A%2F%2Fapi.tunis.events%2Fstorage%2F2fa4cc29b103e909cb58f10867d5db7cd5.jpeg&w=640&q=75'],
@@ -328,6 +335,7 @@ export const eventData: Event[] = [
       }
     ],
     visibility: 'Public',
+    eventType: 'Cinema',
     description: 'Fly high at the **Sousse International Kite Festival**, where kite enthusiasts come together for a colorful and exciting event.',
     sponsored: false,
     thumbnail: ['https://tunis.events/_next/image?url=https%3A%2F%2Fapi.tunis.events%2Fstorage%2F9a6aa21b2776415b1f2eb5e3e53e8185.jpg&w=640&q=75'],
@@ -367,6 +375,7 @@ export const eventData: Event[] = [
       }
     ],
     visibility: 'Public',
+    eventType: 'Cinema',
     description: 'Enjoy soulful music at the **Tunisia International Jazz Festival**, featuring top jazz artists from around the world.',
     sponsored: false,
     thumbnail: ['https://media.pathe.tn/movie/alex/HO00000611/poster/md/44/movie&uuid=C54BFFEE-0484-449D-906A-7C7DF75E9767'],
@@ -406,6 +415,7 @@ export const eventData: Event[] = [
       }
     ],
     visibility: 'Public',
+    eventType: 'Cinema',
     description: 'Experience the **Bardo Museum Night**, where the museum opens its doors at night for an immersive cultural experience.',
     sponsored: true,
     thumbnail: ['https://tunis.events/_next/image?url=https%3A%2F%2Fapi.tunis.events%2Fstorage%2Fe9dd91c5ad8582479f2103f1adeabdb101.jpeg&w=828&q=75'],
@@ -465,6 +475,7 @@ export const eventData: Event[] = [
       }
     ],
     visibility: 'Public',
+    eventType: 'Cinema',
     description: 'Experience the grandeur of the annual **Festival International de Carthage**, one of Tunisia’s most iconic cultural events, featuring world-class performances.',
     sponsored: true,
     thumbnail: ['https://tunis.events/_next/image?url=https%3A%2F%2Fapi.tunis.events%2Fstorage%2Fbb1a6b910d7baafda1649bc53dfb73206.jpg&w=640&q=75','https://media.pathe.tn/movie/mx/43294/lg/34/media'],

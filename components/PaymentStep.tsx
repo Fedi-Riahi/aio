@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { IconTruckDelivery, IconCreditCard, IconDiscount } from "@tabler/icons-react";
 
@@ -25,30 +27,47 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   discount,
   calculateTotal,
 }) => {
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
+  const handleOnlinePayment = async () => {
+    setIsProcessingPayment(true);
+    try {
+      const payUrl = "https://sandbox.knct.me/ourwg3rlt";
+      window.location.href = payUrl; 
+    } catch (error) {
+      console.error("Payment redirect error:", error);
+      alert("An error occurred while redirecting to payment. Please try again.");
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-8 p-6 bg-offwhite rounded-lg shadow-md">
-
+      {/* Payment Mode Selection */}
       <div className="flex flex-col gap-4">
         <h2 className="text-xl font-semibold text-gray-800">Select Payment Mode</h2>
         <div className="flex gap-4">
           <Button
-            className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 text-lg shadow-sm hover:shadow-md font-medium brounded-lg transition duration-300 ${
+            className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 text-lg shadow-sm hover:shadow-md font-medium rounded-lg transition duration-300 ${
               paymentMode === "delivery"
                 ? "bg-main text-foreground border-main"
-                : "bg-offwhite text-foreground  hover:bg-black/10"
+                : "bg-offwhite text-foreground hover:bg-black/10"
             }`}
             onClick={() => handlePaymentModeChange("delivery")}
+            disabled={isProcessingPayment}
           >
             <IconTruckDelivery stroke={1.5} size={24} />
             Delivery
           </Button>
           <Button
-            className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 text-lg shadow-sm hover:shadow-md font-medium  rounded-lg transition duration-300 ${
+            className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 text-lg shadow-sm hover:shadow-md font-medium rounded-lg transition duration-300 ${
               paymentMode === "online"
                 ? "bg-main text-foreground border-main"
-                : "bg-offwhite text-foreground  hover:bg-black/10"
+                : "bg-offwhite text-foreground hover:bg-black/10"
             }`}
             onClick={() => handlePaymentModeChange("online")}
+            disabled={isProcessingPayment}
           >
             <IconCreditCard stroke={1.5} size={24} />
             Online
@@ -56,6 +75,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         </div>
       </div>
 
+      {/* Delivery Details */}
       {paymentMode === "delivery" && (
         <div className="flex flex-col gap-4">
           <h2 className="text-xl font-semibold text-gray-800">Delivery Details</h2>
@@ -67,7 +87,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                 placeholder="Enter your name"
                 value={deliveryDetails.name}
                 onChange={(e) => handleDeliveryChange("name", e.target.value)}
-                className="p-3  bg-offwhite  text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                className="p-3 bg-offwhite text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                disabled={isProcessingPayment}
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -77,7 +98,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                 placeholder="Enter your prename"
                 value={deliveryDetails.prename}
                 onChange={(e) => handleDeliveryChange("prename", e.target.value)}
-                className="p-3  bg-offwhite  text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                className="p-3 bg-offwhite text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                disabled={isProcessingPayment}
               />
             </div>
             <div className="flex flex-col gap-2 col-span-2">
@@ -87,15 +109,16 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                 placeholder="Enter your address"
                 value={deliveryDetails.address}
                 onChange={(e) => handleDeliveryChange("address", e.target.value)}
-                className="p-3  bg-offwhite  text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                className="p-3 bg-offwhite text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                disabled={isProcessingPayment}
               />
             </div>
           </div>
         </div>
       )}
 
-
-      <div className="flex flex-col gap-4 ">
+      {/* Apply Coupon */}
+      <div className="flex flex-col gap-4">
         <h2 className="text-xl font-semibold text-gray-800">Apply Coupon</h2>
         <div className="flex gap-4">
           <div className="flex-1 flex items-center gap-2 p-3 border border-gray-500 rounded-lg">
@@ -106,18 +129,20 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
               value={couponCode}
               onChange={handleCouponChange}
               className="flex-1 p-3 rounded-lg focus:outline-none text-foreground bg-offwhite"
+              disabled={isProcessingPayment}
             />
           </div>
           <Button
             className="px-6 py-3 bg-main text-foreground rounded-lg hover:bg-main/90 transition-all"
             onClick={applyCoupon}
+            disabled={isProcessingPayment}
           >
             Apply
           </Button>
         </div>
       </div>
 
-
+      {/* Order Summary and Payment Button */}
       <div className="flex flex-col gap-4">
         <h2 className="text-xl font-semibold text-gray-800">Order Summary</h2>
         <div className="flex flex-col gap-2">
@@ -132,13 +157,9 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
             </div>
           )}
           <div className="flex justify-between">
-          <span className="text-foreground">Fee</span>
+            <span className="text-foreground">Fee</span>
             <span className="font-medium text-foreground">
-            {paymentMode === "delivery" 
-                ? "8 DT" 
-                : paymentMode === "online" 
-                ? "1.5 DT" 
-                : "0 DT"}
+              {paymentMode === "delivery" ? "8 DT" : paymentMode === "online" ? "1.5 DT" : "0 DT"}
             </span>
           </div>
           <div className="flex justify-between border-offwhite border-t pt-2">
@@ -146,6 +167,15 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
             <span className="font-bold text-main">{calculateTotal().total} DT</span>
           </div>
         </div>
+        {paymentMode === "online" && (
+          <Button
+            className="mt-4 w-full bg-primary text-white hover:bg-primary/90 transition-colors duration-200"
+            onClick={handleOnlinePayment}
+            disabled={isProcessingPayment}
+          >
+            {isProcessingPayment ? "Processing..." : "Pay with Konnect"}
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -162,6 +162,7 @@ const EventDetails: React.FC = () => {
         tickets={selectedTime?.tickets || []}
         isOpen={isDrawerOpen}
         onClose={closeDrawer}
+        eventType="cinema"
       />
     </div>
   );

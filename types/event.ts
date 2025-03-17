@@ -1,6 +1,7 @@
 export interface Event {
   id: string;
   event_name: string;
+  eventType: 'Cinema' | 'other';
   creation_date: Date;
   periods: Period[];
   visibility: 'Public' | 'Private' | 'Unlisted';

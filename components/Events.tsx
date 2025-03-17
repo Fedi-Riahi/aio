@@ -6,8 +6,8 @@ import { motion } from "framer-motion";
 
 const Events: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [visibleEvents, setVisibleEvents] = useState(10); 
+  const [selectedCategory, setSelectedCategory] = useState(""); // "" means "All"
+  const [visibleEvents, setVisibleEvents] = useState(10); // Initial number of visible events
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -15,22 +15,21 @@ const Events: React.FC = () => {
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Search submitted:", searchQuery);
+    // Add search submission logic here if needed
   };
 
   const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category);
+    const newCategory = category === "All" ? "" : category; // "All" resets to ""
+    setSelectedCategory(newCategory);
   };
 
-
   const loadMoreEvents = () => {
-    setVisibleEvents((prev) => prev + 10); 
+    setVisibleEvents((prev) => prev + 10); // Load 10 more events
   };
 
   return (
-    <div>
-
-      <div className="">
+    <div className="min-h-screen">
+      <div className="mb-10">
         <SearchBar
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
@@ -38,7 +37,6 @@ const Events: React.FC = () => {
           onCategoryChange={handleCategoryChange}
         />
       </div>
-
 
       <motion.div
         initial={{ opacity: 0, y: 50 }}
@@ -49,22 +47,19 @@ const Events: React.FC = () => {
         <EventCard
           searchQuery={searchQuery}
           selectedCategory={selectedCategory}
-          onItemClick={handleCategoryChange}
-          visibleEvents={visibleEvents} 
+          visibleEvents={visibleEvents}
         />
       </motion.div>
 
-      {visibleEvents === 10 && (
-
-        <div className="flex justify-center mt-14">
+      {/* Load More Button */}
+      <div className="flex justify-center mt-14">
         <button
           onClick={loadMoreEvents}
-          className="px-6 py-2  text-foreground border-b  hover:text-main hover:border-main hover:tracking-wide transition duration-300"
-          >
+          className="px-6 py-2 text-foreground border-b hover:text-main hover:border-main hover:tracking-wide transition duration-300"
+        >
           Load More
         </button>
       </div>
-        )}
     </div>
   );
 };
