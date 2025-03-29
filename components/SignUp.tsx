@@ -1,10 +1,16 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { IconLockOpen, IconUser, IconMail, IconPhone, IconCamera } from "@tabler/icons-react";
 import { useSignUp } from "../hooks/useSignUp";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+// Import the raw file content (you may need to adjust the paths)
+import privacyPolicyContent from "@/lib/privacyPolicy.txt";
+import termsAndConditionsContent from "@/lib/terms&conds.txt";
 
 export const SignUp = () => {
   const {
@@ -23,8 +29,37 @@ export const SignUp = () => {
     setValue,
   } = useSignUp();
 
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptPrivacy, setAcceptPrivacy] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [dialogContent, setDialogContent] = useState("");
+  const [dialogTitle, setDialogTitle] = useState("");
+
+  const handleOpenTerms = () => {
+    setDialogContent(termsAndConditionsContent);
+    setDialogTitle("Termes et conditions");
+    setOpenDialog(true);
+  };
+
+  const handleOpenPrivacy = () => {
+    setDialogContent(privacyPolicyContent);
+    setDialogTitle("Politique de confidentialité");
+    setOpenDialog(true);
+  };
+
   return (
     <div className="my-8 w-full max-w-lg mx-auto space-y-4">
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent className="max-h-[80vh] overflow-y-auto max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>{dialogTitle}</DialogTitle>
+          </DialogHeader>
+          <div className="prose dark:prose-invert">
+            <pre className="whitespace-pre-wrap font-sans text-sm">{dialogContent}</pre>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {showConfirmationForm ? (
         <form onSubmit={onConfirmation} className="space-y-4">
           {apiSuccess && (
@@ -158,9 +193,52 @@ export const SignUp = () => {
             )}
           </div>
 
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="terms"
+                checked={acceptTerms}
+                onCheckedChange={(checked) => setAcceptTerms(!!checked)}
+              />
+              <label htmlFor="terms" className="text-sm font-medium leading-none">
+                J&apos;accepte les{" "}
+                <button
+                  type="button"
+                  onClick={handleOpenTerms}
+                  className="text-main hover:underline"
+                >
+                  termes et conditions
+                </button>
+              </label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="privacy"
+                checked={acceptPrivacy}
+                onCheckedChange={(checked) => setAcceptPrivacy(!!checked)}
+              />
+              <label htmlFor="privacy" className="text-sm font-medium leading-none">
+                J&apos;accepte la{" "}
+                <button
+                  type="button"
+                  onClick={handleOpenPrivacy}
+                  className="text-main hover:underline"
+                >
+                  politique de confidentialité
+                </button>
+              </label>
+            </div>
+            {(!acceptTerms || !acceptPrivacy) && (
+              <p className="text-red-500 text-sm">
+                Vous devez accepter les termes et conditions et la politique de confidentialité pour continuer.
+              </p>
+            )}
+          </div>
+
           <Button
             type="submit"
             className="w-full py-3 text-md bg-main text-white rounded-lg hover:bg-main/90 focus:outline-none"
+            disabled={!acceptTerms || !acceptPrivacy}
           >
             Suivant
           </Button>

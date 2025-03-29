@@ -1,0 +1,165 @@
+<PageTitle title={"Politique de confidentialité"} titleSize={17} />
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.scrollContentContainer}
+      >
+        <MediumText
+          color={"normal"}
+          size={16}
+          style={[styles.paragraphHeader, { marginTop: 0 }]}
+        >
+          Confidentialité et politique
+        </MediumText>
+        <NormalText color={"muted"} style={styles.paragraph}>
+          Bienvenue sur la page de confidentialité et de politique d'AIO EVENTS
+          ! Nous respectons profondément votre vie privée et nous nous engageons
+          à maintenir la confidentialité et la sécurité de vos informations
+          personnelles. Veuillez prendre un moment pour comprendre comment nous
+          collectons, utilisons et protégeons vos données.
+        </NormalText>
+
+        <MediumText color={"normal"} size={16} style={styles.paragraphHeader}>
+          1. Collecte d'informations
+        </MediumText>
+        <MediumText color={"normal"}>
+          1.1 Informations personnelles :{" "}
+        </MediumText>
+        <NormalText color={"muted"} style={styles.paragraph}>
+          Lorsque vous créez un compte sur AIO Events, nous collectons des
+          informations personnelles essentielles, notamment votre nom, votre
+          adresse e-mail et les détails de votre profil. Ces informations sont
+          cruciales pour créer une expérience utilisateur personnalisée et
+          sécurisée
+        </NormalText>
+
+        <MediumText color={"normal"}>
+          1.2 Détails des transactions :{" "}
+        </MediumText>
+        <NormalText color={"muted"} style={styles.paragraph}>
+          Pour faciliter les transactions fluides, nous pouvons collecter des informations de paiement,
+          y compris les détails de la carte de crédit. Rassurez-vous, nous mettons en œuvre des
+          mesures de sécurité robustes pour protéger vos données financières.
+        </NormalText>
+
+        <MediumText color={"normal"} size={16} style={styles.paragraphHeader}>
+          2. Utilisation des informations
+        </MediumText>
+        <MediumText color={"normal"}>
+          2.1 Amélioration des services :
+        </MediumText>
+        <NormalText color={"muted"} style={styles.paragraph}>
+          Vos informations sont principalement utilisées pour améliorer votre
+          expérience sur AIO Events. Cela inclut la fourniture personnalisée de
+          recommandations, facilitant une communication efficace et améliorant
+          la prestation globale des services.
+        </NormalText>
+
+        <MediumText color={"normal"}>2.2 Communications :</MediumText>
+        <NormalText color={"muted"} style={styles.paragraph}>
+          Nous pouvons utiliser vos coordonnées pour vous envoyer des mises à
+          jour pertinentes, des newsletters et du matériel promotionnel liés à
+          AIO EVENTS. Vous avez toujours la possibilité de vous désinscrire de
+          ces communications à tout moment.
+        </NormalText>
+
+        <MediumText color={"normal"} size={16} style={styles.paragraphHeader}>
+          3. Sécurité des données
+        </MediumText>
+
+        <MediumText color={"normal"}>3.1 Stockage sécurisé :</MediumText>
+        <NormalText color={"muted"} style={styles.paragraph}>
+          Toutes vos données sont stockées en toute sécurité sur nos serveurs.
+          Nous utilisons des mesures de sécurité conformes aux normes de
+          l'industrie pour nous protéger contre l' accès, divulgation ou
+          modification de vos informations personnelles.
+        </NormalText>
+
+        <MediumText color={"normal"}>3.2 Sécurité des paiements :</MediumText>
+        <NormalText color={"muted"} style={styles.paragraph}>
+          Comme indiqué dans nos Conditions générales, nous prenons des mesures
+          rigoureuses pour sécuriser les transactions de paiement, garantissant
+          la confidentialité et l'intégrité des données financières.
+        </NormalText>
+
+        <MediumText color={"normal"} size={16} style={styles.paragraphHeader}>
+          4. Cookies et technologies de suivi
+        </MediumText>
+
+        <MediumText color={"normal"}>4.1 Utilisation des cookies :</MediumText>
+        <NormalText color={"muted"} style={styles.paragraph}>
+          AIO Events utilise des cookies pour améliorer votre expérience de
+          navigation. Ces cookies nous aident à comprendre l'utilisateur
+          comportement, préférences et améliorer nos services. Vous pouvez gérer
+          vos préférences en matière de cookies via les paramètres de votre
+          navigateur.
+        </NormalText>
+
+        <MediumText color={"normal"} size={16} style={styles.paragraphHeader}>
+          5. Partenariats avec des tiers
+        </MediumText>
+
+        <MediumText color={"normal"}>
+          5.1 Transparence du partenariat :
+        </MediumText>
+        <NormalText color={"muted"} style={styles.paragraph}>
+          En cas de partenariats stratégiques, de parrainages ou de
+          collaborations promotionnelles, nous pouvons partager des informations
+          avec des tiers. Cependant, nous veillons à ce que ces partenariats
+          correspondent à notre engagement envers votre vie privée
+        </NormalText>
+
+        <MediumText color={"normal"} size={16} style={styles.paragraphHeader}>
+          6. Contrôles utilisateur
+        </MediumText>
+
+        <MediumText color={"normal"}>6.1 Paramètres du compte :</MediumText>
+        <NormalText color={"muted"} style={styles.paragraph}>
+          Vous avez un contrôle total sur les paramètres de votre compte, vous
+          permettant de gérer les informations que vous choisissez de partager
+          et de contrôler les communications que vous souhaitez recevoir.
+          Accédez et modifiez facilement ces paramètres via le tableau de bord
+          de votre compte.
+        </NormalText>
+
+        <MediumText color={"normal"} size={16} style={styles.paragraphHeader}>
+          7. Mises à jour des politiques
+        </MediumText>
+
+        <MediumText color={"normal"}>
+          7.1 Notification des modifications :
+        </MediumText>
+        <NormalText color={"muted"} style={styles.paragraph}>
+          AIO Events se réserve le droit de mettre à jour périodiquement cette
+          politique de confidentialité. Les utilisateurs seront informés de tout
+          changement important via les notifications de la plateforme ou par
+          e-mail.
+        </NormalText>
+        <MediumText color={"normal"}>
+          7.2 Consentement aux mises à jour :
+        </MediumText>
+        <NormalText color={"muted"} style={styles.paragraph}>
+          En continuant à utiliser AIO Events après la mise à jour de la
+          politique de confidentialité, vous consentez implicitement aux
+          conditions révisées
+        </NormalText>
+
+        <MediumText color={"normal"} size={16} style={styles.paragraphHeader}>
+          8. Contactez-nous
+        </MediumText>
+
+        <MediumText color={"normal"}>
+          8.1 Questions et préoccupations :
+        </MediumText>
+        <NormalText color={"muted"} style={styles.paragraph}>
+          Si vous avez des questions, des préoccupations ou des demandes
+          concernant votre confidentialité sur AIO Events, veuillez contacter
+          notre équipe dédiée à la confidentialité à contact@aio.events. Nous
+          apprécions vos demandes et sommes là pour garantir que votre vie
+          privée est protégée.
+        </NormalText>
+        <NormalText color={"muted"} style={styles.paragraph}>
+          Nous apprécions votre confiance et vous remercions d’avoir choisi AIO
+          EVENTS comme plateforme événementielle mobile préférée.
+        </NormalText>
