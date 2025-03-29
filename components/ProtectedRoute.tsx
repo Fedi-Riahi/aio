@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -42,7 +41,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
             if (newDecoded.exp && newDecoded.exp >= currentTime) {
               console.log("New token is valid, authorizing...");
-
               setIsAuthorized(true);
             } else {
               console.log("New token is still expired or invalid");
@@ -65,7 +63,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
             const currentTime = Math.floor(Date.now() / 1000);
             if (newDecoded.exp && newDecoded.exp >= currentTime) {
               console.log("New token is valid after refresh, authorizing...");
-
               setIsAuthorized(true);
             } else {
               console.log("New token is still expired or invalid after refresh");
@@ -93,6 +90,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   if (!isAuthorized) {
     return null;
+  }
 
   return <>{children}</>;
 };
