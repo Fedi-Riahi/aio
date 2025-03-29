@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import TicketComponent from "@/components/Ticket";
 import { TicketDrawer } from "../types/ticketsSheet";
 import { useTicketsSheet } from "../hooks/useTicketsSheet";
-import ProtectedRoute from "./ProtectedRoute";
+
 
 export const TicketsSheet = ({ open, onOpenChange }: TicketDrawer) => {
   const { closeDrawer, ticketRefs, handleDownloadPDF, ticketData } = useTicketsSheet({
@@ -14,7 +14,7 @@ export const TicketsSheet = ({ open, onOpenChange }: TicketDrawer) => {
   });
 
   return (
-    <ProtectedRoute>
+    <>
       <div
         className={`fixed inset-0 bg-black/50 z-50 transition-opacity ${
           open ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -85,7 +85,7 @@ export const TicketsSheet = ({ open, onOpenChange }: TicketDrawer) => {
           </div>
         </div>
       </div>
-      </ProtectedRoute>
+</>
   );
 };
 

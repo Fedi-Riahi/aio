@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { IconLockOpen, IconUser, IconMail, IconPhone, IconCamera } from "@tabler/icons-react";
 import { useSignUp } from "../hooks/useSignUp";
 import Link from "next/link";
@@ -23,6 +24,22 @@ export const SignUp = () => {
     showConfirmationForm,
     setValue,
   } = useSignUp();
+
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
+  const [showAcceptanceError, setShowAcceptanceError] = useState(false);
+
+  const handleStep1Submit = (e) => {
+    e.preventDefault();
+
+    if (!acceptedTerms || !acceptedPrivacy) {
+      setShowAcceptanceError(true);
+      return;
+    }
+
+    setShowAcceptanceError(false);
+    onStep1Submit(e);
+  };
 
   return (
     <div className="my-8 w-full max-w-lg mx-auto space-y-4">
@@ -58,7 +75,7 @@ export const SignUp = () => {
           </Button>
         </form>
       ) : step === 1 ? (
-        <form onSubmit={onStep1Submit} className="space-y-4">
+        <form onSubmit={handleStep1Submit} className="space-y-4">
           {apiSuccess && (
             <p className="text-green-500 text-sm text-center">{apiSuccess}</p>
           )}
@@ -159,20 +176,52 @@ export const SignUp = () => {
             )}
           </div>
 
-          <div className="text-xs text-center text-gray-500 mt-4">
-            En vous inscrivant, vous acceptez nos{' '}
-            <Link href="/legal#terms" className="text-main hover:underline">
-              Conditions d'utilisation
-            </Link>{' '}
-            et notre{' '}
-            <Link href="/legal#privacy" className="text-main hover:underline">
-              Politique de confidentialité
-            </Link>
+          <div className="space-y-3 pt-2">
+            <div className="flex items-start space-x-3">
+              <Checkbox
+                id="terms"
+                checked={acceptedTerms}
+                onCheckedChange={(checked) => setAcceptedTerms(checked)}
+                className="h-5 w-5 mt-0.5 rounded border-gray-300 text-main focus:ring-main"
+              />
+              <label htmlFor="terms" className="text-sm text-gray-600 leading-tight">
+                J'accepte les{' '}
+                <Link href="/legal#terms" className="text-main hover:underline">
+                  Conditions d'utilisation
+                </Link>
+              </label>
+            </div>
+
+            <div className="flex items-start space-x-3">
+              <Checkbox
+                id="privacy"
+                checked={acceptedPrivacy}
+                onCheckedChange={(checked) => setAcceptedPrivacy(checked)}
+                className="h-5 w-5 mt-0.5 rounded border-gray-300 text-main focus:ring-main"
+              />
+              <label htmlFor="privacy" className="text-sm text-gray-600 leading-tight">
+                J'accepte la{' '}
+                <Link href="/legal#privacy" className="text-main hover:underline">
+                  Politique de confidentialité
+                </Link>
+              </label>
+            </div>
+
+            {showAcceptanceError && (
+              <p className="text-red-500 text-sm">
+                Vous devez accepter les conditions et la politique de confidentialité pour continuer
+              </p>
+            )}
           </div>
 
           <Button
             type="submit"
-            className="w-full py-3 text-md bg-main text-white rounded-lg hover:bg-main/90 focus:outline-none"
+            className={`w-full py-3 text-md rounded-lg focus:outline-none mt-4 ${
+              acceptedTerms && acceptedPrivacy
+                ? "bg-main text-white hover:bg-main/90"
+                : "bg-gray-200 text-gray-500 cursor-not-allowed"
+            }`}
+            disabled={!acceptedTerms || !acceptedPrivacy}
           >
             Suivant
           </Button>

@@ -8,7 +8,7 @@ import TicketDrawer from "@/components/TicketDrawer";
 import { IconBrandFacebook, IconBrandInstagram, IconCopy, IconPhoneRinging } from "@tabler/icons-react";
 import { useEventDetails } from "@/hooks/useEventDetails";
 import { getTicketPrice, getAvailableTicketCount, getLocationName, getTimeDisplay, getPeriodDisplay, isEventTimePassed } from "@/utils/eventDetailsUtils";
-
+import { useNavbar } from "@/hooks/useNavbar";
 const EventDetails: React.FC = () => {
   const {
     event,
@@ -23,7 +23,7 @@ const EventDetails: React.FC = () => {
     seatData,
     hasSeatTemplate,
   } = useEventDetails();
-
+const { session} = useNavbar();
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
 
   if (loading) {
@@ -205,7 +205,7 @@ const EventDetails: React.FC = () => {
                         </div>
                         <button
                           onClick={openDrawer}
-                          disabled={isDisabled}
+                          disabled={(!session) || (isDisabled && session)}
                           className={`px-6 py-2 rounded-lg transition duration-300 ${
                             isAvailable
                               ? "bg-main text-foreground hover:bg-main/90"
