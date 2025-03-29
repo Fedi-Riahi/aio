@@ -40,7 +40,7 @@ export const ProfileDrawer = ({ open, onOpenChange }: ProfileDrawerProps) => {
               <div className="p-6">
                 <div className="flex items-center gap-4 mb-6">
                   <Avatar className="h-16 w-16">
-                    <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${userData.email}`} />
+                    <AvatarImage src={userData.profile_picture} />
                     <AvatarFallback className="text-lg bg-primary text-primary-foreground">
                       {getInitials(userData.email)}
                     </AvatarFallback>

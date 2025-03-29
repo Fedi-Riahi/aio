@@ -1,16 +1,18 @@
+// hooks/useSignUp.ts
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { SignUpFormData, ConfirmationFormData } from "../types/signUp";
-import { submitSignUp, submitConfirmation, handleApiError } from "../utils/signUpUtils";
+import { SignUpFormData, SignUpResponse } from "../types/signUp";
+import { submitSignUp, submitConfirmation, handleApiError, loginUser } from "../utils/signUpUtils";
+import { useRouter } from "next/navigation";
 
 export const useSignUp = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    watch,
-    setValue,
-  } = useForm<SignUpFormData>({
+  const [step, setStep] = useState(1);
+  const [apiError, setApiError] = useState("");
+  const [apiSuccess, setApiSuccess] = useState("");
+  const [showConfirmationForm, setShowConfirmationForm] = useState(false);
+  const router = useRouter();
+
+  const methods = useForm<SignUpFormData>({
     defaultValues: {
       username: "",
       email: "",
@@ -22,79 +24,95 @@ export const useSignUp = () => {
   });
 
   const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+    control,
+  } = methods;
+
+  const {
     register: registerConfirmation,
     handleSubmit: handleConfirmationSubmit,
     formState: { errors: confirmationErrors },
-  } = useForm<ConfirmationFormData>({
-    defaultValues: {
-      code: "",
-    },
-  });
-
-  const [step, setStep] = useState<number>(1);
-  const [apiError, setApiError] = useState<string | null>(null);
-  const [apiSuccess, setApiSuccess] = useState<string | null>(null);
-  const [showConfirmationForm, setShowConfirmationForm] = useState(false);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  } = useForm<{ code: string }>();
 
   const password = watch("password");
 
-  const onStep1Submit = handleSubmit(async (data: SignUpFormData) => {
-    setApiError(null);
-    setApiSuccess(null);
-    setStep(2);
-  });
-
-  const onStep2Submit = handleSubmit(async (data: SignUpFormData) => {
-    setApiError(null);
-    setApiSuccess(null);
+  const onStep1Submit = async (data: SignUpFormData) => {
+    setApiError("");
+    setApiSuccess("");
 
     try {
-
-      const signUpResponse = await submitSignUp(data);
-      if (!signUpResponse.ok) {
-        setApiError(handleApiError(signUpResponse));
-        return;
+      if (!data.username || !data.email || !data.phone || !data.password) {
+        throw new Error("Please fill all required fields");
       }
-
-      setUserEmail(data.email);
-      setShowConfirmationForm(true);
-      setStep(3);
-      setApiSuccess("A confirmation code has been sent to your email.");
-    } catch (err) {
-      setApiError("Network error. Please check your connection.");
-      console.error("Signup error:", err);
+      setStep(2);
+    } catch (error) {
+      setApiError(error.message);
     }
-  });
+  };
 
-  const onConfirmation = handleConfirmationSubmit(async (data: ConfirmationFormData) => {
-    setApiError(null);
-    setApiSuccess(null);
-
-    if (!userEmail) {
-      setApiError("Email not found. Please sign up again.");
-      return;
-    }
+  const onStep2Submit = async (data: SignUpFormData) => {
+    setApiError("");
+    setApiSuccess("");
 
     try {
-      const response = await submitConfirmation(userEmail, data.code);
-      if (!response.ok) {
+      const response: SignUpResponse = await submitSignUp(data);
+      if (response.ok) {
+        setApiSuccess("Inscription réussie ! Veuillez vérifier votre email pour confirmer.");
+        setShowConfirmationForm(true);
+      } else {
         setApiError(handleApiError(response));
+      }
+    } catch (error) {
+      setApiError("Une erreur s'est produite lors de l'inscription. Veuillez réessayer.");
+    }
+  };
+
+  const onConfirmation = handleConfirmationSubmit(async (data) => {
+    setApiError("");
+    setApiSuccess("");
+    const email = watch("email");
+    const password = watch("password");
+
+    try {
+      // 1. First confirm the email
+      const confirmationResponse = await submitConfirmation(email, data.code);
+      if (!confirmationResponse.ok) {
+        setApiError(handleApiError(confirmationResponse));
         return;
       }
-      const { user_data, tokens } = response.respond!.data;
-      localStorage.setItem("authTokens", JSON.stringify(tokens));
-      localStorage.setItem("userData", JSON.stringify(user_data));
-      localStorage.setItem("userTickets", JSON.stringify(user_data.events || []));
-      setApiSuccess(response.msg || "Account confirmation done! You are now logged in.");
-    } catch (err) {
-      setApiError("Network error. Please check your connection.");
+
+      // 2. If confirmation is successful, log the user in
+      const loginResponse = await loginUser(email, password);
+      if (loginResponse.ok) {
+        // Store tokens in localStorage or context
+        localStorage.setItem("authTokens", JSON.stringify({
+          access_token: loginResponse.access_token,
+          refresh_token: loginResponse.refresh_token,
+        }));
+
+        setApiSuccess("Email confirmé et connexion réussie ! Redirection...");
+
+        // Redirect to dashboard or home page after 2 seconds
+        setTimeout(() => {
+          router.push("/");
+        }, 2000);
+      } else {
+        setApiError(handleApiError(loginResponse));
+      }
+    } catch (error) {
+      setApiError("Échec de la confirmation ou de la connexion. Veuillez réessayer.");
     }
   });
 
   return {
     step,
+    setStep,
     register,
+    handleSubmit,
     errors,
     password,
     onStep1Submit,
@@ -106,5 +124,8 @@ export const useSignUp = () => {
     apiSuccess,
     showConfirmationForm,
     setValue,
+    watch,
+    control,
+    methods,
   };
 };

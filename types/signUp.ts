@@ -47,4 +47,6 @@ export interface SignUpResponse {
   msg?: string;
   status: number;
   ok: boolean;
+  access_token?: string;
+  refresh_token?: string;
 }

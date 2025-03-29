@@ -14,6 +14,7 @@ export const SignUp = () => {
     register,
     errors,
     password,
+    handleSubmit,
     onStep1Submit,
     onStep2Submit,
     registerConfirmation,
@@ -23,22 +24,34 @@ export const SignUp = () => {
     apiSuccess,
     showConfirmationForm,
     setValue,
+    watch,
+    methods,
   } = useSignUp();
 
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [showAcceptanceError, setShowAcceptanceError] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const handleStep1Submit = (e) => {
+  // Watch form values
+  const profilePicture = watch("profile_picture");
+  console.log("Current profile picture state:", profilePicture);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    console.log("Selected file:", file);
+    setSelectedFile(file);
+    setValue("profile_picture", file);
+  };
+
+  const handleStep1Submit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!acceptedTerms || !acceptedPrivacy) {
       setShowAcceptanceError(true);
       return;
     }
-
     setShowAcceptanceError(false);
-    onStep1Submit(e);
+    methods.handleSubmit(onStep1Submit)();
   };
 
   return (
@@ -185,9 +198,9 @@ export const SignUp = () => {
                 className="h-5 w-5 mt-0.5 rounded border-gray-300 text-main focus:ring-main"
               />
               <label htmlFor="terms" className="text-sm text-gray-600 leading-tight">
-                J'accepte les{' '}
+                J&apos;accepte les{' '}
                 <Link href="/legal#terms" className="text-main hover:underline">
-                  Conditions d'utilisation
+                  Conditions d&apos;utilisation
                 </Link>
               </label>
             </div>
@@ -200,7 +213,7 @@ export const SignUp = () => {
                 className="h-5 w-5 mt-0.5 rounded border-gray-300 text-main focus:ring-main"
               />
               <label htmlFor="privacy" className="text-sm text-gray-600 leading-tight">
-                J'accepte la{' '}
+                J&apos;accepte la{' '}
                 <Link href="/legal#privacy" className="text-main hover:underline">
                   Politique de confidentialité
                 </Link>
@@ -227,7 +240,7 @@ export const SignUp = () => {
           </Button>
         </form>
       ) : step === 2 ? (
-        <form onSubmit={onStep2Submit} className="space-y-4">
+        <form onSubmit={handleSubmit(onStep2Submit)} className="space-y-4">
           {apiSuccess && (
             <p className="text-green-500 text-sm text-center">{apiSuccess}</p>
           )}
@@ -237,30 +250,32 @@ export const SignUp = () => {
 
           <div className="relative">
             <IconCamera className="absolute left-3 top-4 h-5 w-5 text-gray-400" />
-            <Input
-              type="file"
-              accept="image/*"
-              {...register("profile_picture")}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  setValue("profile_picture", file);
-                } else {
-                  setValue("profile_picture", undefined);
-                }
-              }}
-              className="bg-foreground/10 w-full pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
-            />
+            <div className="relative">
+              <input
+                type="file"
+                id="profile_picture"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+              <div className="bg-foreground/10 w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 flex items-center">
+                <span className="text-gray-500 truncate">
+                  {selectedFile?.name || "Sélectionnez une image de profil"}
+                </span>
+              </div>
+            </div>
           </div>
 
           <Button
             type="submit"
             className="w-full py-3 text-md bg-main text-white rounded-lg hover:bg-main/90 focus:outline-none"
           >
-            S&apos;inscrire (Passer si aucune image)
+            S&apos;inscrire {selectedFile ? "" : "(Passer si aucune image)"}
           </Button>
         </form>
       ) : null}
     </div>
   );
 };
+
+export default SignUp;
