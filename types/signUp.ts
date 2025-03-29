@@ -20,11 +20,11 @@ export interface UserData {
   email: string;
   unread_tickets_count: number;
   unread_notifications_count: number;
-  followers: number; // Updated to number based on API response
+  followers: number; 
   friends: { _id: string; username: string; profile_picture: string }[];
   events: Event[];
   participants: { _id: string; username: string; profile_picture: string }[];
-  total_attendees: number; // Added based on API response
+  total_attendees: number;
   _id: string;
   id_org: string;
   e_account_id: string;

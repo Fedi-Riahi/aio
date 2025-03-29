@@ -1,4 +1,4 @@
-// hooks/useSignUp.ts
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { SignUpFormData, SignUpResponse } from "../types/signUp";
@@ -78,17 +78,13 @@ export const useSignUp = () => {
     const password = watch("password");
 
     try {
-      // 1. First confirm the email
       const confirmationResponse = await submitConfirmation(email, data.code);
       if (!confirmationResponse.ok) {
         setApiError(handleApiError(confirmationResponse));
         return;
       }
-
-      // 2. If confirmation is successful, log the user in
       const loginResponse = await loginUser(email, password);
       if (loginResponse.ok) {
-        // Store tokens in localStorage or context
         localStorage.setItem("authTokens", JSON.stringify({
           access_token: loginResponse.access_token,
           refresh_token: loginResponse.refresh_token,
@@ -96,7 +92,7 @@ export const useSignUp = () => {
 
         setApiSuccess("Email confirmé et connexion réussie ! Redirection...");
 
-        // Redirect to dashboard or home page after 2 seconds
+
         setTimeout(() => {
           router.push("/");
         }, 2000);

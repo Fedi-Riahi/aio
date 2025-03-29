@@ -3,17 +3,16 @@ import { SignUpFormData, SignUpResponse } from "../types/signUp";
 import apiClient from "./apiClient";
 
 export const submitSignUp = async (data: SignUpFormData): Promise<SignUpResponse> => {
-  // Create FormData object
   const formData = new FormData();
 
-  // Add standard form fields
+
   formData.append("email", data.email);
   formData.append("password", data.password);
   formData.append("password_confirmation", data.passwordConfirmation);
   formData.append("username", data.username);
   formData.append("phone_number", data.phone);
 
-  // Handle profile picture
+
   console.group("Profile Picture Debugging");
   try {
     if (data.profile_picture && data.profile_picture instanceof File) {
@@ -24,9 +23,8 @@ export const submitSignUp = async (data: SignUpFormData): Promise<SignUpResponse
         lastModified: new Date(data.profile_picture.lastModified).toISOString(),
       });
 
-      // Validate file before upload
+
       if (data.profile_picture.size > 5 * 1024 * 1024) {
-        // 5MB limit
         throw new Error("File size exceeds 5MB limit");
       }
 
@@ -41,11 +39,10 @@ export const submitSignUp = async (data: SignUpFormData): Promise<SignUpResponse
     }
   } catch (error) {
     console.error("Error processing profile picture:", error);
-    // Continue with submission without profile picture if it's optional
   }
   console.groupEnd();
 
-  // Debug FormData contents before sending
+
   console.group("FormData Contents");
   for (const [key, value] of formData.entries()) {
     if (value instanceof File) {
@@ -66,7 +63,7 @@ export const submitSignUp = async (data: SignUpFormData): Promise<SignUpResponse
       headers: {
         "Content-Type": "multipart/form-data",
       },
-      timeout: 30000, // 30 second timeout
+      timeout: 30000,
     });
 
     console.log("Signup successful, response:", {
@@ -124,7 +121,7 @@ export const submitSignUp = async (data: SignUpFormData): Promise<SignUpResponse
   }
 };
 
-// Rest of the file remains unchanged
+
 export const submitConfirmation = async (email: string, code: string): Promise<SignUpResponse> => {
   const body = { email, code };
 
