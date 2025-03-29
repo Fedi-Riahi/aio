@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import { SeatProps, SeatMapProps, TheatreViewProps } from "../types/theatreView";
-import { sortSeats, getUniqueRows, calculateSeatSize, normalizeTakenSeats } from "../utils/theatreViewUtils";
+import { sortSeats, getUniqueRows, calculateSeatSize } from "../utils/theatreViewUtils";
 import { useTheatreView } from "../hooks/useTheatreView";
 
 const Seat: React.FC<SeatProps> = ({ seatId, taken, seatActive, isRemoved, seatSize, onSelect }) => {
@@ -113,7 +113,6 @@ const CinemaTheater: React.FC<{
 
 const TheatreView: React.FC<TheatreViewProps> = ({
   order,
-  ticketIndex,
   seats,
   roomName,
   selectedSeats,
@@ -121,7 +120,7 @@ const TheatreView: React.FC<TheatreViewProps> = ({
   maxSeats,
   takenSeats = [],
 }) => {
-  const { handleSeatSelect, clearSelectedSeats, normalizedTakenSeats } = useTheatreView({
+  const {  clearSelectedSeats, normalizedTakenSeats } = useTheatreView({
     seats,
     selectedSeats,
     setSelectedSeats,

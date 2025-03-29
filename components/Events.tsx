@@ -16,7 +16,6 @@ const Events: React.FC = () => {
     handleSearchSubmit,
     handleCategoryChange,
     loadMoreEvents,
-    searchedEvents,
     searchedOwners,
   } = useEventFilters();
 

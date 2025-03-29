@@ -4,7 +4,7 @@ import { FloatingDock } from "@/components/ui/floating-dock";
 import { HeaderProps } from "../types/searchBar";
 import { useSearchBar } from "../hooks/useSearchBar";
 import { placeholders } from "../utils/searchBarUtils";
-import Image from "next/image";
+
 
 const SearchBar: React.FC<HeaderProps> = ({
   searchQuery,
@@ -21,8 +21,6 @@ const SearchBar: React.FC<HeaderProps> = ({
     loading,
     searchLoading,
     error,
-    events,
-    owners,
     handleCategoryChange,
   } = useSearchBar({
     searchQuery,

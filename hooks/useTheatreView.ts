@@ -3,8 +3,7 @@ import { TheatreViewProps } from "../types/theatreView";
 import { normalizeTakenSeats } from "../utils/theatreViewUtils";
 
 export const useTheatreView = ({
-  seats,
-  selectedSeats,
+
   setSelectedSeats,
   maxSeats,
   takenSeats,

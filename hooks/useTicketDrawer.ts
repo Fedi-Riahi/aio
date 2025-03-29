@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Ticket } from "@/types/eventDetails";
-import { DeliveryDetails, TicketOrder, TicketData } from "@/types/ticketDrawer";
+import { DeliveryDetails, TicketOrder } from "@/types/ticketDrawer";
 import { calculateTotal, applyCoupon, buildTicketDataList } from "@/utils/ticketDrawerUtils";
 
 export const useTicketDrawer = (

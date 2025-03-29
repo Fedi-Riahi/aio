@@ -1,5 +1,5 @@
 import apiClient from "@/utils/apiClient";
-import { Event, Period, Location, Time, SeatData, TicketType, TicketGroup, LocationData, Ticket } from "@/types/eventDetails";
+import { Event, Period, Time, SeatData, TicketType, TicketGroup, LocationData, Ticket } from "@/types/eventDetails";
 
 export const fetchEventData = async (id: string): Promise<Event> => {
   try {
@@ -185,7 +185,7 @@ export const getPeriodDisplay = (period: Period): string => {
 export const isEventTimePassed = (time: Time | null): boolean => {
     if (!time || !time.end_time) return false;
 
-    const currentDate = new Date(); 
+    const currentDate = new Date();
 
     const endTimeString = Array.isArray(time.end_time) ? time.end_time[0] : time.end_time;
     const eventEndTime = new Date(endTimeString);

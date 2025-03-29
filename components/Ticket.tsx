@@ -36,7 +36,7 @@ export default function Ticket(props: Partial<TicketProps>) {
       </div>
 
       <div className="relative z-10 mt-12 px-6">
-        <p className="text-xs uppercase tracking-widest text-gray-300">Billet d'entrée</p>
+        <p className="text-xs uppercase tracking-widest text-gray-300">Billet d&apos;entrée</p>
         <h2 className="text-xl font-bold mt-2 leading-tight">{eventName}</h2>
         <div className="mt-3 space-y-1 text-xs tracking-wide">
           <p>{time}</p>

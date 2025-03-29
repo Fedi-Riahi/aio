@@ -118,10 +118,10 @@ const CompleteOrganizerDetails = () => {
   });
 
   return (
-    <div className="my-8 w-full max-w-lg mx-auto space-y-4">
-      <h2 className="text-2xl font-bold text-center">Compléter les détails de l'organisateur</h2>
+    <div className="my-40    w-full max-w-lg mx-auto space-y-4">
+      <h2 className="text-2xl font-bold text-center">Compléter les détails de l&apos;organisateur</h2>
       <p className="text-center text-sm text-gray-600">
-        Veuillez fournir vos détails d'organisateur pour publier un événement.
+        Veuillez fournir vos détails d&apos;organisateur pour publier un événement.
       </p>
 
       <form onSubmit={onSubmit} className="space-y-4">

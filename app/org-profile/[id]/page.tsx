@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { fetchOrganizerProfile } from "@/utils/signUpUtils";
-import { SignUpResponse, UserData } from "@/types/signUp";
+import { UserData } from "@/types/signUp";
 import EventCard from "@/components/EventCard";
 import Image from "next/image";
 

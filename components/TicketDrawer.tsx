@@ -16,7 +16,6 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
   tickets,
   isOpen,
   onClose,
-  eventType,
   ticketType,
   eventId,
   periodIndex = 0,
@@ -112,7 +111,7 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
           )}
 
           {step === "selectSeats" && hasSeatTemplate === false && (
-            <p className="text-center text-gray-500">Aucun plan de salle disponible. Passage à l'étape suivante.</p>
+            <p className="text-center text-gray-500">Aucun plan de salle disponible. Passage à l&apos;étape suivante.</p>
           )}
 
           {step === "selectSeats" && hasSeatTemplate === true && seatData && (

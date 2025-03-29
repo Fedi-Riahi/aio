@@ -4,12 +4,8 @@ import { createOrderRequestBody, processOnlinePayment } from "../utils/paymentSt
 
 export const usePaymentStep = ({
   paymentMode,
-  handlePaymentModeChange,
-  deliveryDetails,
+
   handleDeliveryChange,
-  couponCode,
-  handleCouponChange,
-  applyCoupon,
   calculateTotal,
   eventId,
   ticketDataList,

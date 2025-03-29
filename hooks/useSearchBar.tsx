@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import apiClient from "../utils/apiClient"; 
+import apiClient from "../utils/apiClient";
 import { HeaderProps, CategoryItem } from "../types/searchBar";
 import { placeholders, fetchCategories, buildCategoryNames } from "../utils/searchBarUtils";
 import { LuEarth } from "react-icons/lu";
@@ -18,7 +18,6 @@ import {
 
 export const useSearchBar = ({
   searchQuery,
-  onSearchChange,
   onSearchSubmit,
   onCategoryChange,
 }: HeaderProps) => {

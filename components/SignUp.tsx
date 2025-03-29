@@ -53,7 +53,7 @@ export const SignUp = () => {
             type="submit"
             className="w-full py-3 text-md bg-main text-white rounded-lg hover:bg-main/90 focus:outline-none"
           >
-            Confirmer l'email
+            Confirmer l&apos;email
           </Button>
         </form>
       ) : step === 1 ? (

@@ -4,7 +4,6 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, MapPin } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { IconBolt, IconFlame } from "@tabler/icons-react";
 import { Event, EventCardProps } from "../types/event";
@@ -12,8 +11,6 @@ import { checkEventAdVideo } from "../utils/eventUtils";
 import { AdVideoPopup } from "./AdVideoPopup";
 
 const EventCard: React.FC<EventCardProps> = ({
-  searchQuery,
-  selectedCategory,
   visibleEvents,
 }) => {
   const [adVideoUrl, setAdVideoUrl] = useState<string | null>(null);

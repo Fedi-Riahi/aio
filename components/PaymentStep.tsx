@@ -25,7 +25,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   periodIndex,
   timeIndex,
   extraFields = [],
-  walletId,
   currency,
   email: propEmail,
   phoneNumber: propPhoneNumber,

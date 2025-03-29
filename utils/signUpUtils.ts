@@ -1,5 +1,5 @@
 import axios from "axios";
-import { SignUpFormData, ConfirmationFormData, SignUpResponse } from "../types/signUp";
+import { SignUpFormData, SignUpResponse } from "../types/signUp";
 import apiClient from "./apiClient";
 
 export const submitSignUp = async (data: SignUpFormData): Promise<SignUpResponse> => {

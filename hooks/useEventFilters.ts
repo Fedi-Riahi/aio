@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { Event } from "../types/event";
+import { useState } from "react";
 import { filterEvents } from "../utils/eventUtils";
 import { useEvents } from "./useEvents";
 import { useSearchBar } from "./useSearchBar";
@@ -54,7 +53,7 @@ export const useEventFilters = () => {
     visibleEvents,
     filteredEvents,
     searchedEvents,
-    searchedOwners, 
+    searchedOwners,
     handleSearchChange,
     handleSearchSubmit,
     handleCategoryChange,

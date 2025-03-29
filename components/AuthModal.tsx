@@ -45,7 +45,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               {!isLogin && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Nom d'utilisateur
+                    Nom d&apos;utilisateur
                   </label>
                   <input
                     type="text"

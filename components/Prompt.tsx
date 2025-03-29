@@ -40,14 +40,14 @@ const Prompt = () => {
     <div className="fixed inset-0 bg-black bg-opacity-50 z-20 backdrop-blur-md flex justify-center items-end p-4">
       <div className="bg-background rounded-2xl shadow-lg p-6 text-center w-full max-w-sm">
         <p className="text-lg font-semibold text-foreground mb-4">
-          Voulez-vous ouvrir l'application pour une meilleure expérience ?
+          Voulez-vous ouvrir l&apos;application pour une meilleure expérience ?
         </p>
         <div className="flex flex-col gap-3">
           <button
             onClick={openApp}
             className="bg-main text-foreground px-4 py-2 rounded-lg w-full hover:bg-main/90 transition"
           >
-            Ouvrir l'application
+            Ouvrir l&apos;application
           </button>
           <button
             onClick={continueOnBrowser}

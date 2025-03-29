@@ -27,7 +27,7 @@ const EventDetails: React.FC = () => {
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen text-xl font-semibold">Chargement des détails de l'événement...</div>;
+    return <div className="flex justify-center items-center h-screen text-xl font-semibold">Chargement des détails de l&apos;événement...</div>;
   }
 
   if (error || !event) {
@@ -98,7 +98,7 @@ const EventDetails: React.FC = () => {
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="w-full lg:w-1/2 space-y-8">
           <div>
-            <h2 className="text-2xl font-bold text-foreground mb-4">Périodes de l'événement</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-4">Périodes de l&apos;événement</h2>
             <div className="flex flex-wrap gap-4">
               {event.periods.length > 0 ? (
                 event.periods.map((period, index) => (
@@ -126,7 +126,7 @@ const EventDetails: React.FC = () => {
 
           {selectedPeriod && (
             <div>
-              <h2 className="text-2xl font-bold text-foreground mb-4">Programme de l'événement</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-4">Programme de l&apos;événement</h2>
               <div className="space-y-6">
                 {selectedPeriod.locations?.map((location, locationIndex) => (
                   <div key={locationIndex} className="space-y-4">
@@ -234,7 +234,7 @@ const EventDetails: React.FC = () => {
               <div className="flex items-center justify-start gap-2">
                 <IconPhoneRinging className="text-main" size={24} />
                 <span className="text-main font-medium text-lg">
-                  Veuillez contacter l'organisateur pour obtenir des billets.
+                  Veuillez contacter l&apos;organisateur pour obtenir des billets.
                 </span>
               </div>
             )}
@@ -278,7 +278,7 @@ const EventDetails: React.FC = () => {
         </div>
 
         <div className="w-full lg:w-1/2">
-          <h2 className="text-2xl font-bold text-blacks mb-4">Description de l'événement</h2>
+          <h2 className="text-2xl font-bold text-blacks mb-4">Description de l&apos;événement</h2>
           <div className="bg-offwhite backdrop-blur-sm rounded-xl p-6">
             <p className="text-lg/6 text-foreground/80 leading-relaxed text-justify">{event.description}</p>
           </div>

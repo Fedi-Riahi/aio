@@ -1,5 +1,5 @@
 import { Ticket, TicketType } from "@/types/eventDetails";
-import { DeliveryDetails } from "@/types/ticketDrawer";
+
 
 export const calculateTotal = (
   tickets: Ticket[],
@@ -38,7 +38,6 @@ export const buildTicketDataList = (
     .filter(([, quantity]) => quantity > 0)
     .flatMap(([ticketId, quantity]) => {
       const ticket = tickets.find((t) => t.ticket_id === ticketId);
-      const names = userNames[ticketId] || [];
       return Array.from({ length: quantity }, (_, index) => ({
         ticket_id: ticketId,
         name: ticket?.type || ticketType.find((t) => t.ticket._id === ticketId)?.ticket.name || "Unknown Ticket",
