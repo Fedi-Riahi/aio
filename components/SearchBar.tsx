@@ -1,168 +1,35 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import { LuEarth } from "react-icons/lu";
-import { LiaHandshake } from "react-icons/lia";
+import React from "react";
+import { IconSearch } from "@tabler/icons-react";
 import { FloatingDock } from "@/components/ui/floating-dock";
-import {
-  IconSearch,
-  IconBuildingPavilion,
-  IconBallFootball,
-  IconMusic,
-  IconMasksTheater,
-  IconConfetti,
-  IconBriefcase2,
-  IconDeviceGamepad2,
-  IconTheater,
-  IconCategory
-} from '@tabler/icons-react';
-
-interface Category {
-  _id: string;
-  name: string;
-  type: string;
-  font_icon: string;
-}
-
-interface HeaderProps {
-  searchQuery: string;
-  onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSearchSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  onCategoryChange: (category: string) => void;
-}
+import { HeaderProps } from "../types/searchBar";
+import { useSearchBar } from "../hooks/useSearchBar";
+import { placeholders } from "../utils/searchBarUtils";
+import Image from "next/image";
 
 const SearchBar: React.FC<HeaderProps> = ({
   searchQuery,
   onSearchChange,
   onSearchSubmit,
-  onCategoryChange
+  onCategoryChange,
 }) => {
-  const placeholders = [
-    "Looking for music festivals near you?",
-    "What are the best tech conferences this month?",
-    "Are there any art exhibitions in the city?",
-    "Find local food tasting events this weekend.",
-    "Search for upcoming sports matches in your area.",
-  ];
-
-  const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
-  const [animateDown, setAnimateDown] = useState(false);
-  const [animateUp, setAnimateUp] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<string>("");
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(
-          "/api/proxy/api/normalaccount/getcategories",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(`Failed to fetch categories: ${response.status} - ${JSON.stringify(errorData)}`);
-        }
-
-        const data = await response.json();
-        console.log('Fetched Data:', data);
-
-        const categoryData = Array.isArray(data.respond?.data)
-          ? data.respond.data
-          : [];
-        console.log('Parsed Categories:', categoryData);
-
-        setCategories(categoryData);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-        setCategories([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setAnimateDown(true);
-      const textChangeTimer = setTimeout(() => {
-        setCurrentPlaceholder((prev) => (prev + 1) % placeholders.length);
-        setAnimateUp(true);
-      }, 500);
-
-      const resetAnimationTimer = setTimeout(() => {
-        setAnimateDown(false);
-        setAnimateUp(false);
-      }, 1000);
-
-      return () => {
-        clearTimeout(textChangeTimer);
-        clearTimeout(resetAnimationTimer);
-      };
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [placeholders.length]);
-
-  // Define getIconForCategory before categoryItems
-  const getIconForCategory = (categoryName: string) => {
-    switch (categoryName.toLowerCase()) {
-      case "festivals":
-        return <IconBuildingPavilion className="h-full w-full "/>;
-      case "sports":
-        return <IconBallFootball className="h-full w-full "/>;
-      case "concerts":
-        return <IconMusic className="h-full w-full "/>;
-      case "cinéma":
-          return <IconMasksTheater className="h-full w-full "/>;
-      case "théâtre":
-          return <IconTheater className="h-full w-full "/>;
-      case "soirées":
-        return <IconConfetti className="h-full w-full "/>;
-      case "congrès":
-        return <IconBriefcase2 className="h-full w-full "/>;
-      case "loisirs":
-        return <IconDeviceGamepad2 className="h-full w-full "/>;
-      case "charity":
-        return <LuEarth className="h-full w-full "/>;
-      case "excursions":
-        return <LiaHandshake className="h-full w-full "/>;
-      case "caritatifs":
-        return <LuEarth className="h-full w-full "/>;
-    }
-  };
-
-  const categoryItems = [
-    {
-      name: "All", // Changed from title to name
-      icon: <IconCategory className="h-full w-full" />,
-      href: "",
-    },
-    ...(categories || []).map((category) => ({
-      name: category.name, // Already using name
-      icon: (
-        <span className="h-full w-full">
-          {getIconForCategory(category.name)}
-        </span>
-      ),
-      href: category.name,
-    })),
-  ];
-
-  const handleCategoryChange = (category: string) => {
-    const newCategory = category === "All" ? "" : category; // Set to "" for "All"
-    setActiveCategory(newCategory);
-    onCategoryChange(newCategory);
-  };
+  const {
+    currentPlaceholder,
+    animateDown,
+    animateUp,
+    activeCategory,
+    categoryItems,
+    loading,
+    searchLoading,
+    error,
+    events,
+    owners,
+    handleCategoryChange,
+  } = useSearchBar({
+    searchQuery,
+    onSearchChange,
+    onSearchSubmit,
+    onCategoryChange,
+  });
 
   if (loading) {
     return <div>Loading categories...</div>;
@@ -174,7 +41,7 @@ const SearchBar: React.FC<HeaderProps> = ({
 
   return (
     <div className="flex justify-center flex-col items-center mt-10 lg:mx-10 mx-2">
-      <form onSubmit={onSearchSubmit} className="relative w-full lg:max-w-screen-lg sm:max-w-screen-sm">
+      <div className="relative w-full lg:max-w-screen-lg sm:max-w-screen-sm">
         <input
           type="text"
           value={searchQuery}
@@ -183,7 +50,8 @@ const SearchBar: React.FC<HeaderProps> = ({
           placeholder={placeholders[currentPlaceholder]}
         />
         <IconSearch className="absolute right-4 top-1/2 transform -translate-y-1/2 text-foreground w-5 h-5 cursor-pointer" />
-      </form>
+
+      </div>
 
       <style jsx>{`
         input::placeholder {
@@ -198,13 +66,19 @@ const SearchBar: React.FC<HeaderProps> = ({
         }
       `}</style>
 
-      <div className="mt-8">
+      <div className="mt-8 relative">
         <FloatingDock
           items={categoryItems}
           activeCategory={activeCategory}
           onItemClick={handleCategoryChange}
         />
+              {searchLoading && (
+  <div className="absolute left-1/2 top-40 transform -translate-y-1/2">
+    <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-foreground"></div>
+  </div>
+)}
       </div>
+
     </div>
   );
 };

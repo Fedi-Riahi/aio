@@ -9,7 +9,6 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center">
 
           <div className="flex  flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8">
-            {/* Logo */}
             <Link href="/">
               <Image
                 src="/iden2.png"
@@ -23,14 +22,14 @@ const Footer = () => {
 
             <div className="flex space-x-6">
               <Link href="/about" className="text-gray-600 hover:text-foreground">
-                About
+                A Propos
               </Link>
               <Link href="/contact" className="text-gray-600 hover:text-foreground">
                 Contact
               </Link>
             </div>
           </div>
-           
+
 
 
           <div className="flex space-x-6 mt-6 md:mt-0">

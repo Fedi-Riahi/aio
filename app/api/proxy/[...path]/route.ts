@@ -1,30 +1,80 @@
-import { NextResponse } from 'next/server';
-import fetch from 'node-fetch';
+import { NextRequest, NextResponse } from "next/server";
 
-// Handle GET requests
-export async function GET(req: Request, { params }: { params: { path: string[] } }) {
-  const url = `https://api-prod.aio.events/${params.path.join('/')}`;
+export async function GET(req: NextRequest) {
+  return handleRequest(req, "GET");
+}
+
+export async function POST(req: NextRequest) {
+  return handleRequest(req, "POST");
+}
+
+async function handleRequest(req: NextRequest, method: string) {
+  const { pathname, searchParams } = new URL(req.url);
+  const path = pathname.replace("/api/proxy", "");
+  const url = `https://api-prod.aio.events${path}?${searchParams.toString()}`;
+  console.log(`General proxy: ${method} to:`, url);
+
+  let body;
+  let contentType = req.headers.get("content-type") || "application/json";
+
+  if (method === "POST") {
+    if (contentType.includes("application/json")) {
+      try {
+        const jsonBody = await req.json();
+        body = JSON.stringify(jsonBody);
+      } catch (error) {
+        return new NextResponse(
+          JSON.stringify({ error: "Invalid JSON body" }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+    } else if (contentType.includes("multipart/form-data")) {
+      console.log("Handling multipart/form-data request");
+      body = await req.body;
+    } else {
+
+      console.log("General proxy: Handling fallback content type:", contentType);
+      body = await req.text();
+    }
+  }
 
   try {
     const response = await fetch(url, {
-      method: 'GET',
+      method,
       headers: {
-        'Content-Type': 'application/json',
-        // Add any additional headers if required (e.g., Authorization)
+        "Content-Type": contentType,
+        Authorization: req.headers.get("authorization") || "",
       },
+      body,
+      duplex: "half",
     });
 
-    const data = await response.json();
+    const data = await response.text();
 
-    if (!response.ok) {
-      return NextResponse.json({ error: data }, { status: response.status });
-    }
+    const responseContentType =
+      response.headers.get("content-type") || "application/json";
 
-    return NextResponse.json(data);
+    return new NextResponse(data, {
+      status: response.status,
+      headers: { "Content-Type": responseContentType },
+    });
   } catch (error) {
-    return NextResponse.json(
-      { error: error.message || 'Internal Server Error' },
-      { status: 500 }
+    console.error("General proxy error:", error.message, error.stack);
+    return new NextResponse(
+      JSON.stringify({ error: "General proxy failed", details: error.message }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
     );
   }
 }
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};

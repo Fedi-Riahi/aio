@@ -12,7 +12,7 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({ handleCancel }) => 
         className="w-full px-8 py-2 bg-main text-white"
         onClick={handleCancel}
       >
-        Cancel
+        Annuler
       </Button>
     </div>
   );

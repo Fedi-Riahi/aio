@@ -1,40 +1,31 @@
 "use client";
-import React, { useState, useEffect } from "react";
+
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { TicketsSheet } from "./TicketsSheet";
 import { ProfileDrawer } from "./ProfileDrawer";
-import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { IconMenuDeep } from '@tabler/icons-react';
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { IconMenuDeep, IconBell } from "@tabler/icons-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { DialogTitle } from "@radix-ui/react-dialog";
+import { useNavbar } from "../hooks/useNavbar";
+import AdBanner from "./AdBanner";
 
 export default function Navbar() {
-  const { data: session } = useSession();
-  const [scrolling, setScrolling] = useState(false);
-  const [openTicketDrawer, setOpenTicketDrawer] = useState(false);
-  const [openProfileDrawer, setOpenProfileDrawer] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolling(window.scrollY > 0);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const handleMobileAction = (action: 'tickets' | 'profile') => {
-    setIsMobileMenuOpen(false);
-    if (action === 'tickets') {
-      setOpenTicketDrawer(true);
-    } else {
-      setOpenProfileDrawer(true);
-    }
-  };
+  const {
+    session,
+    scrolling,
+    openTicketDrawer,
+    setOpenTicketDrawer,
+    openProfileDrawer,
+    setOpenProfileDrawer,
+    unreadNotificationsCount,
+    isMobileMenuOpen,
+    setIsMobileMenuOpen,
+    handleMobileAction,
+    handlePublishEvent,
+  } = useNavbar();
 
   return (
     <>
@@ -45,12 +36,11 @@ export default function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
-
             <div className="flex items-center">
               <Link href="/">
                 <Image
                   src="/aio-events-logo.png"
-                  alt="AIO Events Logo"
+                  alt="Logo AIO Events"
                   width={80}
                   height={80}
                   className="hover:opacity-80 transition-opacity duration-300"
@@ -58,7 +48,6 @@ export default function Navbar() {
                 />
               </Link>
             </div>
-
 
             <div className="hidden md:flex space-x-6 items-center">
               {session ? (
@@ -68,50 +57,64 @@ export default function Navbar() {
                     onClick={() => setOpenTicketDrawer(true)}
                     className="text-md text-foreground hover:text-foreground/90 font-medium tracking-wider"
                   >
-                    Tickets
+                    Billets
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={handlePublishEvent}
+                    className="text-md text-foreground hover:text-foreground/90 font-medium tracking-wider"
+                  >
+                    Publier un événement
                   </Button>
                   <Button
                     variant="ghost"
                     onClick={() => setOpenProfileDrawer(true)}
                     className="text-md text-foreground hover:text-foreground/90 font-medium tracking-wider"
                   >
-                    Profile
+                    Profil
                   </Button>
+                  <div className="relative mt-2">
+                    <button
+                      className="text-md text-foreground hover:text-foreground/90 font-medium tracking-wider"
+                    >
+                      <IconBell size={24} />
+                    </button>
+                    {unreadNotificationsCount > 0 && (
+                      <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {unreadNotificationsCount}
+                      </span>
+                    )}
+                  </div>
                 </>
               ) : (
                 <Button
                   onClick={() => setOpenProfileDrawer(true)}
                   className="text-md text-white bg-main hover:bg-main/90 font-medium tracking-wider"
                 >
-                  Sign In
+                  Se connecter
                 </Button>
               )}
             </div>
 
-
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild className="md:hidden">
-                  <IconMenuDeep className="w-8 h-8 text-foreground" />
+                <IconMenuDeep className="w-8 h-8 text-foreground" />
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] sm:w-[400px] p-0">
                 <div className="flex flex-col h-full">
-
-                  <div className="p-4 ">
+                  <div className="p-4">
                     <div className="text-2xl flex items-center justify-between">
-                      <DialogTitle>
-                        Menu
-                      </DialogTitle>
+                      <DialogTitle>Menu</DialogTitle>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => setIsMobileMenuOpen(false)}
                         className="hover:bg-muted rounded-full text-sm text-main hover:text-main/90 transition duration-300"
-                        >
-                        Close
+                      >
+                        Fermer
                       </Button>
                     </div>
                   </div>
-
 
                   <div className="flex-1 py-4">
                     <div className="px-4 space-y-3">
@@ -119,26 +122,45 @@ export default function Navbar() {
                         <>
                           <Button
                             variant="ghost"
-                            onClick={() => handleMobileAction('tickets')}
+                            onClick={() => handleMobileAction("tickets")}
                             className="w-full justify-start text-lg font-medium"
-                            >
-                            Tickets
+                          >
+                            Billets
                           </Button>
                           <Button
                             variant="ghost"
-                            onClick={() => handleMobileAction('profile')}
+                            onClick={() => handleMobileAction("publish")}
                             className="w-full justify-start text-lg font-medium"
-                            >
-                            Profile
+                          >
+                            Publier un événement
                           </Button>
-
+                          <Button
+                            variant="ghost"
+                            onClick={() => handleMobileAction("profile")}
+                            className="w-full justify-start text-lg font-medium"
+                          >
+                            Profil
+                          </Button>
+                          <div>
+                            <Button
+                              variant="ghost"
+                              className="w-full justify-start text-lg font-medium relative"
+                            >
+                              Notifications
+                              {unreadNotificationsCount >= 0 && (
+                                <span className="ml-2 bg-red-500 text-white text-3xl rounded-full h-5 w-5 flex items-center justify-center">
+                                  {unreadNotificationsCount}
+                                </span>
+                              )}
+                            </Button>
+                          </div>
                         </>
                       ) : (
                         <Button
-                        onClick={() => handleMobileAction('profile')}
-                        className="w-full text-lg font-medium bg-main hover:bg-main/90"
+                          onClick={() => handleMobileAction("profile")}
+                          className="w-full text-lg font-medium bg-main hover:bg-main/90"
                         >
-                          Sign In
+                          Se connecter
                         </Button>
                       )}
                     </div>
@@ -150,6 +172,7 @@ export default function Navbar() {
         </div>
       </nav>
 
+      <AdBanner />
 
       <TicketsSheet open={openTicketDrawer} onOpenChange={setOpenTicketDrawer} />
       <ProfileDrawer open={openProfileDrawer} onOpenChange={setOpenProfileDrawer} />

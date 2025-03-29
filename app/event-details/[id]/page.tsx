@@ -1,95 +1,140 @@
-"use client"
-import React, { useState } from "react";
-import { useParams } from "next/navigation";
-import { eventData } from "@/data/data";
-import {  Users, Tag, ArrowLeft, Info, Ticket } from 'lucide-react';
+"use client";
+
+import React from "react";
+import { Users, Tag, ArrowLeft, Info, Ticket, Phone, Mail } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import TicketDrawer from "@/components/TicketDrawer";
-import { IconCopy } from '@tabler/icons-react';
+import { IconBrandFacebook, IconBrandInstagram, IconCopy, IconPhoneRinging } from "@tabler/icons-react";
+import { useEventDetails } from "@/hooks/useEventDetails";
+import { getTicketPrice, getAvailableTicketCount, getLocationName, getTimeDisplay, getPeriodDisplay, isEventTimePassed } from "@/utils/eventDetailsUtils";
 
 const EventDetails: React.FC = () => {
-  const { id } = useParams();
-  const event = eventData.find((event) => event.id === id);
-  const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
-  const [selectedPeriod, setSelectedPeriod] = useState(event?.periods[0]);
-  const [selectedLocation, setSelectedLocation] = useState(selectedPeriod?.locations[0]);
-  const [selectedTime, setSelectedTime] = useState(selectedLocation?.times[0]);
+  const {
+    event,
+    loading,
+    error,
+    selectedPeriod,
+    setSelectedPeriod,
+    selectedLocation,
+    setSelectedLocation,
+    selectedTime,
+    setSelectedTime,
+    seatData,
+    hasSeatTemplate,
+  } = useEventDetails();
 
-  if (!event) {
-    return <div className="flex justify-center items-center h-screen text-xl font-semibold">Loading event details...</div>;
+  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+
+  if (loading) {
+    return <div className="flex justify-center items-center h-screen text-xl font-semibold">Chargement des détails de l'événement...</div>;
   }
 
-  const openDrawer = () => setIsDrawerOpen(true);
+  if (error || !event) {
+    return <div className="flex justify-center items-center h-screen text-xl font-semibold text-red-500">Erreur: {error || "Événement introuvable"}</div>;
+  }
+
+  const openDrawer = () => {
+    if (process.env.NODE_ENV === "development") {
+      console.log("selectedTime.tickets:", selectedTime?.tickets);
+      console.log("event.ticket_type:", event.ticket_type);
+    }
+    setIsDrawerOpen(true);
+  };
+
   const closeDrawer = () => setIsDrawerOpen(false);
 
+  const hasValidTicketType = event.ticket_type && Array.isArray(event.ticket_type) && event.ticket_type.length > 0 && event.ticket_type.every(entry => entry.ticket && typeof entry.ticket === 'object');
+
+  const ownerPhone = event.owner[0]?.phone || "N/A";
+  const ownerEmail = event.owner[0]?.email || "N/A";
+  const ownerSocialLinks = event.owner[0]?.social_links || [];
+
+  const getSocialIcon = (platform: string) => {
+    switch (platform.toLowerCase()) {
+      case "instagram":
+        return <IconBrandInstagram size={20} className="text-main" />;
+      case "facebook":
+        return <IconBrandFacebook size={20} className="text-main" />;
+      default:
+        return <Mail size={18} className="text-main" />;
+    }
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 my-10 md:my-20 ">
-
-      <Link href="/" className="flex items-center gap-2  text-foreground w-fit py-2 px-4 rounded-lg ">
+    <div className="max-w-7xl mx-auto px-4 my-10 md:my-40">
+      <Link href="/" className="flex items-center gap-2 text-foreground w-fit py-2 px-4 rounded-lg">
         <ArrowLeft size={24} />
-        <span className="text-lg">Back</span>
+        <span className="text-lg">Retour</span>
       </Link>
-
 
       <div className="relative w-full h-[40vh] md:h-[50vh] my-8 rounded-xl overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-10" />
-        <Image src={event.thumbnail[1] || event.thumbnail[0]  } alt={event.event_name} layout="fill" className="object-cover" quality={100} />
+        <Image
+          src={event.thumbnail?.[1] || event.thumbnail?.[0] || "/default-image.jpg"}
+          alt={event.event_name}
+          layout="fill"
+          className="object-cover"
+          quality={100}
+        />
         <div className="absolute top-4 right-4 z-20">
-            <IconCopy stroke={2} className="w-10 h-10 rounded-lg text-foreground bg-black/20 p-2 cursor-pointer hover:bg-black/40 transition duration-300" />
+          <IconCopy stroke={2} className="w-10 h-10 rounded-lg text-foreground bg-black/20 p-2 cursor-pointer hover:bg-black/40 transition duration-300" />
         </div>
         <div className="absolute bottom-6 left-6 z-20">
           <div className="flex items-center gap-4 mb-4">
             <span className="px-3 py-1 bg-foreground/10 text-foreground rounded-full text-sm font-medium flex items-center gap-1">
               <Tag className="w-4 h-4" />
-              {event.categories}
+              {event.categories?.[0]?.name || "Non catégorisé"}
             </span>
             <span className="px-3 py-1 bg-foreground/10 text-foreground rounded-full text-sm font-medium flex items-center gap-1">
               <Users className="w-4 h-4" />
-              {event.views} Views
+              {event.views || 0} Vues
             </span>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-foreground">{event.event_name}</h1>
         </div>
       </div>
 
-
       <div className="flex flex-col lg:flex-row gap-8">
-
         <div className="w-full lg:w-1/2 space-y-8">
-
           <div>
-            <h2 className="text-2xl font-bold text-foreground mb-4">Event Period</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-4">Périodes de l'événement</h2>
             <div className="flex flex-wrap gap-4">
-              {event.periods.map((period, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedPeriod(period)}
-                  className={`px-6 py-3 rounded-lg font-medium transition duration-300 ${
-                    selectedPeriod === period
-                      ? 'bg-main text-foreground'
-                      : 'bg-offwhite  text-foreground hover:bg-foreground/20'
-                  }`}
-                >
-                  {period.start_day ? new Date(period.start_day).toLocaleDateString("en-US", { day: "numeric", month: "short" }) : "N/A"} -{" "}
-                  {period.end_day ? new Date(period.end_day).toLocaleDateString("en-US", { day: "numeric", month: "short" }) : "N/A"}
-                </button>
-              ))}
+              {event.periods.length > 0 ? (
+                event.periods.map((period, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      setSelectedPeriod(period);
+                      setSelectedLocation(period.locations[0] || null);
+                      setSelectedTime(period.locations[0]?.times[0] || null);
+                    }}
+                    className={`px-6 py-3 rounded-lg font-medium transition duration-300 ${
+                      selectedPeriod === period
+                        ? "bg-main text-foreground"
+                        : "bg-offwhite text-foreground hover:bg-foreground/20"
+                    }`}
+                  >
+                    {getPeriodDisplay(period)}
+                  </button>
+                ))
+              ) : (
+                <p>Aucune période disponible pour cet événement.</p>
+              )}
             </div>
           </div>
 
-
           {selectedPeriod && (
             <div>
-              <h2 className="text-2xl font-bold text-foreground mb-4">Event Schedule</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-4">Programme de l'événement</h2>
               <div className="space-y-6">
-                {selectedPeriod.locations.map((location, locationIndex) => (
+                {selectedPeriod.locations?.map((location, locationIndex) => (
                   <div key={locationIndex} className="space-y-4">
                     <h3 className="text-xl font-semibold text-foreground">
-                      Location : <span className="text-main">{location.location}</span>
+                      Lieu: <span className="text-main">{getLocationName(location.location, event.owner[0]?.organization_name)}</span>
                     </h3>
                     <div className="flex flex-wrap gap-4">
-                      {location.times.map((time, timeIndex) => (
+                      {location.times?.map((time, timeIndex) => (
                         <button
                           key={timeIndex}
                           onClick={() => {
@@ -97,12 +142,12 @@ const EventDetails: React.FC = () => {
                             setSelectedTime(time);
                           }}
                           className={`px-6 py-3 rounded-lg font-medium transition duration-300 ${
-                            selectedTime === time
-                              ? 'bg-main text-foreground'
-                              : 'bg-offwhite  text-foreground hover:bg-foreground/20'
+                            selectedTime === time && selectedLocation === location
+                              ? "bg-main text-foreground"
+                              : "bg-offwhite text-foreground hover:bg-foreground/20"
                           }`}
                         >
-                          {new Date(time.start_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                          {getTimeDisplay(time.start_time, time.end_time, time.tickets)}
                         </button>
                       ))}
                     </div>
@@ -112,57 +157,148 @@ const EventDetails: React.FC = () => {
             </div>
           )}
 
-
-          {selectedTime && (
+          {selectedTime && selectedLocation && hasValidTicketType && !isEventTimePassed(selectedTime) ? (
             <div>
-              <h2 className="text-2xl font-bold text-foreground mb-4">Available Tickets</h2>
-              <div className="space-y-4">
-                {selectedTime.tickets.map((ticket, ticketIndex) => (
-                  <div
-                    key={ticketIndex}
-                    className="bg-offwhite backdrop-blur-sm rounded-xl p-6 border border-black/10 hover:border-black/20 shadow-sm hover:shadow-lg flex items-center justify-between  transition duration-300"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-main/10 rounded-full">
-                        <Ticket size={24} className="text-main" />
+              <h2 className="text-2xl font-bold text-foreground mb-4">Billets disponibles</h2>
+              {selectedTime.tickets.length > 0 ? (
+                <div className="space-y-4">
+                  {selectedTime.tickets.map((ticket, ticketIndex) => {
+                    const price = getTicketPrice(ticket.ticket_id, event.ticket_type);
+                    const periodIndex = selectedPeriod?.originalIndex || 0;
+                    const locationIndex = selectedPeriod?.locations.indexOf(selectedLocation!) || 0;
+                    const timeIndex = selectedLocation?.times.indexOf(selectedTime!) || 0;
+
+                    const availableCount = getAvailableTicketCount(
+                      ticket.ticket_id,
+                      periodIndex,
+                      locationIndex,
+                      timeIndex,
+                      ticketIndex,
+                      ticket.count,
+                      event.ticketsGroups
+                    );
+
+                    const isSoloTicket = ticket.type.toLowerCase() === "solo";
+                    const isDisabled = isSoloTicket && availableCount <= 0;
+                    const isAvailable = !isDisabled;
+                    const availabilityText = isSoloTicket
+                      ? availableCount > 0
+                        ? `(${availableCount} Disponible(s))`
+                        : "(Complet)"
+                      : "(Disponible - Sélection des places)";
+
+                    return (
+                      <div
+                        key={ticketIndex}
+                        className="bg-offwhite backdrop-blur-sm rounded-xl p-6 border border-black/10 hover:border-black/20 shadow-sm hover:shadow-lg flex items-center justify-between transition duration-300"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="p-3 bg-main/10 rounded-full">
+                            <Ticket size={24} className="text-main" />
+                          </div>
+                          <div>
+                            <h4 className="text-lg font-semibold text-foreground">Billet {ticket.type}</h4>
+                            <p className="text-lg font-bold text-main">
+                              {price === "N/A" ? "Prix N/A" : `${price}.00 DT`} {availabilityText}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={openDrawer}
+                          disabled={isDisabled}
+                          className={`px-6 py-2 rounded-lg transition duration-300 ${
+                            isAvailable
+                              ? "bg-main text-foreground hover:bg-main/90"
+                              : "bg-gray-400 text-gray-700 cursor-not-allowed"
+                          }`}
+                        >
+                          Acheter
+                        </button>
                       </div>
-                      <div>
-                        <h4 className="text-lg font-semibold text-foreground">{ticket.type} Ticket</h4>
-                        <p className="text-lg font-bold text-main">{ticket.price}.00 DT</p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={openDrawer}
-                      className="bg-main text-foreground px-6 py-2 rounded-lg hover:bg-main transition duration-300"
-                    >
-                      Buy Now
-                    </button>
-                  </div>
-                ))}
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-gray-500">Aucun billet disponible pour ce créneau horaire.</p>
+              )}
+            </div>
+          ) : selectedTime && selectedLocation && hasValidTicketType && isEventTimePassed(selectedTime) ? (
+            <div className="flex items-center gap-2 text-foreground/60">
+              <Info size={24} />
+              <p className="text-red-500 font-semibold">Événement terminé</p>
+            </div>
+          ) : null}
+
+          <div className="my-6">
+            {!hasValidTicketType && (
+              <div className="flex items-center justify-start gap-2">
+                <IconPhoneRinging className="text-main" size={24} />
+                <span className="text-main font-medium text-lg">
+                  Veuillez contacter l'organisateur pour obtenir des billets.
+                </span>
               </div>
+            )}
+          </div>
+
+          {!hasValidTicketType && (
+            <div className="mt-6 rounded-lg space-y-2 text-foreground/80">
+              <h2 className="text-2xl font-bold text-foreground mb-4">Informations</h2>
+              <p className="flex items-center gap-3 bg-offwhite py-3 px-4 rounded-md">
+                <Phone size={20} className="text-main" />
+                <span className="font-semibold text-foreground">{ownerPhone}</span>
+              </p>
+              <p className="flex items-center gap-3 bg-offwhite py-3 px-4 rounded-md">
+                <Mail size={20} className="text-main" />
+                <span className="font-semibold text-foreground">{ownerEmail}</span>
+              </p>
+              {ownerSocialLinks.length > 0 && (
+                <div className="space-y-2">
+                  {ownerSocialLinks.map((link) => (
+                    <p key={link.platform} className="flex items-center gap-3 bg-offwhite py-3 px-4 rounded-md">
+                      {getSocialIcon(link.platform)}
+                      <Link
+                        href={link.social_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-foreground"
+                      >
+                        {link.platform.charAt(0).toUpperCase() + link.platform.slice(1)}
+                      </Link>
+                    </p>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
           <div className="flex items-center gap-2 text-foreground/60">
             <Info size={24} />
-            <p>If there are no tickets left, dont worry! Come back later.</p>
+            <p>Si tous les billets sont vendus, ne vous inquiétez pas ! Revenez plus tard.</p>
           </div>
         </div>
 
         <div className="w-full lg:w-1/2">
-          <h2 className="text-2xl font-bold text-blacks mb-4">Event Description</h2>
-          <div className="bg-offwhite backdrop-blur-sm rounded-xl p-6 ">
-            <p className="text-lg text-foreground/80 leading-relaxed">{event.description}</p>
+          <h2 className="text-2xl font-bold text-blacks mb-4">Description de l'événement</h2>
+          <div className="bg-offwhite backdrop-blur-sm rounded-xl p-6">
+            <p className="text-lg/6 text-foreground/80 leading-relaxed text-justify">{event.description}</p>
           </div>
         </div>
       </div>
-
 
       <TicketDrawer
         tickets={selectedTime?.tickets || []}
         isOpen={isDrawerOpen}
         onClose={closeDrawer}
         eventType="cinema"
+        ticketType={event.ticket_type || []}
+        eventId={event._id}
+        periodIndex={selectedPeriod?.originalIndex || 0}
+        locationIndex={selectedPeriod?.locations.indexOf(selectedLocation!) || 0}
+        timeIndex={selectedLocation?.times.indexOf(selectedTime!) || 0}
+        ticketIndex={0}
+        ticketsGroups={event.ticketsGroups || []}
+        hasSeatTemplate={hasSeatTemplate}
+        seatData={seatData}
       />
     </div>
   );

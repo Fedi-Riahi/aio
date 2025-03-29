@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,9 +6,45 @@
 .custom-drawer-content {
     transform: translateX(100%); /* Move Drawer out of view to the right initially */
     transition: transform 0.3s ease-in-out; /* Smooth transition */
+    border: none;
   }
-  
+
   .custom-drawer-content[data-state="open"] {
     transform: translateX(0); /* Move the Drawer to the right when it's open */
   }
-  
+/* Override Leaflet control styles */
+.leaflet-control-zoom a {
+    background-color: #D30641 !important; /* background */
+    color: #fff !important; /* foreground */
+    border: none !important;
+  }
+
+  .leaflet-control-zoom a:hover {
+    background-color: #D30641 !important; /* main */
+  }
+
+  /* Ensure the map container has a matching background */
+  .leaflet-container {
+    background: rgb(9, 17, 28) !important; /* background */
+    border: none;
+  }
+
+  /* Optional: Style attribution text */
+  .leaflet-control-attribution {
+    background: rgba(255, 255, 255, 0.1) !important; /* offwhite */
+    color: #fff !important; /* foreground */
+  }
+/* styles/globals.css */
+@keyframes marquee {
+    0% {
+      transform: translateX(100vw); /* Start from the far right of the viewport */
+    }
+    100% {
+      transform: translateX(-100%); /* Move to the far left, beyond the text's width */
+    }
+  }
+
+  .animate-marquee {
+    display: inline-block;
+    animation: marquee 15s linear infinite;
+  }
