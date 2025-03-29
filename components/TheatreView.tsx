@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import { SeatProps, SeatMapProps, TheatreViewProps } from "../types/theatreView";
 import { sortSeats, getUniqueRows, calculateSeatSize } from "../utils/theatreViewUtils";
 import { useTheatreView } from "../hooks/useTheatreView";
@@ -37,6 +37,14 @@ const SeatMap: React.FC<SeatMapProps> = React.memo(
     const columns = 18;
     const seatSize = calculateSeatSize(containerWidth, containerHeight, columns, uniqueRows.length);
 
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const handleSeatSelect = useCallback((id: string) => {
+      setSelectedSeats((prev) =>
+        prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+      );
+    }, [setSelectedSeats]);
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const memoizedRows = useMemo(() => {
       return uniqueRows.map((row) => {
         const rowSeats = orderedSeats.filter((seat) => seat.seat_index[0] === row);
@@ -57,11 +65,7 @@ const SeatMap: React.FC<SeatMapProps> = React.memo(
                   seatActive={selectedSeats.includes(seatId)}
                   isRemoved={seat.is_removed}
                   seatSize={seatSize}
-                  onSelect={(id) =>
-                    setSelectedSeats((prev) =>
-                      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
-                    )
-                  }
+                  onSelect={handleSeatSelect}
                 />
               );
             }
@@ -80,7 +84,7 @@ const SeatMap: React.FC<SeatMapProps> = React.memo(
           </div>
         );
       });
-    }, [uniqueRows, orderedSeats, taken, selectedSeats, seatSize]);
+    }, [uniqueRows, orderedSeats, taken, selectedSeats, seatSize, handleSeatSelect]);
 
     return <div className="flex flex-col items-center w-full gap-2">{memoizedRows}</div>;
   }
@@ -120,7 +124,7 @@ const TheatreView: React.FC<TheatreViewProps> = ({
   maxSeats,
   takenSeats = [],
 }) => {
-  const {  clearSelectedSeats, normalizedTakenSeats } = useTheatreView({
+  const { clearSelectedSeats, normalizedTakenSeats } = useTheatreView({
     seats,
     selectedSeats,
     setSelectedSeats,
