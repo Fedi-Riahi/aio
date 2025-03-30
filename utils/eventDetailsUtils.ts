@@ -7,6 +7,7 @@ export const fetchEventData = async (id: string): Promise<Event> => {
     const eventResponse = await apiClient.get(`/event/${id}`);
 
     const eventData = eventResponse.data;
+    console.log("event data",eventData)
     const eventDetails = eventData.respond?.data || eventData;
     if (!eventDetails || !eventDetails._id) {
       throw new Error("Invalid event data structure");
@@ -179,21 +180,27 @@ export const getPeriodDisplay = (period: Period): string => {
     : period.locations?.[0]?.times?.[0]?.end_time
     ? getLocalDate(period.locations[0].times[0].end_time)
     : start;
+
+  // If start and end dates are the same, return only the start date
+  if (start === end) {
+    return start;
+  }
+
   return `${start} - ${end}`;
 };
 
 export const isEventTimePassed = (time: Time | null): boolean => {
-    if (!time || !time.end_time) return false;
+  if (!time || !time.end_time) return false;
 
-    const currentDate = new Date();
+  const currentDate = new Date();
 
-    const endTimeString = Array.isArray(time.end_time) ? time.end_time[0] : time.end_time;
-    const eventEndTime = new Date(endTimeString);
+  const endTimeString = Array.isArray(time.end_time) ? time.end_time[0] : time.end_time;
+  const eventEndTime = new Date(endTimeString);
 
-    if (isNaN(eventEndTime.getTime())) {
-      console.warn("Invalid end_time format:", endTimeString);
-      return false;
-    }
+  if (isNaN(eventEndTime.getTime())) {
+    console.warn("Invalid end_time format:", endTimeString);
+    return false;
+  }
 
-    return eventEndTime < currentDate;
-  };
+  return eventEndTime < currentDate;
+};

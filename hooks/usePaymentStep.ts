@@ -1,10 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { PaymentStepProps, Coordinates } from "../types/paymentStep";
-import { createOrderRequestBody, processOnlinePayment } from "../utils/paymentStepUtils";
+import { createOrderRequestBody, processOrder } from "../utils/paymentStepUtils";
 
 export const usePaymentStep = ({
   paymentMode,
-
   handleDeliveryChange,
   calculateTotal,
   eventId,
@@ -18,6 +17,8 @@ export const usePaymentStep = ({
   firstName,
   lastName,
   mapRegion,
+  couponCode,
+  deliveryDetails,
   onPaymentSuccess,
 }: Omit<PaymentStepProps, "discount" | "walletId" | "currency"> & {
   mapRegion?: Coordinates;
@@ -48,7 +49,12 @@ export const usePaymentStep = ({
 
         if (data.items && data.items.length > 0) {
           const address = data.items[0].address.label;
+          const city = data.items[0].address.city || "";
+          const province = data.items[0].address.state || "";
+
           handleDeliveryChange("address", address);
+          handleDeliveryChange("city", city);
+          handleDeliveryChange("province", province);
           setAddressError(null);
         } else {
           setAddressError("No address found for the selected location.");
@@ -68,16 +74,15 @@ export const usePaymentStep = ({
     setIsMapOpen(false);
   };
 
-  const handleOnlinePayment = useCallback(async () => {
+  const handleOrderProcessing = useCallback(async () => {
     setIsProcessingPayment(true);
 
-    if (!eventId || !ticketDataList || ticketDataList.length === 0 || !email) {
-      alert("Error: Required fields (event ID, ticket data, or email) are missing.");
-      setIsProcessingPayment(false);
-      return;
-    }
-
     try {
+      // Validate required fields
+      if (!eventId || !ticketDataList || ticketDataList.length === 0) {
+        throw new Error("Event ID and at least one ticket are required");
+      }
+
       const orderRequestBody = createOrderRequestBody({
         eventId,
         ticketDataList,
@@ -90,17 +95,21 @@ export const usePaymentStep = ({
         phoneNumber,
         firstName,
         lastName,
+        couponCode,
+        deliveryDetails,
         calculateTotal,
       });
 
-      const paymentLink = await processOnlinePayment(orderRequestBody);
-      window.open(paymentLink, "_blank");
+      const response = await processOrder(orderRequestBody);
 
-      if (onPaymentSuccess) {
-        onPaymentSuccess(ticketDataList);
+      if (response.success) {
+        // Pass the entire response to onPaymentSuccess for PaymentStep to handle
+        onPaymentSuccess(response);
+      } else {
+        alert(response.error?.details || "Failed to process order");
       }
     } catch (error) {
-      alert(`An error occurred: ${error instanceof Error ? error.message : "Unknown error"}`);
+      alert(error instanceof Error ? error.message : "An unknown error occurred");
     } finally {
       setIsProcessingPayment(false);
     }
@@ -116,13 +125,15 @@ export const usePaymentStep = ({
     phoneNumber,
     firstName,
     lastName,
+    couponCode,
+    deliveryDetails,
     calculateTotal,
     onPaymentSuccess,
   ]);
 
   return {
     isProcessingPayment,
-    handleOnlinePayment,
+    handleOrderProcessing,
     addressError,
     isMapOpen,
     setIsMapOpen,

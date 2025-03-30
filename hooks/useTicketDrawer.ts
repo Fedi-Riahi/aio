@@ -1,7 +1,48 @@
 import { useState, useEffect } from "react";
 import { Ticket } from "@/types/eventDetails";
 import { DeliveryDetails, TicketOrder } from "@/types/ticketDrawer";
-import { calculateTotal, applyCoupon, buildTicketDataList } from "@/utils/ticketDrawerUtils";
+import { TicketData } from "@/types/paymentStep"; // Assuming this is where TicketData is defined
+import { calculateTotal, applyCoupon } from "@/utils/ticketDrawerUtils";
+
+// Define types (assumed from context; adjust as needed)
+interface TicketType {
+  id: string;
+  name: string;
+  price: number;
+}
+
+interface Seat {
+  id: string;
+  name: string;
+}
+
+// Utility function to build ticketDataList with ticket_index based on ticket type
+const buildTicketDataList = (
+  selectedTickets: { [key: string]: number },
+  userNames: { [key: string]: string[] },
+  tickets: Ticket[],
+  ticketType: TicketType[],
+  hasSeatTemplate: boolean | null,
+  selectedSeats: string[]
+): TicketData[] => {
+  const ticketDataList: TicketData[] = [];
+  Object.entries(selectedTickets).forEach(([ticketId, quantity]) => {
+    const ticket = tickets.find((t) => t.id === ticketId);
+    const ticketTypeData = ticketType.find((tt) => tt.id === ticketId);
+    const ticketTypeIndex = ticketType.findIndex((tt) => tt.id === ticketId); // Get index of ticket type
+    const names = userNames[ticketId] || [];
+
+    for (let i = 0; i < quantity; i++) {
+      ticketDataList.push({
+        ticket_id: ticketId,
+        name: names[i] || ticketTypeData?.name || ticket?.name || "Unnamed",
+        ticket_index: ticketTypeIndex !== -1 ? ticketTypeIndex : 0, // Use ticket type index, default to 0 if not found
+        seat_index: hasSeatTemplate && selectedSeats[i] ? selectedSeats[i] : "N/A",
+      });
+    }
+  });
+  return ticketDataList;
+};
 
 export const useTicketDrawer = (
   tickets: Ticket[],
@@ -28,6 +69,7 @@ export const useTicketDrawer = (
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [maxSeats, setMaxSeats] = useState<number>(0);
 
+  // Update maxSeats based on selectedTickets
   useEffect(() => {
     const totalSelectedTickets = Object.values(selectedTickets).reduce((sum, quantity) => sum + quantity, 0);
     setMaxSeats(totalSelectedTickets);
@@ -36,16 +78,22 @@ export const useTicketDrawer = (
     }
   }, [selectedTickets]);
 
+  // Log ticketDataList for debugging
+  const ticketDataList = buildTicketDataList(selectedTickets, userNames, tickets, ticketType, hasSeatTemplate, selectedSeats);
+  useEffect(() => {
+    console.log("ticketDataList in useTicketDrawer:", ticketDataList);
+  }, [ticketDataList]); // Dependency on ticketDataList directly
+
   const handleQuantityChange = (ticketId: string, quantity: number) => {
     setSelectedTickets((prev) => ({
       ...prev,
-      [ticketId]: quantity,
+      [ticketId]: Math.max(0, quantity), // Prevent negative quantities
     }));
   };
 
   const handleNameChange = (ticketId: string, index: number, name: string) => {
     setUserNames((prev) => {
-      const updatedNames = [...(prev[ticketId] || [])];
+      const updatedNames = [...(prev[ticketId] || Array(selectedTickets[ticketId] || 0).fill(""))];
       updatedNames[index] = name;
       return {
         ...prev,
@@ -88,30 +136,31 @@ export const useTicketDrawer = (
   const handleContinue = () => {
     if (step === "selectQuantity") {
       const hasSelectedTickets = Object.values(selectedTickets).some((quantity) => quantity > 0);
-      if (hasSelectedTickets) {
-        setStep(hasSeatTemplate ? "selectSeats" : "enterNames");
-      } else {
+      if (!hasSelectedTickets) {
         alert("Please select at least one ticket.");
+        return;
       }
+      setStep(hasSeatTemplate ? "selectSeats" : "enterNames");
     } else if (step === "selectSeats") {
-      if (selectedSeats.length === maxSeats) {
-        setStep("enterNames");
-      } else {
+      if (selectedSeats.length !== maxSeats) {
         alert(`Please select exactly ${maxSeats} seat${maxSeats !== 1 ? "s" : ""}. You have selected ${selectedSeats.length}.`);
+        return;
       }
+      setStep("enterNames");
     } else if (step === "enterNames") {
       const allNamesEntered = Object.entries(selectedTickets).every(([ticketId, quantity]) => {
         const ticketUsers = userNames[ticketId] || [];
         return ticketUsers.length === quantity && ticketUsers.every((name) => name.trim() !== "");
       });
-
-      if (allNamesEntered) {
-        setStep("payment");
-      } else {
+      if (!allNamesEntered) {
         alert("Please enter names for all selected tickets.");
+        return;
       }
+      setStep("payment");
     } else if (step === "payment") {
       setStep("confirmation");
+    } else if (step === "confirmation") {
+      onClose();
     }
   };
 
@@ -136,7 +185,6 @@ export const useTicketDrawer = (
   };
 
   const total = calculateTotal(tickets, selectedTickets, ticketType, paymentMode, discount);
-  const ticketDataList = buildTicketDataList(selectedTickets, userNames, tickets, ticketType, hasSeatTemplate, selectedSeats);
 
   return {
     selectedTickets,

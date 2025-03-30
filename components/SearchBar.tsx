@@ -5,7 +5,6 @@ import { HeaderProps } from "../types/searchBar";
 import { useSearchBar } from "../hooks/useSearchBar";
 import { placeholders } from "../utils/searchBarUtils";
 
-
 const SearchBar: React.FC<HeaderProps> = ({
   searchQuery,
   onSearchChange,
@@ -44,11 +43,14 @@ const SearchBar: React.FC<HeaderProps> = ({
           type="text"
           value={searchQuery}
           onChange={onSearchChange}
+          onKeyPress={(e) => e.key === "Enter" && onSearchSubmit(e)}
           className="w-full p-3 pl-14 pr-14 text-foreground bg-offwhite rounded-full backdrop-blur-lg shadow-lg focus:outline-none focus:ring-1 focus:ring-black"
           placeholder={placeholders[currentPlaceholder]}
         />
-        <IconSearch className="absolute right-4 top-1/2 transform -translate-y-1/2 text-foreground w-5 h-5 cursor-pointer" />
-
+        <IconSearch
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-foreground w-5 h-5 cursor-pointer"
+          onClick={onSearchSubmit}
+        />
       </div>
 
       <style jsx>{`
@@ -67,16 +69,15 @@ const SearchBar: React.FC<HeaderProps> = ({
       <div className="mt-8 relative">
         <FloatingDock
           items={categoryItems}
-          activeCategory={activeCategory}
-          onItemClick={handleCategoryChange}
+          activeCategory={activeCategory} // Tracks ID
+          onItemClick={handleCategoryChange} // Receives ID from FloatingDock
         />
-              {searchLoading && (
-  <div className="absolute left-1/2 top-40 transform -translate-y-1/2">
-    <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-foreground"></div>
-  </div>
-)}
+        {searchLoading && (
+          <div className="absolute left-1/2 top-40 transform -translate-y-1/2">
+            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-foreground"></div>
+          </div>
+        )}
       </div>
-
     </div>
   );
 };

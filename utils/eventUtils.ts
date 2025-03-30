@@ -5,7 +5,7 @@ export const fetchHomeData = async (): Promise<Event[]> => {
   try {
     const response = await apiClient.get("/normalaccount/home");
 
-    const data = response.data; 
+    const data = response.data;
     if (!data.respond || !Array.isArray(data.respond.data)) {
       throw new Error("Unexpected data format");
     }
@@ -42,6 +42,7 @@ export const fetchHomeData = async (): Promise<Event[]> => {
 
     return Object.values(eventMap);
   } catch (error) {
+    console.error("Error fetching home data:", error);
     throw new Error(`Failed to fetch home data: ${error.response?.status || "Unknown"} - ${error.response?.data?.details || error.message || "No details"}`);
   }
 };
@@ -63,6 +64,55 @@ export const fetchCategoriesForEvents = async (eventList: Event[]): Promise<Even
     })
   );
 };
+
+export const fetchEventsByCategory = async (categoryId: string): Promise<Event[]> => {
+    try {
+      const response = await apiClient.get("/event/geteventsbycategory", {
+        params: {
+          startCount: 0,
+          maxCount: 10,
+          category_id: categoryId,
+        },
+      });
+      const data = response.data;
+      if (!data.success || !Array.isArray(data.respond?.data)) {
+        throw new Error("Unexpected data format");
+      }
+
+      return data.respond.data.map((event: any) => ({
+        _id: event._id,
+        event_name: event.event_name,
+        event_date: event.event_date,
+        thumbnail: event.thumbnail || "/default-image.jpg",
+        tickets: event.tickets.length
+          ? event.tickets.map((ticket: any) => ({
+              _id: ticket._id,
+              discount: ticket.discount || 0,
+              details: {
+                price: ticket.details.price || 0, // Default to 0 if no price
+                phases: ticket.details.phases || [],
+              },
+            }))
+          : [{ details: { price: 0, phases: [] } }], // Default if no tickets
+        owner: event.owner.map((org: any) => ({
+          _id: org._id,
+          organization_name: org.organization_name,
+          profile_picture: org.profile_picture || "/default-org-image.jpg",
+        })),
+        categories: [], // Will be populated later if needed
+        type: "category", // Custom type for category-based events
+        visibility: event.isValid ? "Public" : "Private", // Infer from isValid
+        likes: event.likes || [], // Include likes if needed
+        isValid: event.isValid,
+      }));
+    } catch (error) {
+      console.error(
+        `Failed to fetch events for category ${categoryId}:`,
+        error.response?.status || error.message
+      );
+      return [];
+    }
+  };
 
 export const filterEvents = (
   events: Event[],

@@ -46,9 +46,7 @@ const SelectQuantityStep: React.FC<SelectQuantityStepProps> = ({
               <div>
                 <h4 className="text-xl font-semibold text-white">Billet {ticketName}</h4>
                 <p className="text-lg text-main font-medium">{ticketPrice}.00 DT</p>
-                {isSoloTicket && (
-                  <p className="text-sm text-gray-300">Disponibles : {availableCount}</p>
-                )}
+
               </div>
             </div>
 

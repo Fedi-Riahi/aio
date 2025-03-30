@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import apiClient from "../utils/apiClient";
 import { HeaderProps, CategoryItem } from "../types/searchBar";
 import { placeholders, fetchCategories, buildCategoryNames } from "../utils/searchBarUtils";
+import { fetchEventsByCategory } from "../utils/eventUtils";
 import { LuEarth } from "react-icons/lu";
 import { LiaHandshake } from "react-icons/lia";
 import {
@@ -37,9 +38,11 @@ export const useSearchBar = ({
       try {
         setLoading(true);
         const categoryData = await fetchCategories();
+        console.log("Categories loaded:", categoryData);
         setCategories(categoryData);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
+        console.error("Error loading categories:", err);
       } finally {
         setLoading(false);
       }
@@ -74,16 +77,13 @@ export const useSearchBar = ({
     try {
       setSearchLoading(true);
       const response = await apiClient.get("/normalaccount/search", {
-        params: {
-          keyword: query,
-          maxCount: 10,
-          startCount: 0,
-        },
+        params: { keyword: query, maxCount: 10, startCount: 0 },
       });
-      const data = response.data;
-      setEvents(data.respond?.data || []);
+      console.log("Search events response:", response.data);
+      setEvents(response.data.respond?.data || []);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to search events");
+      console.error("Error searching events:", err);
     } finally {
       setSearchLoading(false);
     }
@@ -93,16 +93,31 @@ export const useSearchBar = ({
     try {
       setSearchLoading(true);
       const response = await apiClient.get("/normalaccount/searchforotheorgaccounts", {
-        params: {
-          keyword: query,
-          maxCount: 10,
-          startCount: 0,
-        },
+        params: { keyword: query, maxCount: 10, startCount: 0 },
       });
-      const data = response.data;
-      setOwners(data.respond?.data || []);
+      console.log("Search owners response:", response.data);
+      setOwners(response.data.respond?.data || []);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to search owners");
+      console.error("Error searching owners:", err);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  const fetchEventsForCategory = async (categoryId: string) => {
+    try {
+      setSearchLoading(true);
+      const categoryEvents = await fetchEventsByCategory(categoryId);
+      console.log("Fetched events for category ID", categoryId, ":", categoryEvents);
+      setEvents(categoryEvents);
+      console.log("Events state updated with:", categoryEvents);
+      if (categoryEvents.length === 0) {
+        console.warn("No events returned for category ID:", categoryId);
+      }
+    } catch (err) {
+      setError("Failed to fetch events for category");
+      console.error("Error fetching category events:", err);
     } finally {
       setSearchLoading(false);
     }
@@ -110,9 +125,22 @@ export const useSearchBar = ({
 
   useEffect(() => {
     const debounceSearch = setTimeout(() => {
+      console.log("useEffect triggered - searchQuery:", searchQuery, "activeCategory:", activeCategory);
       if (searchQuery.trim()) {
+        console.log("Fetching search results for query:", searchQuery);
         Promise.all([searchEvents(searchQuery), searchOwners(searchQuery)]);
+      } else if (activeCategory) {
+        const selectedCategory = categories.find((cat) => cat.name === activeCategory);
+        console.log("Selected category:", selectedCategory);
+        if (selectedCategory?.id) {
+          console.log("Fetching events for category ID:", selectedCategory.id);
+          fetchEventsForCategory(selectedCategory.id);
+        } else {
+          console.warn("No category ID found for activeCategory:", activeCategory);
+          setEvents([]);
+        }
       } else {
+        console.log("Resetting events and owners");
         setEvents([]);
         setOwners([]);
         setError(null);
@@ -120,7 +148,11 @@ export const useSearchBar = ({
     }, 500);
 
     return () => clearTimeout(debounceSearch);
-  }, [searchQuery]);
+  }, [searchQuery, activeCategory]);
+
+  useEffect(() => {
+    console.log("Events state changed in useSearchBar:", events);
+  }, [events]);
 
   const getIconForCategory = (categoryName: string): JSX.Element => {
     switch (categoryName.toLowerCase()) {
@@ -151,7 +183,9 @@ export const useSearchBar = ({
   };
 
   const categoryItems: CategoryItem[] = buildCategoryNames(categories).map((item) => ({
-    ...item,
+    id: item.id, // Ensure id is included
+    name: item.name,
+    href: "#", // Adjust as needed
     icon: item.name === "All" ? (
       <IconCategory className="h-full w-full" />
     ) : (
@@ -159,10 +193,11 @@ export const useSearchBar = ({
     ),
   }));
 
-  const handleCategoryChange = (category: string) => {
-    const newCategory = category === "All" ? "" : category;
-    setActiveCategory(newCategory);
-    onCategoryChange(newCategory);
+  const handleCategoryChange = (categoryId: string) => {
+    const newCategory = categoryId === "All" ? "" : categoryId;
+    console.log("handleCategoryChange - New category ID:", newCategory);
+    setActiveCategory(newCategory); // Tracks ID
+    onCategoryChange(newCategory); // Pass ID to useEventFilters
   };
 
   return {

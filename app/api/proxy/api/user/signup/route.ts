@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const url = "https://api-prod.aio.events/api/user/signup";
+  const url = "https://8rgspuz56m.eu-central-1.awsapprunner.com/api/user/signup";
   console.log(`Signup proxy: POST to:`, url);
 
 

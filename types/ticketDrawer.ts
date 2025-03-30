@@ -24,7 +24,9 @@ export interface TicketDrawerProps {
   timeIndex?: number;
   ticketIndex?: number;
   ticketsGroups?: TicketGroup[];
+  paymentMethods?: string[];
   hasSeatTemplate?: boolean | null;
+  extraFields?: { field: string; value?: string }[];
   seatData?: SeatData | null;
 }
 

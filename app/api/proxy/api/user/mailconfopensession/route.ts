@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const url = "https://api-prod.aio.events/api/user/mailconfopensession";
+  const url = "https://8rgspuz56m.eu-central-1.awsapprunner.com/api/user/mailconfopensession";
   console.log(`Mailconf proxy to:`, url);
 
   let body;

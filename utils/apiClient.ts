@@ -81,7 +81,7 @@ apiClient.interceptors.response.use(
           {
             refresh_token: authTokens.refresh_token,
           },
-          { withCredentials: true } 
+          { withCredentials: true }
         );
 
         const newTokens: AuthTokens = {

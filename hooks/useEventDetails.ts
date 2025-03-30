@@ -22,7 +22,6 @@ export const useEventDetails = () => {
         setLoading(true);
         const eventData = await fetchEventData(id as string);
 
-
         if (eventData.ticket_type) {
           eventData.ticket_type = eventData.ticket_type.filter(
             (type: any) => type?.ticket && type.ticket._id && type.ticket.price
@@ -30,7 +29,6 @@ export const useEventDetails = () => {
         } else {
           eventData.ticket_type = [];
         }
-
 
         if (eventData.periods) {
           eventData.periods = eventData.periods.map((period: any, index: number) => ({
@@ -56,7 +54,6 @@ export const useEventDetails = () => {
         }
 
         setEvent(eventData);
-
 
         if (eventData.periods.length > 0) {
           const firstPeriod = eventData.periods[0];

@@ -2,7 +2,6 @@
 import React from "react";
 import SearchBar from "./SearchBar";
 import EventCard from "./EventCard";
-import EventOwnerCard from "./EventOwnerCard";
 import { motion } from "framer-motion";
 import { useEventFilters } from "@/hooks/useEventFilters";
 
@@ -16,8 +15,9 @@ const Events: React.FC = () => {
     handleSearchSubmit,
     handleCategoryChange,
     loadMoreEvents,
-    searchedOwners,
   } = useEventFilters();
+
+  console.log("Events.tsx - visibleEvents:", visibleEvents);
 
   return (
     <div className="min-h-screen">
@@ -26,21 +26,9 @@ const Events: React.FC = () => {
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
           onSearchSubmit={handleSearchSubmit}
-          onCategoryChange={handleCategoryChange}
+          onCategoryChange={handleCategoryChange} // Passes category ID
         />
       </div>
-
-      {searchQuery && (
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-          className="mt-10"
-        >
-          <EventOwnerCard visibleOwners={searchedOwners} />
-        </motion.div>
-      )}
 
       <motion.div
         initial={{ opacity: 0, y: 50 }}

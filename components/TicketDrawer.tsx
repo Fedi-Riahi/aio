@@ -25,6 +25,8 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
   ticketsGroups = [],
   hasSeatTemplate = null,
   seatData = null,
+  paymentMethods, // Added paymentMethods prop
+  extraFields, // Added extraFields prop
 }) => {
   const {
     selectedTickets,
@@ -111,7 +113,7 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
           )}
 
           {step === "selectSeats" && hasSeatTemplate === false && (
-            <p className="text-center text-gray-500">Aucun plan de salle disponible. Passage à l&apos;étape suivante.</p>
+            <p className="text-center text-gray-500">Aucun plan de salle disponible. Passage à l'étape suivante.</p>
           )}
 
           {step === "selectSeats" && hasSeatTemplate === true && seatData && (
@@ -139,26 +141,27 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
 
           {step === "payment" && (
             <PaymentStep
-              paymentMode={paymentMode}
-              handlePaymentModeChange={handlePaymentModeChange}
-              deliveryDetails={deliveryDetails}
-              handleDeliveryChange={handleDeliveryChange}
-              couponCode={couponCode}
-              handleCouponChange={handleCouponChange}
-              applyCoupon={handleApplyCoupon}
-              discount={discount}
-              calculateTotal={() => total}
-              eventId={eventId}
-              ticketDataList={ticketDataList}
-              locationIndex={locationIndex}
-              periodIndex={periodIndex}
-              timeIndex={timeIndex}
-              extraFields={[]}
-              walletId="your-wallet-id"
-              currency="USD"
-              email="user@example.com"
-              phoneNumber="1234567890"
-            />
+            paymentMode={paymentMode}
+            handlePaymentModeChange={handlePaymentModeChange}
+            deliveryDetails={deliveryDetails}
+            handleDeliveryChange={handleDeliveryChange}
+            couponCode={couponCode}
+            handleCouponChange={handleCouponChange}
+            applyCoupon={handleApplyCoupon}
+            discount={discount}
+            calculateTotal={() => total}
+            eventId={eventId}
+            ticketDataList={ticketDataList}
+            locationIndex={locationIndex}
+            periodIndex={periodIndex}
+            timeIndex={timeIndex}
+            extraFields={extraFields} // Pass extraFields
+            walletId="your-wallet-id"
+            currency="USD"
+            email="user@example.com"
+            phoneNumber="1234567890"
+            paymentMethods={paymentMethods}
+          />
           )}
 
           {step === "confirmation" && (
