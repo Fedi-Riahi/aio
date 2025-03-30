@@ -181,7 +181,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
 
   return (
     <div className="flex flex-col gap-8 p-6 bg-offwhite dark:bg-gray-800 rounded-lg shadow-md">
-      {/* Timer Display */}
       {timer !== null && (
         <div className="flex flex-col gap-2">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Temps restant</h2>
@@ -192,7 +191,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         </div>
       )}
 
-      {/* Payment Methods */}
+
       {paymentMethods.length > 0 && (
         <div className="flex flex-col gap-4">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Mode de paiement</h2>
@@ -214,7 +213,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         </div>
       )}
 
-      {/* Delivery Details */}
+
       {paymentMode === "delivery" && paymentMethods.includes("delivery") && (
         <div className="flex flex-col gap-4">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Détails de livraison</h2>
@@ -258,7 +257,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         </div>
       )}
 
-      {/* Extra Fields */}
+
       {extraFields.length > 0 && (
         <div className="flex flex-col gap-4">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Informations supplémentaires</h2>
@@ -270,7 +269,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         </div>
       )}
 
-      {/* Coupon Code */}
+
       <div className="flex flex-col gap-4">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Code promo</h2>
         <div className="flex gap-4">
@@ -297,7 +296,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         </div>
       </div>
 
-      {/* Summary */}
+
       <div className="flex flex-col gap-4">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Récapitulatif</h2>
         <div className="p-4 bg-offwhite dark:bg-gray-700 border rounded-lg">
@@ -320,7 +319,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         </div>
       </div>
 
-      {/* Process Payment Button */}
       <Button
         className="px-6 py-3 bg-main text-foreground rounded-lg hover:bg-main/90 transition-all"
         onClick={handleOrderProcessing}

@@ -75,7 +75,6 @@ export const createOrderRequestBody = ({
   deliveryDetails?: any;
   calculateTotal?: () => { subtotal: number; fee: number; total: number };
 }): OrderRequestBody => {
-  // Minimal payload to match Postman
   const body: OrderRequestBody = {
     event_id: eventId,
     ticketDataList: ticketDataList.map((ticket) => ({
@@ -89,16 +88,6 @@ export const createOrderRequestBody = ({
     time_index: timeIndex,
   };
 
-  // Optionally add other fields if needed (commented out for minimal test)
-  // if (paymentMode && paymentMode !== null) body.paymentMode = paymentMode;
-  // if (extraFields) body.extraFields = extraFields;
-  // if (email) body.email = email;
-  // if (phoneNumber) body.phoneNumber = phoneNumber;
-  // if (firstName) body.firstName = firstName;
-  // if (lastName) body.lastName = lastName;
-  // if (couponCode) body.couponCode = couponCode;
-  // if (deliveryDetails) body.deliveryDetails = deliveryDetails;
-  // if (calculateTotal) body.total = calculateTotal().total;
 
   return body;
 };
