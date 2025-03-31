@@ -17,18 +17,23 @@ import {
   IconCategory,
 } from "@tabler/icons-react";
 
+interface Category {
+  id: string;
+  name: string;
+}
+
 export const useSearchBar = ({
   searchQuery,
   onSearchSubmit,
   onCategoryChange,
-}: HeaderProps) => {
+  onSearchResults,
+  onSearchChange,
+}: HeaderProps & { onSearchResults?: (events: any[], owners: any[]) => void }) => {
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
   const [animateDown, setAnimateDown] = useState(false);
   const [animateUp, setAnimateUp] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>("");
   const [categories, setCategories] = useState<Category[]>([]);
-  const [events, setEvents] = useState<any[]>([]);
-  const [owners, setOwners] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +43,7 @@ export const useSearchBar = ({
       try {
         setLoading(true);
         const categoryData = await fetchCategories();
-        console.log("Categories loaded:", categoryData);
+        // console.log("Categories loaded:", categoryData);
         setCategories(categoryData);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
@@ -79,11 +84,12 @@ export const useSearchBar = ({
       const response = await apiClient.get("/normalaccount/search", {
         params: { keyword: query, maxCount: 10, startCount: 0 },
       });
-      console.log("Search events response:", response.data);
-      setEvents(response.data.respond?.data || []);
+    //   console.log("Search events response:", response.data);
+      return response.data.respond?.data || [];
     } catch (err) {
       setError(err.response?.data?.message || "Failed to search events");
       console.error("Error searching events:", err);
+      return [];
     } finally {
       setSearchLoading(false);
     }
@@ -95,11 +101,12 @@ export const useSearchBar = ({
       const response = await apiClient.get("/normalaccount/searchforotheorgaccounts", {
         params: { keyword: query, maxCount: 10, startCount: 0 },
       });
-      console.log("Search owners response:", response.data);
-      setOwners(response.data.respond?.data || []);
+    //   console.log("Search owners response:", response.data);
+      return response.data.respond?.data || [];
     } catch (err) {
       setError(err.response?.data?.message || "Failed to search owners");
       console.error("Error searching owners:", err);
+      return [];
     } finally {
       setSearchLoading(false);
     }
@@ -109,50 +116,39 @@ export const useSearchBar = ({
     try {
       setSearchLoading(true);
       const categoryEvents = await fetchEventsByCategory(categoryId);
-      console.log("Fetched events for category ID", categoryId, ":", categoryEvents);
-      setEvents(categoryEvents);
-      console.log("Events state updated with:", categoryEvents);
-      if (categoryEvents.length === 0) {
-        console.warn("No events returned for category ID:", categoryId);
-      }
+    //   console.log("Fetched events for category ID", categoryId, ":", categoryEvents);
+      return categoryEvents;
     } catch (err) {
       setError("Failed to fetch events for category");
       console.error("Error fetching category events:", err);
+      return [];
     } finally {
       setSearchLoading(false);
     }
   };
 
   useEffect(() => {
-    const debounceSearch = setTimeout(() => {
-      console.log("useEffect triggered - searchQuery:", searchQuery, "activeCategory:", activeCategory);
+    // Only run if theres a search query or active category
+    if (!searchQuery.trim() && !activeCategory) {
+    //   console.log("Skipping debounced search - no query or category");
+      return;
+    }
+
+    const debounceSearch = setTimeout(async () => {
+    //   console.log("Debounced search - searchQuery:", searchQuery, "activeCategory:", activeCategory);
       if (searchQuery.trim()) {
-        console.log("Fetching search results for query:", searchQuery);
-        Promise.all([searchEvents(searchQuery), searchOwners(searchQuery)]);
+        const [events, owners] = await Promise.all([searchEvents(searchQuery), searchOwners(searchQuery)]);
+        onSearchResults?.(events, owners);
       } else if (activeCategory) {
-        const selectedCategory = categories.find((cat) => cat.name === activeCategory);
-        console.log("Selected category:", selectedCategory);
-        if (selectedCategory?.id) {
-          console.log("Fetching events for category ID:", selectedCategory.id);
-          fetchEventsForCategory(selectedCategory.id);
-        } else {
-          console.warn("No category ID found for activeCategory:", activeCategory);
-          setEvents([]);
-        }
+        const categoryEvents = await fetchEventsForCategory(activeCategory);
+        onSearchResults?.(categoryEvents, []);
       } else {
-        console.log("Resetting events and owners");
-        setEvents([]);
-        setOwners([]);
-        setError(null);
+        onSearchResults?.([], []);
       }
     }, 500);
 
     return () => clearTimeout(debounceSearch);
-  }, [searchQuery, activeCategory]);
-
-  useEffect(() => {
-    console.log("Events state changed in useSearchBar:", events);
-  }, [events]);
+  }, [searchQuery, activeCategory, categories, onSearchResults]);
 
   const getIconForCategory = (categoryName: string): JSX.Element => {
     switch (categoryName.toLowerCase()) {
@@ -183,9 +179,9 @@ export const useSearchBar = ({
   };
 
   const categoryItems: CategoryItem[] = buildCategoryNames(categories).map((item) => ({
-    id: item.id, // Ensure id is included
+    id: item.id,
     name: item.name,
-    href: "#", // Adjust as needed
+    href: "#",
     icon: item.name === "All" ? (
       <IconCategory className="h-full w-full" />
     ) : (
@@ -195,9 +191,9 @@ export const useSearchBar = ({
 
   const handleCategoryChange = (categoryId: string) => {
     const newCategory = categoryId === "All" ? "" : categoryId;
-    console.log("handleCategoryChange - New category ID:", newCategory);
-    setActiveCategory(newCategory); // Tracks ID
-    onCategoryChange(newCategory); // Pass ID to useEventFilters
+    // console.log("Category changed to ID:", newCategory);
+    setActiveCategory(newCategory);
+    onCategoryChange(newCategory);
   };
 
   return {
@@ -209,8 +205,6 @@ export const useSearchBar = ({
     loading,
     searchLoading,
     error,
-    events,
-    owners,
     handleCategoryChange,
     handleSearchSubmit: onSearchSubmit,
   };

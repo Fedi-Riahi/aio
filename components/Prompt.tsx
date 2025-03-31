@@ -16,7 +16,7 @@ const Prompt = () => {
   }, []);
 
   const openApp = () => {
-    const androidAppLink = "https://tr.ee/yoehiCxFLQ";
+    const androidAppLink = "https://play.google.com/store/apps/details?id=com.aio.aioevents&pcampaignid=web_share";
     const iosAppLink = "https://apps.apple.com/us/app/aio-events/id6475737908";
 
     window.location.href = navigator.userAgent.match(/iPhone|iPad|iPod/i)

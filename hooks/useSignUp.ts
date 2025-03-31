@@ -1,9 +1,9 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { SignUpFormData, SignUpResponse } from "../types/signUp";
 import { submitSignUp, submitConfirmation, handleApiError, loginUser } from "../utils/signUpUtils";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../context/AuthContext";
 
 export const useSignUp = () => {
   const [step, setStep] = useState(1);
@@ -11,6 +11,7 @@ export const useSignUp = () => {
   const [apiSuccess, setApiSuccess] = useState("");
   const [showConfirmationForm, setShowConfirmationForm] = useState(false);
   const router = useRouter();
+  const { refreshUserData } = useAuth();
 
   const methods = useForm<SignUpFormData>({
     defaultValues: {
@@ -61,13 +62,13 @@ export const useSignUp = () => {
     try {
       const response: SignUpResponse = await submitSignUp(data);
       if (response.ok) {
-        setApiSuccess("Inscription réussie ! Veuillez vérifier votre email pour confirmer.");
+        setApiSuccess("Registration successful! Please check your email to confirm.");
         setShowConfirmationForm(true);
       } else {
         setApiError(handleApiError(response));
       }
     } catch (error) {
-      setApiError("Une erreur s'est produite lors de l'inscription. Veuillez réessayer.");
+      setApiError("An error occurred during registration. Please try again.");
     }
   };
 
@@ -83,26 +84,39 @@ export const useSignUp = () => {
         setApiError(handleApiError(confirmationResponse));
         return;
       }
+
       const loginResponse = await loginUser(email, password);
+      console.log("Login response:", loginResponse); // Debugging
+
       if (loginResponse.ok) {
-        localStorage.setItem("authTokens", JSON.stringify({
+        const authTokens = {
           access_token: loginResponse.access_token,
           refresh_token: loginResponse.refresh_token,
-        }));
+        };
 
-        setApiSuccess("Email confirmé et connexion réussie ! Redirection...");
 
+        localStorage.setItem("authTokens", JSON.stringify(authTokens));
+
+        if (loginResponse.user_data) {
+          localStorage.setItem("userData", JSON.stringify(loginResponse.user_data));
+        }
+
+        refreshUserData();
+        setApiSuccess("Email confirmed and login successful! Redirecting...");
 
         setTimeout(() => {
           router.push("/");
         }, 2000);
       } else {
         setApiError(handleApiError(loginResponse));
+        setApiSuccess("Email confirmed but auto-login failed. Please log in manually.");
       }
     } catch (error) {
-      setApiError("Échec de la confirmation ou de la connexion. Veuillez réessayer.");
+      setApiError("Failed to confirm email or login. Please try again.");
+      console.error("Confirmation/Login error:", error);
     }
   });
+
 
   return {
     step,

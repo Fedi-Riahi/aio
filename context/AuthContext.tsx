@@ -14,7 +14,7 @@ interface UserData {
   profile_picture: string | null;
   city: string;
   birthday: string;
-  phone_number: number;
+  phone_number: string;
   email: string;
   following: number;
   friends: number;
@@ -81,22 +81,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const refreshUserData = () => {
-    const storedUserData = localStorage.getItem("userData");
-    const storedTokens = localStorage.getItem("authTokens");
+    try {
+      const storedUserData = localStorage.getItem("userData");
+      const storedTokens = localStorage.getItem("authTokens");
 
-    if (storedUserData) {
-      const parsedUserData: UserData = JSON.parse(storedUserData);
-      setUserData(parsedUserData);
-      setUnreadNotificationsCount(parsedUserData.unread_notifications_count || 0);
-    } else {
+      console.log("RefreshUserData - storedTokens:", storedTokens); // Debug log
+
+      if (storedUserData) {
+        const parsedUserData: UserData = JSON.parse(storedUserData);
+        setUserData(parsedUserData);
+        setUnreadNotificationsCount(parsedUserData.unread_notifications_count || 0);
+      }
+
+      if (storedTokens) {
+        const parsedTokens = JSON.parse(storedTokens);
+        console.log("Parsed tokens:", parsedTokens); // Debug log
+        setAuthTokens(parsedTokens);
+      } else {
+        setAuthTokens(null);
+      }
+    } catch (error) {
+      console.error("Error refreshing user data:", error);
       setUserData(null);
-      setUnreadNotificationsCount(0);
-    }
-
-    if (storedTokens) {
-      setAuthTokens(JSON.parse(storedTokens));
-    } else {
       setAuthTokens(null);
+      setUnreadNotificationsCount(0);
     }
   };
 

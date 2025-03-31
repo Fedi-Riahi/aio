@@ -24,8 +24,11 @@ export default function Navbar() {
     isMobileMenuOpen,
     setIsMobileMenuOpen,
     handleMobileAction,
-    handlePublishEvent,
   } = useNavbar();
+
+  // Check if the user is an organizer based on userData state
+  const userData = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("userData") || "{}") : {};
+  const isOrganizer = userData.state === "Organizer" || userData.is_org === true; 
 
   return (
     <>
@@ -59,13 +62,25 @@ export default function Navbar() {
                   >
                     Billets
                   </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={handlePublishEvent}
-                    className="text-md text-foreground hover:text-foreground/90 font-medium tracking-wider"
-                  >
-                    Publier un événement
-                  </Button>
+                  {isOrganizer ? (
+                    <Link href="/dashboard">
+                      <Button
+                        variant="ghost"
+                        className="text-md text-foreground hover:text-foreground/90 font-medium tracking-wider"
+                      >
+                        Dashboard
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Link href="/complete-organizer-details">
+                      <Button
+                        variant="ghost"
+                        className="text-md text-foreground hover:text-foreground/90 font-medium tracking-wider"
+                      >
+                        Devenir organisateur
+                      </Button>
+                    </Link>
+                  )}
                   <Button
                     variant="ghost"
                     onClick={() => setOpenProfileDrawer(true)}
@@ -73,7 +88,7 @@ export default function Navbar() {
                   >
                     Profil
                   </Button>
-                  <div className="relative mt-2">
+                  <div className="relative mt-2 group">
                     <button
                       className="text-md text-foreground hover:text-foreground/90 font-medium tracking-wider"
                     >
@@ -84,6 +99,9 @@ export default function Navbar() {
                         {unreadNotificationsCount}
                       </span>
                     )}
+                    <div className="absolute left-1/2 transform -translate-x-1/2 top-10 bg-background text-white text-sm px-3 w-[200px] py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                      Visitez l&apos;application pour voir les notifications
+                    </div>
                   </div>
                 </>
               ) : (
@@ -127,13 +145,25 @@ export default function Navbar() {
                           >
                             Billets
                           </Button>
-                          <Button
-                            variant="ghost"
-                            onClick={() => handleMobileAction("publish")}
-                            className="w-full justify-start text-lg font-medium"
-                          >
-                            Publier un événement
-                          </Button>
+                          {isOrganizer ? (
+                            <Link href="/https://organizer.aio.events/">
+                              <Button
+                                variant="ghost"
+                                className="w-full justify-start text-lg font-medium"
+                              >
+                                Dashboard
+                              </Button>
+                            </Link>
+                          ) : (
+                            <Link href="/complete-organizer-details">
+                              <Button
+                                variant="ghost"
+                                className="w-full justify-start text-lg font-medium"
+                              >
+                                Devenir organisateur
+                              </Button>
+                            </Link>
+                          )}
                           <Button
                             variant="ghost"
                             onClick={() => handleMobileAction("profile")}

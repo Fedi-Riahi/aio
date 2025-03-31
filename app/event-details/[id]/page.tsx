@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Users, Tag, ArrowLeft, Info, Ticket, Phone, Mail } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -26,6 +26,7 @@ const EventDetails: React.FC = () => {
   } = useEventDetails();
   const { session } = useNavbar();
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   if (loading) {
     return <div className="flex justify-center items-center h-screen text-xl font-semibold">Chargement des détails de l'événement...</div>;
@@ -45,11 +46,23 @@ const EventDetails: React.FC = () => {
 
   const closeDrawer = () => setIsDrawerOpen(false);
 
+  const handleCopyLink = async () => {
+    try {
+      const currentUrl = window.location.href; // Get the current page URL
+      await navigator.clipboard.writeText(currentUrl); // Copy to clipboard
+      setIsCopied(true); // Show feedback
+      setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
+    } catch (err) {
+      console.error("Failed to copy URL:", err);
+    }
+  };
+
   const hasValidTicketType = event.ticket_type && Array.isArray(event.ticket_type) && event.ticket_type.length > 0 && event.ticket_type.every(entry => entry.ticket && typeof entry.ticket === 'object');
 
   const ownerPhone = event.owner[0]?.phone || "N/A";
   const ownerEmail = event.owner[0]?.email || "N/A";
   const ownerSocialLinks = event.owner[0]?.social_links || [];
+  console.log(event)
 
   const getSocialIcon = (platform: string) => {
     switch (platform.toLowerCase()) {
@@ -79,17 +92,21 @@ const EventDetails: React.FC = () => {
           quality={100}
         />
         <div className="absolute top-4 right-4 z-20">
-          <IconCopy stroke={2} className="w-10 h-10 rounded-lg text-foreground bg-black/20 p-2 cursor-pointer hover:bg-black/40 transition duration-300" />
+        <button
+            onClick={handleCopyLink}
+            className={`w-10 h-10 rounded-lg bg-black/20 p-2 transition duration-300 flex items-center justify-center ${
+              isCopied ? "bg-green-500/50" : "text-foreground hover:bg-black/40"
+            }`}
+            title={isCopied ? "Lien copié !" : "Copier le lien"}
+          >
+            <IconCopy stroke={2} className="w-6 h-6" />
+          </button>
         </div>
         <div className="absolute bottom-6 left-6 z-20">
           <div className="flex items-center gap-4 mb-4">
             <span className="px-3 py-1 bg-foreground/10 text-foreground rounded-full text-sm font-medium flex items-center gap-1">
-              <Tag className="w-4 h-4" />
-              {event.categories?.[0]?.name || "Non catégorisé"}
-            </span>
-            <span className="px-3 py-1 bg-foreground/10 text-foreground rounded-full text-sm font-medium flex items-center gap-1">
               <Users className="w-4 h-4" />
-              {event.views || 0} Vues
+              {event.likes.length || 0} Vues
             </span>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-foreground">{event.event_name}</h1>

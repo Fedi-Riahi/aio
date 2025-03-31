@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useCallback } from "react";
 import SearchBar from "./SearchBar";
 import EventCard from "./EventCard";
 import { motion } from "framer-motion";
@@ -14,8 +14,14 @@ const Events: React.FC = () => {
     handleSearchChange,
     handleSearchSubmit,
     handleCategoryChange,
+    handleSearchResults,
     loadMoreEvents,
   } = useEventFilters();
+
+  const handleSearchResultsFromSearchBar = useCallback((events: any[], owners: any[]) => {
+    console.log("Search results received - events:", events, "owners:", owners);
+    handleSearchResults(events); // Pass only events to useEventFilters
+  }, [handleSearchResults]);
 
   console.log("Events.tsx - visibleEvents:", visibleEvents);
 
@@ -26,7 +32,8 @@ const Events: React.FC = () => {
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
           onSearchSubmit={handleSearchSubmit}
-          onCategoryChange={handleCategoryChange} // Passes category ID
+          onCategoryChange={handleCategoryChange}
+          onSearchResults={handleSearchResultsFromSearchBar}
         />
       </div>
 
@@ -40,11 +47,11 @@ const Events: React.FC = () => {
         <EventCard
           searchQuery={searchQuery}
           selectedCategory={selectedCategory}
-          visibleEvents={visibleEvents}
+          visibleEvents={visibleEvents} // Displays up to 6 initially
         />
       </motion.div>
 
-      {filteredEvents.length > visibleEvents.length && (
+      {filteredEvents.length > 6 && filteredEvents.length > visibleEvents.length && (
         <div className="flex justify-center mt-14">
           <button
             onClick={loadMoreEvents}

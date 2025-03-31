@@ -1,41 +1,143 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { IconBrandFacebook, IconBrandInstagram, IconBrandTwitter } from '@tabler/icons-react';
 
 const Footer = () => {
   return (
-    <footer className=" py-8 border-t border-offwhite max-w-7xl mx-auto">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-
-          <div className="flex  flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8">
-            <Link href="/">
+    <footer className="border-t bg-gradient-to-b from-background to-muted/20">
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div className="flex flex-col items-center md:items-start space-y-6">
+            <Link
+              href="/"
+              className="transition-transform duration-300 hover:scale-105"
+            >
               <Image
                 src="/iden2.png"
                 alt="Logo"
                 width={160}
                 height={160}
-                className="h-14 w-auto"
+                className="h-16 w-auto"
                 quality={100}
+                priority
               />
             </Link>
-
-            <div className="flex space-x-6">
-              <Link href="/about" className="text-gray-600 hover:text-foreground">
+            <nav className="flex gap-8">
+              <Link
+                href="/about"
+                className="text-muted-foreground hover:text-primary transition-colors duration-200 text-sm font-medium"
+              >
                 A Propos
               </Link>
-              <Link href="/contact" className="text-gray-600 hover:text-foreground">
+              <Link
+                href="/contact"
+                className="text-muted-foreground hover:text-primary transition-colors duration-200 text-sm font-medium"
+              >
                 Contact
+              </Link>
+            </nav>
+          </div>
+
+          <div className="flex flex-col items-center space-y-4">
+            <p className="text-muted-foreground font-medium">Download Our App</p>
+            <div className="flex items-center">
+              <Link
+                href="https://play.google.com/store/apps/details?id=com.aio.aioevents&pcampaignid=web_share"
+                target="_blank"
+                className="transform hover:scale-105 transition-transform duration-300"
+              >
+                <Image
+                  src="/google.png"
+                  alt="Get it on Google Play"
+                  width={130}
+                  height={40}
+                  quality={100}
+                  className="rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
+                />
+              </Link>
+              <Link
+                href="https://apps.apple.com/us/app/aio-events/id6475737908"
+                target="_blank"
+                className="transform hover:scale-105 transition-transform duration-300"
+              >
+                <Image
+                  src="/apple.png"
+                  alt="Download on the App Store"
+                  width={130}
+                  height={40}
+                  quality={100}
+                  className="rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
+                />
+              </Link>
+              <Link
+                href="https://appgallery.huawei.com/app/C110002625"
+                target="_blank"
+                className="transform hover:scale-105 transition-transform duration-300"
+              >
+                <Image
+                  src="/huaw.png"
+                  alt="Explore it on AppGallery"
+                  width={140}
+                  height={40}
+                  quality={100}
+                  className="rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
+                />
               </Link>
             </div>
           </div>
 
 
-
-          <div className="flex space-x-6 mt-6 md:mt-0">
-            <IconBrandFacebook stroke={2} className="text-gray-600 hover:text-foreground scale-100 hover:scale-125 transition duration-300 cursor-pointer"/>
-            <IconBrandInstagram stroke={2} className="text-gray-600 hover:text-foreground scale-100 hover:scale-125 transition duration-300 cursor-pointer" />
-            <IconBrandTwitter stroke={2} className="text-gray-600 hover:text-foreground scale-100 hover:scale-125 transition duration-300 cursor-pointer" />
+          <div className="flex flex-col items-center md:items-end space-y-6">
+            <div className="flex gap-6">
+              <Link
+                href="https://www.facebook.com/p/AIO-Events-61550989110680/"
+                target="_blank"
+                className="group"
+              >
+                <IconBrandFacebook
+                  stroke={1.5}
+                  size={24}
+                  className="text-muted-foreground group-hover:text-primary transition-all duration-300 transform group-hover:scale-125"
+                />
+              </Link>
+              <Link
+                href="https://www.instagram.com/aio.events/"
+                target="_blank"
+                className="group"
+              >
+                <IconBrandInstagram
+                  stroke={1.5}
+                  size={24}
+                  className="text-muted-foreground group-hover:text-primary transition-all duration-300 transform group-hover:scale-125"
+                />
+              </Link>
+              <Link
+                href="https://twitter.com"
+                target="_blank"
+                className="group"
+              >
+                <IconBrandTwitter
+                  stroke={1.5}
+                  size={24}
+                  className="text-muted-foreground group-hover:text-primary transition-all duration-300 transform group-hover:scale-125"
+                />
+              </Link>
+            </div>
+            <div className="text-right">
+              <p className="text-sm font-medium text-primary mb-2">Contact Us:</p>
+              <div className="space-y-1 text-sm text-muted-foreground">
+                <p className="hover:text-primary transition-colors duration-200">+216 12 345 678</p>
+                <p className="hover:text-primary transition-colors duration-200">+216 98 765 432</p>
+                <a
+                  href="mailto:support@aio.events"
+                  className="hover:text-primary transition-colors duration-200 inline-block"
+                >
+                  support@aio.events
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>

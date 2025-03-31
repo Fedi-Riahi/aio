@@ -11,7 +11,6 @@ import { startOrderTimer } from "@/utils/paymentStepUtils";
 const PaymentStep: React.FC<PaymentStepProps> = ({
   paymentMode,
   handlePaymentModeChange,
-  deliveryDetails,
   handleDeliveryChange,
   couponCode,
   handleCouponChange,
@@ -34,9 +33,9 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   const { userData } = useAuth();
 
   const email = userData?.email || propEmail || "";
-  const phoneNumber = userData?.phone_number || propPhoneNumber || "";
-  const firstName = userData?.username || deliveryDetails.name || "Client";
-  const lastName = deliveryDetails.prename || "Client";
+  const phoneNumber = toString(userData?.phone_number) || propPhoneNumber || "";
+  const firstName = userData?.username || "Client";
+  const lastName = "Client";
 
   const [extraFieldValues, setExtraFieldValues] = useState<{ [key: string]: string }>(
     extraFields.reduce((acc, field) => ({ ...acc, [field.field]: "" }), {})
@@ -45,6 +44,15 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const [timerError, setTimerError] = useState<string | null>(null);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [deliveryForm, setDeliveryForm] = useState({
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
+    address: "",
+    city: "",
+    province: "",
+  });
 
   const {
     isProcessingPayment,
@@ -57,8 +65,10 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   } = usePaymentStep({
     paymentMode,
     handlePaymentModeChange,
-    deliveryDetails,
-    handleDeliveryChange,
+    handleDeliveryChange: (field, value) => {
+      setDeliveryForm((prev) => ({ ...prev, [field]: value }));
+      handleDeliveryChange(field, value);
+    },
     couponCode,
     handleCouponChange,
     applyCoupon,
@@ -70,9 +80,9 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     timeIndex,
     extraFields: Object.entries(extraFieldValues).map(([field, value]) => ({ field, value })),
     email,
-    phoneNumber,
-    firstName,
-    lastName,
+    phoneNumber: deliveryForm.phoneNumber || phoneNumber,
+    firstName: deliveryForm.firstName || firstName,
+    lastName: deliveryForm.lastName || lastName,
     mapRegion,
     onPaymentSuccess: (response) => {
       if (response.success && response.data?.payUrl) {
@@ -85,6 +95,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         console.log("Payment success, no callback provided:", response);
       }
     },
+    deliveryForm,
   });
 
   const defaultPosition = { latitude: 36.8065, longitude: 10.1815 };
@@ -113,8 +124,10 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   }, [eventId, ticketDataList, locationIndex, periodIndex, timeIndex]);
 
   useEffect(() => {
-    startTimer();
-  }, [startTimer]);
+    if (timer === null && !timerError) {
+      startTimer();
+    }
+  }, []); // Runs only once on mount
 
   useEffect(() => {
     if (timer === null || timer <= 0) return;
@@ -125,6 +138,12 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
 
     return () => clearInterval(interval);
   }, [timer]);
+
+  useEffect(() => {
+    console.log("Current paymentMode:", paymentMode);
+    console.log("paymentMethods:", paymentMethods);
+    console.log("Delivery section should show:", paymentMode === "delivery" && paymentMethods.some(method => method.toLowerCase() === "delivery"));
+  }, [paymentMode, paymentMethods]);
 
   const formatTime = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
@@ -139,7 +158,10 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           ? "bg-main text-foreground border-main"
           : "bg-offwhite dark:bg-gray-700 text-foreground hover:bg-black/10 dark:hover:bg-gray-600"
       }`}
-      onClick={() => handlePaymentModeChange(mode)}
+      onClick={() => {
+        console.log(`Switching to payment mode: ${mode}`);
+        handlePaymentModeChange(mode);
+      }}
       disabled={isProcessingPayment || timer === 0}
       aria-label={`Sélectionner le mode de paiement ${label}`}
     >
@@ -179,6 +201,15 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     online: { label: "En ligne", icon: IconCreditCard },
   };
 
+  const handleProceedClick = () => {
+    setIsConfirmDialogOpen(true);
+  };
+
+  const handleConfirmPayment = () => {
+    setIsConfirmDialogOpen(false);
+    handleOrderProcessing();
+  };
+
   return (
     <div className="flex flex-col gap-8 p-6 bg-offwhite dark:bg-gray-800 rounded-lg shadow-md">
       {timer !== null && (
@@ -190,7 +221,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           {timerError && <p className="text-sm text-red-500">{timerError}</p>}
         </div>
       )}
-
 
       {paymentMethods.length > 0 && (
         <div className="flex flex-col gap-4">
@@ -213,25 +243,34 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         </div>
       )}
 
-
-      {paymentMode === "delivery" && paymentMethods.includes("delivery") && (
+      {paymentMode === "delivery" && paymentMethods.some(method => method.toLowerCase() === "delivery") && (
         <div className="flex flex-col gap-4">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Détails de livraison</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField
               label="Nom"
-              value={deliveryDetails.name}
+              value={deliveryForm.firstName || firstName}
               onChange={handleDeliveryChange}
               placeholder="Votre nom"
-              name="name"
+              name="firstName"
               disabled={isProcessingPayment}
             />
             <InputField
               label="Prénom"
-              value={deliveryDetails.prename}
+              value={deliveryForm.lastName || lastName}
               onChange={handleDeliveryChange}
               placeholder="Votre prénom"
-              name="prename"
+              name="lastName"
+              disabled={isProcessingPayment}
+            />
+            <InputField
+              label="Numéro de téléphone"
+              value={deliveryForm.phoneNumber}
+              onChange={(name, value) =>
+                setDeliveryForm(prev => ({...prev, [name]: String(value)}))
+              }
+              placeholder="Votre numéro de téléphone"
+              name="phoneNumber"
               disabled={isProcessingPayment}
             />
             <div className="flex flex-col gap-2 col-span-2">
@@ -245,18 +284,27 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                 <IconMapPin stroke={1.5} size={20} />
                 Sélectionner sur la carte
               </Button>
-              <div className="mt-2 p-3 bg-offwhite rounded-lg">
-                <p className="text-sm text-foreground">
-                  <span className="font-medium">Adresse sélectionnée :</span>{" "}
-                  {deliveryDetails.address || "Aucune adresse sélectionnée"}
-                </p>
-              </div>
-              {addressError && <p className="text-red-500 text-sm mt-1">{addressError}</p>}
+              <InputField
+                label="Adresse complète"
+                value={deliveryForm.address}
+                onChange={handleDeliveryChange}
+                placeholder="Votre adresse complète"
+                name="address"
+                disabled={isProcessingPayment}
+              />
+              {addressError && <p className="text-sm text-red-500 mt-1">{addressError}</p>}
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-foreground dark:text-gray-300">Ville</label>
+              <p className="p-3 bg-gray-200 dark:bg-gray-600 text-foreground dark:text-gray-200 rounded-lg">{deliveryForm.city || "Sélectionnez sur la carte"}</p>
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-foreground dark:text-gray-300">Province</label>
+              <p className="p-3 bg-gray-200 dark:bg-gray-600 text-foreground dark:text-gray-200 rounded-lg">{deliveryForm.province || "Sélectionnez sur la carte"}</p>
             </div>
           </div>
         </div>
       )}
-
 
       {extraFields.length > 0 && (
         <div className="flex flex-col gap-4">
@@ -269,10 +317,9 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         </div>
       )}
 
-
       <div className="flex flex-col gap-4">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Code promo</h2>
-        <div className="flex gap-4">
+        <div className="flex-col gap-4 md:flex-row space-y-4">
           <div className="flex-1 flex items-center gap-2 p-3 border border-gray-500 rounded-lg">
             <IconDiscount stroke={1.5} size={24} className="text-gray-500 dark:text-gray-400" />
             <input
@@ -296,39 +343,65 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         </div>
       </div>
 
-
       <div className="flex flex-col gap-4">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Récapitulatif</h2>
         <div className="p-4 bg-offwhite dark:bg-gray-700 border rounded-lg">
           <div className="flex justify-between text-sm text-foreground dark:text-gray-200">
             <span>Sous-total</span>
-            <span>{calculateTotal().subtotal} {currency}</span>
+            <span>{calculateTotal().subtotal} DT</span>
           </div>
           <div className="flex justify-between text-sm text-foreground dark:text-gray-200">
             <span>Réduction</span>
-            <span>{discount} {currency}</span>
+            <span>{discount} DT</span>
           </div>
           <div className="flex justify-between text-sm text-foreground dark:text-gray-200">
             <span>Frais de livraison</span>
-            <span>{calculateTotal().fee} {currency}</span>
+            <span>{calculateTotal().fee} DT</span>
           </div>
           <div className="flex justify-between text-lg font-semibold text-foreground dark:text-gray-200">
             <span>Total</span>
-            <span>{calculateTotal().total} {currency}</span>
+            <span>{calculateTotal().total} DT</span>
           </div>
         </div>
       </div>
 
       <Button
         className="px-6 py-3 bg-main text-foreground rounded-lg hover:bg-main/90 transition-all"
-        onClick={handleOrderProcessing}
+        onClick={handleProceedClick}
         disabled={isProcessingPayment || timer === 0}
         aria-label="Procéder au paiement"
       >
         {isProcessingPayment ? "Traitement en cours..." : "Procéder au paiement"}
       </Button>
 
-      {/* Map Dialog */}
+      <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+        <DialogContent className="sm:max-w-[425px] bg-background border border-offwhite">
+          <DialogHeader>
+            <DialogTitle className="text-white">Confirmation</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-foreground dark:text-gray-200">
+              Êtes-vous sûr de vouloir continuer avec ces détails ?
+            </p>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsConfirmDialogOpen(false)}
+              className="bg-offwhite text-foreground hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={handleConfirmPayment}
+              className="bg-main text-foreground hover:bg-main/90"
+            >
+              Continuer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={isMapOpen} onOpenChange={setIsMapOpen}>
         <DialogContent className="sm:max-w-[600px] bg-background border border-offwhite">
           <DialogHeader>
@@ -356,7 +429,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         </DialogContent>
       </Dialog>
 
-      {/* Payment Dialog */}
       <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
         <DialogContent className="sm:max-w-[80vw] max-h-[80vh] bg-background border border-offwhite">
           <DialogHeader>

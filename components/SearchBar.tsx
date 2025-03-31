@@ -5,11 +5,12 @@ import { HeaderProps } from "../types/searchBar";
 import { useSearchBar } from "../hooks/useSearchBar";
 import { placeholders } from "../utils/searchBarUtils";
 
-const SearchBar: React.FC<HeaderProps> = ({
+const SearchBar: React.FC<HeaderProps & { onSearchResults?: (events: any[], owners: any[]) => void }> = ({
   searchQuery,
   onSearchChange,
   onSearchSubmit,
   onCategoryChange,
+  onSearchResults,
 }) => {
   const {
     currentPlaceholder,
@@ -26,6 +27,7 @@ const SearchBar: React.FC<HeaderProps> = ({
     onSearchChange,
     onSearchSubmit,
     onCategoryChange,
+    onSearchResults,
   });
 
   if (loading) {
@@ -69,8 +71,8 @@ const SearchBar: React.FC<HeaderProps> = ({
       <div className="mt-8 relative">
         <FloatingDock
           items={categoryItems}
-          activeCategory={activeCategory} // Tracks ID
-          onItemClick={handleCategoryChange} // Receives ID from FloatingDock
+          activeCategory={activeCategory}
+          onItemClick={handleCategoryChange}
         />
         {searchLoading && (
           <div className="absolute left-1/2 top-40 transform -translate-y-1/2">

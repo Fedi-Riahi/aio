@@ -19,10 +19,10 @@ export default function Ticket(props: Partial<TicketProps>) {
       )}
     >
       <div
-        className="absolute top-0 left-0 w-[150px] h-[150px] bg-gradient-to-r from-purple-600 to-transparent rounded-full transform -translate-y-1/2"
+        className="absolute top-0 left-0 w-[150px] h-[150px] bg-gradient-to-r from-main to-transparent rounded-full transform -translate-y-1/2"
       />
       <div
-        className="absolute -bottom-20 -right-10 w-[150px] h-[150px] bg-gradient-to-r from-purple-600 to-transparent rounded-full transform -translate-y-1/2"
+        className="absolute -bottom-20 -right-10 w-[150px] h-[150px] bg-gradient-to-r from-main to-transparent rounded-full transform -translate-y-1/2"
       />
 
       <div className="absolute top-4 right-4 z-20">

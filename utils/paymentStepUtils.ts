@@ -57,7 +57,6 @@ export const createOrderRequestBody = ({
   firstName,
   lastName,
   couponCode,
-  deliveryDetails,
   calculateTotal,
 }: {
   eventId: string;
@@ -72,7 +71,6 @@ export const createOrderRequestBody = ({
   firstName?: string;
   lastName?: string;
   couponCode?: string;
-  deliveryDetails?: any;
   calculateTotal?: () => { subtotal: number; fee: number; total: number };
 }): OrderRequestBody => {
   const body: OrderRequestBody = {
@@ -86,9 +84,28 @@ export const createOrderRequestBody = ({
     location_index: locationIndex,
     period_index: periodIndex,
     time_index: timeIndex,
+    delivery: paymentMode === "delivery", // Explicitly set delivery based on paymentMode
   };
 
+  if (body.delivery) {
+    // When delivery is true, data_related_to_delevery is required and must be fully populated
+    if (!firstName || !lastName || !phoneNumber) {
+      throw new Error("Delivery requires firstName, lastName, and phoneNumber");
+    }
+    body.data_related_to_delivery = {
+      name: `${firstName} ${lastName}`.trim(),
+      address: "", // Will be updated in usePaymentStep
+      province: "", // Will be updated in usePaymentStep
+      city: "", // Will be updated in usePaymentStep
+      phone: String(phoneNumber),
+    };
+  }
 
+  if (extraFields && extraFields.length > 0) {
+    body.extraFields = extraFields;
+  }
+
+  console.log("Final Order Request Body:", JSON.stringify(body, null, 2));
   return body;
 };
 
