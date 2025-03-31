@@ -4,12 +4,21 @@ import { EnterNamesStepProps } from "../types/enterNamesStep";
 import { getTicketInfo } from "@/utils/enterNamesStepUtils";
 import { useEnterNamesStep } from "@/hooks/useEnterNamesStep";
 
-const EnterNamesStep: React.FC<EnterNamesStepProps> = ({
+const EnterNamesStep: React.FC<EnterNamesStepProps & {
+  eventId: string;
+  locationIndex?: number;
+  periodIndex?: number;
+  timeIndex?: number;
+}> = ({
   tickets,
   selectedTickets,
   userNames,
   handleNameChange,
   ticketType,
+  eventId,
+  locationIndex = 0,
+  periodIndex = 0,
+  timeIndex = 0,
 }) => {
   const { onNameChange } = useEnterNamesStep({
     tickets,
@@ -58,6 +67,7 @@ const EnterNamesStep: React.FC<EnterNamesStepProps> = ({
                     className="w-full p-3 rounded-lg bg-offwhite text-foreground focus:ring-1 focus:ring-gray-500 focus:outline-none"
                     value={userNames[ticket.ticket_id]?.[index] || ""}
                     onChange={(e) => onNameChange(ticket.ticket_id, index, e.target.value)}
+                    disabled={false} // Timer disabling is handled by parent button
                   />
                 </div>
               ))}

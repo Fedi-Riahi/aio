@@ -9,15 +9,22 @@ import { useTicket } from "../hooks/useTicket";
 
 export default function Ticket(props: Partial<TicketProps>) {
   const { ticketProps } = useTicket(props);
-  const { eventName, date, time, location, referenceCode, qrValue, className } = ticketProps;
-
+  const { eventName, date, time, location, referenceCode, qrValue, className, background_thumbnail } = ticketProps;
+    const defaultBackground = ""
   return (
-    <div
+<div
       className={cn(
-        "relative w-[300px] h-[500px] bg-gradient-to-b from-gray-900 to-black rounded-[20px] overflow-hidden shadow-lg text-white",
+        "relative w-[300px] h-[500px] rounded-[20px] overflow-hidden shadow-lg text-white",
         className
       )}
+      style={{
+        backgroundImage: `url(${background_thumbnail || defaultBackground})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}
     >
+      {/* Overlay to ensure text is readable */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
       <div
         className="absolute top-0 left-0 w-[150px] h-[150px] bg-gradient-to-r from-main to-transparent rounded-full transform -translate-y-1/2"
       />

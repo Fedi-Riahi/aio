@@ -28,7 +28,7 @@ export default function Navbar() {
 
   // Check if the user is an organizer based on userData state
   const userData = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("userData") || "{}") : {};
-  const isOrganizer = userData.state === "Organizer" || userData.is_org === true; 
+  const isOrganizer = userData.state === "Organizer" || userData.is_org === true;
 
   return (
     <>
@@ -63,7 +63,7 @@ export default function Navbar() {
                     Billets
                   </Button>
                   {isOrganizer ? (
-                    <Link href="/dashboard">
+                    <Link href="/https://organizer.aio.events/">
                       <Button
                         variant="ghost"
                         className="text-md text-foreground hover:text-foreground/90 font-medium tracking-wider"

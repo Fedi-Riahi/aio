@@ -17,7 +17,7 @@ export const TicketsSheet = ({ open, onOpenChange }: TicketDrawer) => {
     orders,
     selectedOrder,
     fetchTicketsForOrder,
-    isLoading
+    isLoading,
   } = useTicketsSheet({
     open,
     onOpenChange,
@@ -51,7 +51,7 @@ export const TicketsSheet = ({ open, onOpenChange }: TicketDrawer) => {
               {selectedOrder ? "Vos billets" : "Vos commandes"}
             </h2>
             <Button
-              onClick={selectedOrder ? () => setSelectedOrder(null) : closeDrawer}
+              onClick={selectedOrder ? () => fetchTicketsForOrder("") : closeDrawer} // Reset to orders view or close
               variant="ghost"
               size="icon"
               className="hover:bg-muted rounded-full text-md text-main hover:text-main/90 transition duration-300"
@@ -70,7 +70,7 @@ export const TicketsSheet = ({ open, onOpenChange }: TicketDrawer) => {
                 {ticketData.length > 0 ? (
                   <>
                     <Button
-                      className="w-full bg-primary text-white hover:bg-primary/90 transition-colors duration-200"
+                      className="w-full bg-main text-white hover:bg-primary/90 transition-colors duration-200"
                       onClick={handleDownloadAllTickets}
                     >
                       Télécharger tous les billets (PDF)
@@ -91,11 +91,12 @@ export const TicketsSheet = ({ open, onOpenChange }: TicketDrawer) => {
                             qrValue={`https://your-ticket-validation-site.com/ticket/${encodeURIComponent(
                               ticket.referenceCode
                             )}`}
+                            background_thumbnail={ticket.background_thumbnail} // Pass background_thumbnail
                             className="w-full max-w-[280px] mx-auto"
                           />
                         </div>
                         <Button
-                          className="w-full max-w-[280px] bg-primary text-white hover:bg-primary/90 transition-colors duration-200"
+                          className="w-1/2 max-w-[280px] bg-main text-white hover:bg-primary/90 transition-colors duration-200"
                           onClick={() => handleDownloadPDF(index)}
                         >
                           Télécharger PDF
@@ -120,20 +121,28 @@ export const TicketsSheet = ({ open, onOpenChange }: TicketDrawer) => {
                         <div>
                           <h3 className="font-medium">{order.event_name}</h3>
                           <p className="text-sm text-muted-foreground">
-                            {order.ticketsCount} billet{order.ticketsCount > 1 ? 's' : ''}
+                            {order.ticketsCount} billet{order.ticketsCount > 1 ? "s" : ""}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Organisateur: {order.owners}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Méthode de paiement: {order.paymentMethod}
                           </p>
                         </div>
                         <span className="text-sm font-medium">
-                          {order.totalPrice.toFixed(2)} €
+                          {order.totalPrice.toFixed(2)} DT
                         </span>
                       </div>
                       <div className="mt-2 flex justify-between text-sm">
-                        <span className={`px-2 py-1 rounded ${
-                          order.paymentState === 'paid'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {order.paymentState === 'paid' ? 'Payé' : 'En attente'}
+                        <span
+                          className={`px-2 py-1 rounded ${
+                            order.paymentState === "paid"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
+                        >
+                          {order.paymentState === "paid" ? "Payé" : "En attente"}
                         </span>
                         <span className="text-muted-foreground">
                           {new Date(order._id).toLocaleDateString()}
@@ -149,7 +158,6 @@ export const TicketsSheet = ({ open, onOpenChange }: TicketDrawer) => {
           </div>
         </div>
       </div>
-      
     </>
   );
 };

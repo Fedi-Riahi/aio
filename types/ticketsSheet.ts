@@ -8,7 +8,7 @@ export interface Order {
     event_name: string;
     owners: string;
     paymentState: string;
-    deliveryState: string;
+    deliveryState: number;
   }
 
   export interface TicketData {
@@ -19,6 +19,7 @@ export interface Order {
     location: string;
     referenceCode: string;
     orderId: string;
+    background_thumbnail : string,
   }
 
   export interface TicketDrawer {

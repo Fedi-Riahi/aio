@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+"use client"
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { IconTruckDelivery, IconCreditCard, IconDiscount, IconMapPin } from "@tabler/icons-react";
 import { PaymentStepProps } from "../types/paymentStep";
@@ -6,9 +7,11 @@ import { usePaymentStep } from "../hooks/usePaymentStep";
 import LocationMap from "./LocationMap";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useAuth } from "../context/AuthContext";
-import { startOrderTimer } from "@/utils/paymentStepUtils";
 
-const PaymentStep: React.FC<PaymentStepProps> = ({
+const PaymentStep: React.FC<PaymentStepProps & {
+  timer: number | null; // Timer passed from parent
+  timerError: string | null; // Error passed from parent
+}> = ({
   paymentMode,
   handlePaymentModeChange,
   handleDeliveryChange,
@@ -29,21 +32,21 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   mapRegion,
   onPaymentSuccess,
   paymentMethods = [],
+  timer, // New prop
+  timerError, // New prop
 }) => {
   const { userData } = useAuth();
 
   const email = userData?.email || propEmail || "";
-  const phoneNumber = toString(userData?.phone_number) || propPhoneNumber || "";
+  const phoneNumber = String(userData?.phone_number) || propPhoneNumber || "";
   const firstName = userData?.username || "Client";
   const lastName = "Client";
 
   const [extraFieldValues, setExtraFieldValues] = useState<{ [key: string]: string }>(
     extraFields.reduce((acc, field) => ({ ...acc, [field.field]: "" }), {})
   );
-  const [timer, setTimer] = useState<number | null>(null);
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
-  const [timerError, setTimerError] = useState<string | null>(null);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [deliveryForm, setDeliveryForm] = useState({
     firstName: "",
@@ -101,44 +104,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   const defaultPosition = { latitude: 36.8065, longitude: 10.1815 };
   const initialPosition = mapRegion || defaultPosition;
 
-  const startTimer = useCallback(async () => {
-    try {
-      const requestBody = {
-        event_id: eventId,
-        ticketDataList,
-        location_index: locationIndex,
-        period_index: periodIndex,
-        time_index: timeIndex,
-      };
-      const response = await startOrderTimer(requestBody);
-      if (response.success && response.respond.data?.timer) {
-        setTimer(response.respond.data.timer);
-        setTimerError(null);
-      } else {
-        setTimerError("Failed to retrieve timer value");
-      }
-    } catch (error) {
-      console.error("Failed to start timer:", error);
-      setTimerError(error instanceof Error ? error.message : "Unknown timer error");
-    }
-  }, [eventId, ticketDataList, locationIndex, periodIndex, timeIndex]);
-
-  useEffect(() => {
-    if (timer === null && !timerError) {
-      startTimer();
-    }
-  }, []); // Runs only once on mount
-
-  useEffect(() => {
-    if (timer === null || timer <= 0) return;
-
-    const interval = setInterval(() => {
-      setTimer((prev) => (prev !== null && prev > 0 ? prev - 1 : 0));
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [timer]);
-
   useEffect(() => {
     console.log("Current paymentMode:", paymentMode);
     console.log("paymentMethods:", paymentMethods);
@@ -153,7 +118,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
 
   const PaymentModeButton = ({ mode, label, icon: Icon, isActive }: { mode: string; label: string; icon: any; isActive: boolean }) => (
     <Button
-      className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 text-lg shadow-sm hover:shadow-md font-medium rounded-lg transition duration-300 ${
+      className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 text disponibilité-lg shadow-sm hover:shadow-md font-medium rounded-lg transition duration-300 ${
         isActive
           ? "bg-main text-foreground border-main"
           : "bg-offwhite dark:bg-gray-700 text-foreground hover:bg-black/10 dark:hover:bg-gray-600"
@@ -212,15 +177,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
 
   return (
     <div className="flex flex-col gap-8 p-6 bg-offwhite dark:bg-gray-800 rounded-lg shadow-md">
-      {timer !== null && (
-        <div className="flex flex-col gap-2">
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Temps restant</h2>
-          <p className={`text-lg font-medium ${timer > 0 ? "text-red-500" : "text-gray-500"}`}>
-            {timer > 0 ? formatTime(timer) : "Temps écoulé"}
-          </p>
-          {timerError && <p className="text-sm text-red-500">{timerError}</p>}
-        </div>
-      )}
+     
 
       {paymentMethods.length > 0 && (
         <div className="flex flex-col gap-4">
@@ -267,7 +224,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
               label="Numéro de téléphone"
               value={deliveryForm.phoneNumber}
               onChange={(name, value) =>
-                setDeliveryForm(prev => ({...prev, [name]: String(value)}))
+                setDeliveryForm(prev => ({ ...prev, [name]: String(value) }))
               }
               placeholder="Votre numéro de téléphone"
               name="phoneNumber"

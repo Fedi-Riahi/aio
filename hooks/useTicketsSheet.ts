@@ -1,13 +1,66 @@
+"use client";
+
 import { useRef, useCallback, useState, useEffect } from "react";
 import { TicketDrawer, Order, TicketData } from "../types/ticketsSheet";
 
-interface ApiResponse<T> {
-  success: boolean;
-  respond: {
-    data: T;
-    error: Record<string, unknown>;
-  };
-}
+// Mock data for orders (unchanged)
+const mockOrders: Order[] = [
+  {
+    order_id: "ORD001",
+    event_name: "Summer Music Festival",
+    ticketsCount: 2,
+    totalPrice: 59.98,
+    paymentState: "paid",
+    _id: "2025-03-01T10:00:00Z",
+    owners: "Festival Co.",
+    paymentMethod: "credit_card",
+    deliveryState: 1,
+  },
+  {
+    order_id: "ORD002",
+    event_name: "Tech Conference 2025",
+    ticketsCount: 1,
+    totalPrice: 99.99,
+    paymentState: "pending",
+    _id: "2025-03-15T09:00:00Z",
+    owners: "Tech Events Inc.",
+    paymentMethod: "paypal",
+    deliveryState: 1,
+  },
+];
+
+// Mock data for tickets with background_thumbnail
+const mockTickets: TicketData[] = [
+  {
+    _id: "TCK001",
+    eventName: "Summer Music Festival",
+    date: "April 10, 2025",
+    time: "18:00 - 22:00",
+    location: "Central Park, NYC",
+    referenceCode: "REF-SMF001",
+    orderId: "ORD001",
+    background_thumbnail: "https://images.unsplash.com/photo-1741835063505-f76fdcb4d510?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxNHx8fGVufDB8fHx8fA%3D%3D",
+  },
+  {
+    _id: "TCK002",
+    eventName: "Summer Music Festival",
+    date: "April 10, 2025",
+    time: "18:00 - 22:00",
+    location: "Central Park, NYC",
+    referenceCode: "REF-SMF002",
+    orderId: "ORD001",
+  },
+  {
+    _id: "TCK003",
+    eventName: "Tech Conference 2025",
+    date: "March 15, 2025",
+    time: "09:00 - 17:00",
+    location: "Convention Center, SF",
+    referenceCode: "REF-TC001",
+    orderId: "ORD002",
+    background_thumbnail: "https://via.placeholder.com/300x500?text=Tech+Conf",
+  },
+];
 
 export const useTicketsSheet = ({ open, onOpenChange }: TicketDrawer) => {
   const ticketRefs = useRef<Array<HTMLDivElement | null>>([]);
@@ -17,162 +70,101 @@ export const useTicketsSheet = ({ open, onOpenChange }: TicketDrawer) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getAuthTokens = useCallback(() => {
-    try {
-      const authTokensString = localStorage.getItem("authTokens");
-      if (!authTokensString) {
-        console.error("No authTokens found in localStorage");
-        return null;
-      }
-
-      const authTokens = JSON.parse(authTokensString);
-      if (!authTokens.access_token) {
-        console.error("Access token missing in authTokens");
-        return null;
-      }
-
-      return {
-        accessToken: authTokens.access_token,
-        refreshToken: authTokens.refresh_token
-      };
-    } catch (error) {
-      console.error("Error parsing auth tokens:", error);
-      return null;
-    }
-  }, []);
-
   const closeDrawer = useCallback(() => {
     onOpenChange(false);
     setSelectedOrder(null);
     setError(null);
   }, [onOpenChange]);
 
-  const fetchWithAuth = useCallback(async <T,>(url: string, options: RequestInit = {}): Promise<T> => {
-    const tokens = getAuthTokens();
-    if (!tokens) {
-      throw new Error("Authentication required. Please log in.");
-    }
-
-    const response = await fetch(`https://api-prod.aio.events/api/normalaccount/orders`, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${tokens.accessToken}`,
-        ...options.headers
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      throw new Error('Response is not JSON');
-    }
-
-    const data: ApiResponse<T> = await response.json();
-
-    if (!data.success) {
-      throw new Error(data.respond.error?.message || 'Request failed');
-    }
-
-    return data.respond.data;
-  }, [getAuthTokens]);
-
   const fetchOrders = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
 
-      const ordersData = await fetchWithAuth<Order[]>('/api/normalaccount/orders');
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const ordersData = mockOrders;
       setOrders(ordersData);
-      console.log("orders",ordersData)
+      console.log("orders", ordersData);
 
       if (ordersData.length === 0) {
         setError("No orders found");
       }
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-      setError(error instanceof Error ? error.message : 'Failed to load orders');
+    } catch (error: any) {
+      console.error("Error fetching orders:", error);
+      setError("Failed to load orders");
       setOrders([]);
     } finally {
       setIsLoading(false);
     }
-  }, [fetchWithAuth]);
+  }, []);
 
   const fetchTicketsForOrder = useCallback(async (orderId: string) => {
     try {
       setIsLoading(true);
       setError(null);
 
-      const orderData = await fetchWithAuth<any>(`https://api-prod.aio.events/api/normalaccount/${orderId}`);
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const tickets = orderData.tickets.map((ticket: any) => ({
-        _id: ticket._id,
-        eventName: orderData.event?.event_name || "Unknown Event",
-        date: ticket.date || "Unknown Date",
-        time: ticket.time || "Unknown Time",
-        location: orderData.event?.location || "Unknown Location",
-        referenceCode: ticket.reference_code || `REF-${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
-        orderId: orderId
-      }));
+      const tickets = mockTickets.filter((ticket) => ticket.orderId === orderId || orderId === "");
 
       setTicketData(tickets);
-      setSelectedOrder(orderId);
+      setSelectedOrder(orderId === "" ? null : orderId);
 
       if (tickets.length === 0) {
         setError("No tickets found for this order");
       }
-    } catch (error) {
-      console.error('Error fetching tickets:', error);
-      setError(error instanceof Error ? error.message : 'Failed to load tickets');
+    } catch (error: any) {
+      console.error("Error fetching tickets:", error);
+      setError("Failed to load tickets");
       setTicketData([]);
     } finally {
       setIsLoading(false);
     }
-  }, [fetchWithAuth]);
+  }, []);
 
   const handleDownloadPDF = useCallback(async (index: number) => {
     const ticket = ticketData[index];
     try {
-      const response = await fetchWithAuth(`https://api-prod.aio.events/api/normalaccount/download/ticket/${ticket._id}`);
-      const blob = await response.blob();
-
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      console.log(`Simulating PDF download for ticket: ${ticket.referenceCode}`);
+      const mockBlob = new Blob(["Mock Ticket PDF"], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(mockBlob);
+      const a = document.createElement("a");
       a.href = url;
       a.download = `ticket_${ticket.referenceCode}.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error downloading ticket:', error);
-      setError(error instanceof Error ? error.message : 'Failed to download ticket');
+    } catch (error: any) {
+      console.error("Error downloading ticket:", error);
+      setError("Failed to download ticket");
     }
-  }, [ticketData, fetchWithAuth]);
+  }, [ticketData]);
 
   const handleDownloadAllTickets = useCallback(async () => {
     if (!selectedOrder) return;
 
     try {
-      const response = await fetchWithAuth(`https://api-prod.aio.events/api/normalaccount/download/order/${selectedOrder}`);
-      const blob = await response.blob();
-
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      console.log(`Simulating PDF download for all tickets in order: ${selectedOrder}`);
+      const mockBlob = new Blob([`Mock PDF for order ${selectedOrder}`], {
+        type: "application/pdf",
+      });
+      const url = window.URL.createObjectURL(mockBlob);
+      const a = document.createElement("a");
       a.href = url;
       a.download = `order_${selectedOrder}_tickets.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error downloading all tickets:', error);
-      setError(error instanceof Error ? error.message : 'Failed to download tickets');
+    } catch (error: any) {
+      console.error("Error downloading all tickets:", error);
+      setError("Failed to download tickets");
     }
-  }, [selectedOrder, fetchWithAuth]);
+  }, [selectedOrder]);
 
   useEffect(() => {
     if (open) {
@@ -191,6 +183,6 @@ export const useTicketsSheet = ({ open, onOpenChange }: TicketDrawer) => {
     selectedOrder,
     fetchTicketsForOrder,
     isLoading,
-    error
+    error,
   };
 };

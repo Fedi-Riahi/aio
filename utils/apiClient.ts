@@ -10,6 +10,7 @@ const apiClient = axios.create({
   baseURL: "https://api-prod.aio.events/api",
   headers: {
     "Content-Type": "application/json",
+    withCredentials: true,
   },
   withCredentials: true,
 });

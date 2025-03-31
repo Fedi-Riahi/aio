@@ -1,48 +1,21 @@
-import { OrderRequestBody, TicketData } from '../types/paymentStep';
-
-const API_BASE_URL = 'https://api-prod.aio.events/api/normalaccount';
+import apiClient from "./apiClient"; // Adjust path as needed
+import { OrderRequestBody, TicketData } from "../types/paymentStep";
 
 interface TimerResponse {
   success: boolean;
   respond: {
     msg: string;
-    data?: {
-      timer: number;
-    };
-    error?: {
-      code?: string;
-      details?: string;
-    };
+    data?: { timer: number };
+    error?: { code?: string; details?: string };
   };
 }
 
 interface OrderResponse {
   success: boolean;
-  data?: {
-    order_id?: string;
-    payUrl?: string;
-    isFreeOrder?: boolean;
-    delivery?: boolean;
-  };
+  data?: { order_id?: string; payUrl?: string; isFreeOrder?: boolean; delivery?: boolean };
   msg?: string;
-  error?: {
-    code: string;
-    details: string;
-  };
+  error?: { code: string; details: string };
 }
-
-const getAuthToken = (): string => {
-  const authTokens = localStorage.getItem('authTokens');
-  if (!authTokens) {
-    throw new Error("User not authenticated");
-  }
-  const parsedTokens = JSON.parse(authTokens);
-  const { access_token } = parsedTokens;
-  if (!access_token) {
-    throw new Error("Invalid authentication token");
-  }
-  return access_token;
-};
 
 export const createOrderRequestBody = ({
   eventId,
@@ -84,19 +57,18 @@ export const createOrderRequestBody = ({
     location_index: locationIndex,
     period_index: periodIndex,
     time_index: timeIndex,
-    delivery: paymentMode === "delivery", // Explicitly set delivery based on paymentMode
+    delivery: paymentMode === "delivery",
   };
 
   if (body.delivery) {
-    // When delivery is true, data_related_to_delevery is required and must be fully populated
     if (!firstName || !lastName || !phoneNumber) {
       throw new Error("Delivery requires firstName, lastName, and phoneNumber");
     }
     body.data_related_to_delivery = {
       name: `${firstName} ${lastName}`.trim(),
-      address: "", // Will be updated in usePaymentStep
-      province: "", // Will be updated in usePaymentStep
-      city: "", // Will be updated in usePaymentStep
+      address: "",
+      province: "",
+      city: "",
       phone: String(phoneNumber),
     };
   }
@@ -117,18 +89,6 @@ export const startOrderTimer = async (requestBody: {
   time_index: number;
 }): Promise<TimerResponse> => {
   try {
-    const access_token = getAuthToken();
-    const requestDetails = {
-      url: `${API_BASE_URL}/buyticket/limit/${requestBody.event_id}`,
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${access_token}`,
-      },
-      body: JSON.stringify(requestBody, null, 2),
-    };
-    console.log("Sending timer request:", requestDetails);
-
     if (!requestBody.ticketDataList || requestBody.ticketDataList.length === 0) {
       throw new Error("ticketDataList is empty or undefined");
     }
@@ -138,47 +98,19 @@ export const startOrderTimer = async (requestBody: {
       }
     });
 
-    const response = await fetch(requestDetails.url, {
-      method: requestDetails.method,
-      headers: requestDetails.headers,
-      body: requestDetails.body,
-    });
+    const response = await apiClient.post(`/normalaccount/buyticket/limit/${requestBody.event_id}`, requestBody);
 
-    let result: any;
-    try {
-      result = await response.json();
-    } catch (jsonError) {
-      console.error("JSON parse error in startOrderTimer:", jsonError);
-      const rawText = await response.text();
-      console.log("Raw timer response text:", rawText);
-      result = { success: false, message: `Invalid JSON response: ${rawText}` };
+    console.log("Timer response:", response.data);
+
+    if (!response.data.success || !response.data.respond?.data?.timer) {
+      throw new Error("Invalid timer response format: " + JSON.stringify(response.data));
     }
 
-    console.log("Timer response:", {
-      status: response.status,
-      ok: response.ok,
-      headers: Object.fromEntries(response.headers.entries()),
-      body: result,
-    });
-
-    if (!response.ok) {
-      const errorMsg =
-        result?.respond?.error?.details ||
-        result?.respond?.msg ||
-        result?.message ||
-        `Server error: ${response.status}`;
-      throw new Error(errorMsg);
-    }
-
-    if (!result.success || !result.respond?.data?.timer) {
-      throw new Error("Invalid timer response format: " + JSON.stringify(result));
-    }
-
-    return result as TimerResponse;
-  } catch (error) {
+    return response.data as TimerResponse;
+  } catch (error: any) {
     console.error("Timer start error:", {
-      message: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined,
+      message: error.message,
+      stack: error.stack,
     });
     return {
       success: false,
@@ -186,7 +118,7 @@ export const startOrderTimer = async (requestBody: {
         msg: "Failed to start timer",
         error: {
           code: "TIMER_ERROR",
-          details: error instanceof Error ? error.message : String(error),
+          details: error.message,
         },
       },
     };
@@ -195,8 +127,6 @@ export const startOrderTimer = async (requestBody: {
 
 export const processOrder = async (orderRequestBody: OrderRequestBody): Promise<OrderResponse> => {
   try {
-    const access_token = getAuthToken();
-
     const timerRequest = {
       event_id: orderRequestBody.event_id,
       ticketDataList: orderRequestBody.ticketDataList,
@@ -210,44 +140,14 @@ export const processOrder = async (orderRequestBody: OrderRequestBody): Promise<
       throw new Error(timerResponse.respond.error?.details || "Failed to initialize order timer");
     }
 
-    const requestDetails = {
-      url: `${API_BASE_URL}/order`,
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${access_token}`,
-      },
-      body: JSON.stringify(orderRequestBody, null, 2),
-    };
-    console.log("Sending order request:", requestDetails);
+    const response = await apiClient.post("/normalaccount/order", orderRequestBody);
 
-    const response = await fetch(requestDetails.url, {
-      method: requestDetails.method,
-      headers: requestDetails.headers,
-      body: requestDetails.body,
-    });
+    console.log("Order response:", response.data);
 
-    let result: any;
-    try {
-      result = await response.json();
-    } catch (jsonError) {
-      console.error("JSON parse error in processOrder:", jsonError);
-      const rawText = await response.text();
-      console.log("Raw order response text:", rawText);
-      result = { success: false, message: `Invalid JSON response: ${rawText}` };
-    }
-
-    console.log("Order response:", {
-      status: response.status,
-      ok: response.ok,
-      headers: Object.fromEntries(response.headers.entries()),
-      body: result,
-    });
-
-    if (!response.ok || !result.success) {
-      const error = result.error || result.respond?.error || {
+    if (!response.data.success) {
+      const error = response.data.error || response.data.respond?.error || {
         code: "UNKNOWN_ERROR",
-        details: result.respond?.msg || result.message || "Unknown error occurred",
+        details: response.data.respond?.msg || "Unknown error occurred",
       };
       return { success: false, error };
     }
@@ -255,23 +155,23 @@ export const processOrder = async (orderRequestBody: OrderRequestBody): Promise<
     return {
       success: true,
       data: {
-        payUrl: result.respond?.data?.payUrl,
-        order_id: result.respond?.data?.order_id,
-        isFreeOrder: result.respond?.data?.isFreeOrder,
-        delivery: result.respond?.data?.delivery,
+        payUrl: response.data.respond?.data?.payUrl,
+        order_id: response.data.respond?.data?.order_id,
+        isFreeOrder: response.data.respond?.data?.isFreeOrder,
+        delivery: response.data.respond?.data?.delivery,
       },
-      msg: result.respond?.msg,
+      msg: response.data.respond?.msg,
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Order processing error:", {
-      message: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined,
+      message: error.message,
+      stack: error.stack,
     });
     return {
       success: false,
       error: {
         code: "NETWORK_ERROR",
-        details: error instanceof Error ? error.message : "Network request failed",
+        details: error.message || "Network request failed",
       },
     };
   }
