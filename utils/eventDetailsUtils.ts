@@ -86,7 +86,7 @@ export const fetchSeatData = async (
     const response = await apiClient.get(`/event/getperiods/seats/${id}`, {
       params: {
         period_index: periodIndex,
-        location_index: locationIndex,
+        location_index: locationIndex, 
         time_index: timeIndex,
         ticket_index: 0,
       },
@@ -104,7 +104,7 @@ export const fetchSeatData = async (
     return null;
   } catch (error) {
     if (error.response?.status !== 404) {
-      console.error(`Failed to fetch seat data for event ${id}:`, {
+      console.log(`Failed to fetch seat data for event ${id}:`, {
         status: error.response?.status,
         message: error.response?.data?.message || error.message,
         details: error.response?.data?.details,
