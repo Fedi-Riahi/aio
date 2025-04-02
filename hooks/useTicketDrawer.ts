@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Ticket } from "@/types/eventDetails";
 import { DeliveryDetails, TicketOrder } from "@/types/ticketDrawer";
-import { TicketData } from "@/types/paymentStep"; // Assuming this is where TicketData is defined
+import { TicketData } from "@/types/paymentStep";
 import { calculateTotal, applyCoupon } from "@/utils/ticketDrawerUtils";
 
 // Define types (assumed from context; adjust as needed)
@@ -55,9 +55,12 @@ export const useTicketDrawer = (
   seatData: { seats: { list_of_seat: Seat[] }; room_name: string; taken: string[] } | null,
   onClose: () => void
 ) => {
+  // State declarations
   const [selectedTickets, setSelectedTickets] = useState<{ [key: string]: number }>({});
   const [userNames, setUserNames] = useState<{ [key: string]: string[] }>({});
-  const [step, setStep] = useState<"selectQuantity" | "selectSeats" | "enterNames" | "payment" | "confirmation">("selectQuantity");
+  const [step, setStep] = useState<"selectQuantity" | "selectSeats" | "enterNames" | "payment" | "confirmation">(
+    "selectQuantity"
+  );
   const [paymentMode, setPaymentMode] = useState<"delivery" | "online" | null>(null);
   const [deliveryDetails, setDeliveryDetails] = useState<DeliveryDetails>({
     name: "",
@@ -78,12 +81,18 @@ export const useTicketDrawer = (
     }
   }, [selectedTickets]);
 
-  // Log ticketDataList for debugging
-  const ticketDataList = buildTicketDataList(selectedTickets, userNames, tickets, ticketType, hasSeatTemplate, selectedSeats);
+  // Memoize ticketDataList to prevent unnecessary recalculations
+  const ticketDataList = useMemo(
+    () => buildTicketDataList(selectedTickets, userNames, tickets, ticketType, hasSeatTemplate, selectedSeats),
+    [selectedTickets, userNames, tickets, ticketType, hasSeatTemplate, selectedSeats]
+  );
+
+  // Log ticketDataList for debugging when it actually changes
   useEffect(() => {
     console.log("ticketDataList in useTicketDrawer:", ticketDataList);
-  }, [ticketDataList]); // Dependency on ticketDataList directly
+  }, [ticketDataList]);
 
+  // Handle ticket quantity changes
   const handleQuantityChange = (ticketId: string, quantity: number) => {
     setSelectedTickets((prev) => ({
       ...prev,
@@ -91,6 +100,7 @@ export const useTicketDrawer = (
     }));
   };
 
+  // Handle name input for each ticket
   const handleNameChange = (ticketId: string, index: number, name: string) => {
     setUserNames((prev) => {
       const updatedNames = [...(prev[ticketId] || Array(selectedTickets[ticketId] || 0).fill(""))];
@@ -102,10 +112,12 @@ export const useTicketDrawer = (
     });
   };
 
+  // Handle payment mode selection
   const handlePaymentModeChange = (mode: "delivery" | "online") => {
     setPaymentMode(mode);
   };
 
+  // Handle delivery details input
   const handleDeliveryChange = (field: keyof DeliveryDetails, value: string) => {
     setDeliveryDetails((prev) => ({
       ...prev,
@@ -113,15 +125,18 @@ export const useTicketDrawer = (
     }));
   };
 
+  // Handle coupon code input
   const handleCouponChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCouponCode(e.target.value);
   };
 
+  // Apply coupon and update discount
   const handleApplyCoupon = () => {
     const newDiscount = applyCoupon(couponCode);
     setDiscount(newDiscount);
   };
 
+  // Cancel the ticket drawer process
   const handleCancel = () => {
     setSelectedTickets({});
     setUserNames({});
@@ -133,6 +148,7 @@ export const useTicketDrawer = (
     onClose();
   };
 
+  // Move to the next step with validation
   const handleContinue = () => {
     if (step === "selectQuantity") {
       const hasSelectedTickets = Object.values(selectedTickets).some((quantity) => quantity > 0);
@@ -158,11 +174,11 @@ export const useTicketDrawer = (
       }
       setStep("payment");
     } else if (step === "payment") {
-      setStep("confirmation");
-    } else if (step === "confirmation") {
-      onClose();
+        onClose();
     }
+
   };
+
 
   const handleBack = () => {
     if (step === "selectSeats") {
@@ -171,10 +187,9 @@ export const useTicketDrawer = (
       setStep(hasSeatTemplate ? "selectSeats" : "selectQuantity");
     } else if (step === "payment") {
       setStep("enterNames");
-    } else if (step === "confirmation") {
-      setStep("payment");
     }
   };
+
 
   const order: TicketOrder = {
     event_id: { id: eventId },
@@ -184,8 +199,10 @@ export const useTicketDrawer = (
     takenSeats: seatData?.taken || [],
   };
 
+  // Calculate total cost
   const total = calculateTotal(tickets, selectedTickets, ticketType, paymentMode, discount);
 
+  // Return all state and handlers
   return {
     selectedTickets,
     handleQuantityChange,

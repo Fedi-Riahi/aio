@@ -9,6 +9,7 @@ import EnterNamesStep from "@/components/EnterNamesStep";
 import PaymentStep from "@/components/PaymentStep";
 import ConfirmationStep from "@/components/ConfirmationStep";
 import TheatreView from "@/components/TheatreView";
+import Timer from "@/components/Timer"; // Import the updated Timer component
 import { TicketDrawerProps } from "@/types/ticketDrawer";
 import { useTicketDrawer } from "@/hooks/useTicketDrawer";
 import { startOrderTimer } from "@/utils/paymentStepUtils";
@@ -74,7 +75,7 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
         .filter((ticket) => selectedTickets[ticket.ticket_id] > 0)
         .map((ticket) => ({
           ticket_id: ticket.ticket_id,
-          name: ticket.name || "Unknown Ticket", // Adjust based on your ticket structure
+          name: ticket.name || "Unknown Ticket",
           ticket_index: 0,
           seat_index: "N/A",
         }));
@@ -145,18 +146,8 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
     if (!isOpen && timer !== null) {
       setTimer(null);
       setTimerError(null);
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
-        timerIntervalRef.current = null;
-      }
     }
   }, [isOpen]);
-
-  const formatTime = (seconds: number): string => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes}:${secs < 10 ? `0${secs}` : secs}`;
-  };
 
   return (
     <Drawer open={isOpen} onClose={onClose}>
@@ -188,14 +179,8 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
         </DrawerHeader>
 
         <div className="p-4 flex flex-col gap-4 w-full md:w-3/4 lg:w-2/3 max-h-[70vh] overflow-y-auto">
-          {(step === "enterNames" || step === "payment") && timer !== null && (
-            <div className="flex flex-col gap-2">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Temps restant</h2>
-              <p className={`text-lg font-medium ${timer > 0 ? "text-red-500" : "text-gray-500"}`}>
-                {timer > 0 ? formatTime(timer) : "Temps écoulé"}
-              </p>
-              {timerError && <p className="text-sm text-red-500">{timerError}</p>}
-            </div>
+          {(step === "enterNames" || step === "payment") && (
+            <Timer time={timer} timerError={timerError} />
           )}
 
           {step === "selectQuantity" && (
@@ -265,38 +250,27 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
               periodIndex={periodIndex}
               timeIndex={timeIndex}
               extraFields={extraFields}
-              walletId="your-wallet-id"
-              currency="USD"
-              email="user@example.com"
-              phoneNumber="1234567890"
-              paymentMethods={paymentMethods}
               timer={timer}
               timerError={timerError}
+              paymentMethods={paymentMethods}
             />
           )}
 
-          {step === "confirmation" && (
-            <ConfirmationStep
-              tickets={tickets}
-              selectedTickets={selectedTickets}
-              userNames={userNames}
-              paymentMode={paymentMode}
-              deliveryDetails={deliveryDetails}
-              calculateTotal={() => total}
-            />
-          )}
         </div>
 
         <DrawerFooter className="w-full md:w-3/4 lg:w-2/3">
           <div className="flex gap-4">
-            <Button
-              onClick={handleBack}
-              className="text-foreground transition duration-300 hover:bg-black/10 hover:border-transparent"
-            >
+            {step !== "payment" && (
+
+                <Button
+                onClick={handleBack}
+                className="text-foreground transition duration-300 hover:bg-black/10 hover:border-transparent"
+                >
               Retour
             </Button>
+            )}
             <Button
-              onClick={handleContinue}
+              onClick={step === "payment" ? handleCancel : handleContinue}
               className="bg-main text-foreground hover:bg-main/90"
               disabled={
                 (step === "selectSeats" && selectedSeats.length !== maxSeats) ||
@@ -309,7 +283,7 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
                 (timer === 0)
               }
             >
-              {step === "confirmation" ? "Terminer" : "Suivant"}
+              {step === "payment" ? "Terminer" : "Suivant"}
             </Button>
           </div>
         </DrawerFooter>

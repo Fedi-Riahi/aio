@@ -1,6 +1,6 @@
-import apiClient from "./apiClient"; // Assuming apiClient is in the same directory
+import apiClient from "./apiClient";
 import { SignUpFormData, SignUpResponse } from "../types/signUp";
-
+import axios from "axios";
 export const submitSignUp = async (data: SignUpFormData): Promise<SignUpResponse> => {
   const formData = new FormData();
 
@@ -27,23 +27,58 @@ export const submitSignUp = async (data: SignUpFormData): Promise<SignUpResponse
       ok: response.status >= 200 && response.status < 300,
     };
   } catch (error: any) {
+    console.log("Signup error response:", error.response?.data); // Debugging
     return {
       ...(error.response?.data || {}),
       status: error.response?.status || 500,
       ok: false,
       error: {
-        details: error.response?.data?.message || error.message,
+        details: error.response?.data?.respond?.error?.details || error.response?.data?.message || error.message,
       },
     };
   }
 };
+export const resendMailVerifyToken = async (email: string): Promise<SignUpResponse> => {
+    try {
+      console.log("Sending resend request with payload:", { email });
 
+      const response = await fetch("https://api-prod.aio.events/api/user/resendmailverifytoken", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+        credentials: "omit", // This ensures no cookies are sent
+      });
+
+      const data = await response.json();
+      console.log("Resend mail verify token response:", data);
+
+      return {
+        ...data,
+        status: response.status,
+        ok: response.ok,
+      };
+    } catch (error: any) {
+      console.log("Resend mail verify token error:", error);
+      return {
+        status: 500,
+        ok: false,
+        error: {
+          details: error.message || "Network error occurred",
+        },
+      };
+    }
+  };
+
+// No changes needed below
 export const submitConfirmation = async (email: string, code: string): Promise<SignUpResponse> => {
   try {
     const response = await apiClient.post("/user/mailconfopensession", {
       email,
       code,
     });
+    console.log("mail conf",response)
     return {
       ...response.data,
       status: response.status,

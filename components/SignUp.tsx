@@ -26,6 +26,7 @@ export const SignUp = () => {
     setValue,
     watch,
     methods,
+    onBackToStep1,
   } = useSignUp();
 
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -33,7 +34,6 @@ export const SignUp = () => {
   const [showAcceptanceError, setShowAcceptanceError] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  // Watch form values
   const profilePicture = watch("profile_picture");
   console.log("Current profile picture state:", profilePicture);
 
@@ -162,8 +162,8 @@ export const SignUp = () => {
                   message: "Le mot de passe doit contenir au moins 8 caractères",
                 },
                 pattern: {
-                  value: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
-                  message: "Le mot de passe doit contenir des lettres, chiffres et caractères spéciaux",
+                  value: /^(?=.*[A-Z])(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+                  message: "Le mot de passe doit contenir au moins une majuscule, des lettres, chiffres et caractères spéciaux",
                 },
               })}
               className="bg-foreground/10 w-full pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
@@ -194,7 +194,7 @@ export const SignUp = () => {
               <Checkbox
                 id="terms"
                 checked={acceptedTerms}
-                onCheckedChange={(checked) => setAcceptedTerms(checked)}
+                onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
                 className="h-5 w-5 mt-0.5 rounded border-gray-300 text-main focus:ring-main"
               />
               <label htmlFor="terms" className="text-sm text-gray-600 leading-tight">
@@ -209,7 +209,7 @@ export const SignUp = () => {
               <Checkbox
                 id="privacy"
                 checked={acceptedPrivacy}
-                onCheckedChange={(checked) => setAcceptedPrivacy(checked)}
+                onCheckedChange={(checked) => setAcceptedPrivacy(checked as boolean)}
                 className="h-5 w-5 mt-0.5 rounded border-gray-300 text-main focus:ring-main"
               />
               <label htmlFor="privacy" className="text-sm text-gray-600 leading-tight">
@@ -228,7 +228,6 @@ export const SignUp = () => {
           </div>
 
           <Button
-            type="submit"
             className={`w-full py-3 text-md rounded-lg focus:outline-none mt-4 ${
               acceptedTerms && acceptedPrivacy
                 ? "bg-main text-white hover:bg-main/90"
@@ -266,12 +265,21 @@ export const SignUp = () => {
             </div>
           </div>
 
-          <Button
-            type="submit"
-            className="w-full py-3 text-md bg-main text-white rounded-lg hover:bg-main/90 focus:outline-none"
-          >
-            S&apos;inscrire {selectedFile ? "" : "(Passer si aucune image)"}
-          </Button>
+          <div className="flex space-x-4">
+            <Button
+              type="button"
+              onClick={onBackToStep1}
+              className="w-1/2 py-3 text-md bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 focus:outline-none"
+            >
+              Retour
+            </Button>
+            <Button
+
+              className="w-1/2 py-3 text-md bg-main text-white rounded-lg hover:bg-main/90 focus:outline-none"
+            >
+              S&apos;inscrire {selectedFile ? "" : "(Passer)"}
+            </Button>
+          </div>
         </form>
       ) : null}
     </div>

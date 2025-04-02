@@ -159,6 +159,7 @@ export const processOrder = async (orderRequestBody: OrderRequestBody): Promise<
         order_id: response.data.respond?.data?.order_id,
         isFreeOrder: response.data.respond?.data?.isFreeOrder,
         delivery: response.data.respond?.data?.delivery,
+
       },
       msg: response.data.respond?.msg,
     };

@@ -1,5 +1,6 @@
-"use client"
-import React, { useEffect, useState } from "react";
+"use client";
+
+import React, { useEffect, useState, memo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { IconTruckDelivery, IconCreditCard, IconDiscount, IconMapPin } from "@tabler/icons-react";
 import { PaymentStepProps } from "../types/paymentStep";
@@ -7,14 +8,48 @@ import { usePaymentStep } from "../hooks/usePaymentStep";
 import LocationMap from "./LocationMap";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useAuth } from "../context/AuthContext";
+import Timer from "@/components/Timer";
+import { useNavbar } from "@/hooks/useNavbar";
+
+
+const InputField = memo(({ label, value, onChange, placeholder, name, disabled }: any) => {
+  console.log(`[InputField] Rendering ${name}, value: ${value}`);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    console.log(`[InputField] Mounted/Updated ${name}, focused: ${document.activeElement === inputRef.current}`);
+  }, [name]);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <label className="text-sm font-medium text-foreground dark:text-gray-300">{label}</label>
+      <input
+        ref={inputRef}
+        type="text"
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => {
+          console.log(`[InputField] ${name} onChange: ${e.target.value}`);
+          onChange(name, e.target.value);
+        }}
+        onFocus={() => console.log(`[InputField] ${name} focused`)}
+        onBlur={() => console.log(`[InputField] ${name} blurred`)}
+        className="p-3 bg-offwhite dark:bg-gray-700 text-foreground dark:text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+        disabled={disabled}
+        aria-label={label}
+      />
+    </div>
+  );
+});
+InputField.displayName = "InputField";
 
 const PaymentStep: React.FC<PaymentStepProps & {
-  timer: number | null; // Timer passed from parent
-  timerError: string | null; // Error passed from parent
+  timer: number | null;
+  timerError: string | null;
 }> = ({
   paymentMode,
   handlePaymentModeChange,
-  handleDeliveryChange,
+  handleDeliveryChange: parentHandleDeliveryChange,
   couponCode,
   handleCouponChange,
   applyCoupon,
@@ -32,10 +67,14 @@ const PaymentStep: React.FC<PaymentStepProps & {
   mapRegion,
   onPaymentSuccess,
   paymentMethods = [],
-  timer, // New prop
-  timerError, // New prop
+  timer,
+  timerError,
 }) => {
   const { userData } = useAuth();
+  const {
+    setOpenTicketDrawer,
+  } = useNavbar();
+
 
   const email = userData?.email || propEmail || "";
   const phoneNumber = String(userData?.phone_number) || propPhoneNumber || "";
@@ -56,6 +95,27 @@ const PaymentStep: React.FC<PaymentStepProps & {
     city: "",
     province: "",
   });
+  const [   feedback, setFeedback] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    isSuccess: boolean;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    isSuccess: false,
+  });
+
+  const memoizedHandleDeliveryChange = useCallback((field: string, value: string) => {
+    console.log(`[PaymentStep] handleDeliveryChange: ${field} = ${value}`);
+    setDeliveryForm((prev) => {
+      const newForm = { ...prev, [field]: value };
+      console.log(`[PaymentStep] Updated deliveryForm:`, newForm);
+      return newForm;
+    });
+    parentHandleDeliveryChange(field, value);
+  }, [parentHandleDeliveryChange]);
 
   const {
     isProcessingPayment,
@@ -68,10 +128,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
   } = usePaymentStep({
     paymentMode,
     handlePaymentModeChange,
-    handleDeliveryChange: (field, value) => {
-      setDeliveryForm((prev) => ({ ...prev, [field]: value }));
-      handleDeliveryChange(field, value);
-    },
+    handleDeliveryChange: memoizedHandleDeliveryChange,
     couponCode,
     handleCouponChange,
     applyCoupon,
@@ -81,7 +138,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
     locationIndex,
     periodIndex,
     timeIndex,
-    extraFields: Object.entries(extraFieldValues).map(([field, value]) => ({ field, value })),
+    extraFields,
     email,
     phoneNumber: deliveryForm.phoneNumber || phoneNumber,
     firstName: deliveryForm.firstName || firstName,
@@ -91,11 +148,20 @@ const PaymentStep: React.FC<PaymentStepProps & {
       if (response.success && response.data?.payUrl) {
         setPaymentUrl(response.data.payUrl);
         setIsPaymentDialogOpen(true);
+      } else {
+        setFeedback({
+          isOpen: true,
+          title: response.success ? "Succès!" : "Erreur",
+          message: response.message ||
+            (response.success
+              ? "Votre commande a été passée avec succès!"
+              : "Une erreur s'est produite lors du traitement de votre commande."),
+          isSuccess: response.success,
+        });
       }
+
       if (typeof onPaymentSuccess === "function") {
         onPaymentSuccess(response);
-      } else {
-        console.log("Payment success, no callback provided:", response);
       }
     },
     deliveryForm,
@@ -105,16 +171,8 @@ const PaymentStep: React.FC<PaymentStepProps & {
   const initialPosition = mapRegion || defaultPosition;
 
   useEffect(() => {
-    console.log("Current paymentMode:", paymentMode);
-    console.log("paymentMethods:", paymentMethods);
-    console.log("Delivery section should show:", paymentMode === "delivery" && paymentMethods.some(method => method.toLowerCase() === "delivery"));
-  }, [paymentMode, paymentMethods]);
-
-  const formatTime = (seconds: number): string => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes}:${secs < 10 ? `0${secs}` : secs}`;
-  };
+    console.log("[PaymentStep] Mounted");
+  }, []);
 
   const PaymentModeButton = ({ mode, label, icon: Icon, isActive }: { mode: string; label: string; icon: any; isActive: boolean }) => (
     <Button
@@ -123,31 +181,13 @@ const PaymentStep: React.FC<PaymentStepProps & {
           ? "bg-main text-foreground border-main"
           : "bg-offwhite dark:bg-gray-700 text-foreground hover:bg-black/10 dark:hover:bg-gray-600"
       }`}
-      onClick={() => {
-        console.log(`Switching to payment mode: ${mode}`);
-        handlePaymentModeChange(mode);
-      }}
+      onClick={() => handlePaymentModeChange(mode)}
       disabled={isProcessingPayment || timer === 0}
       aria-label={`Sélectionner le mode de paiement ${label}`}
     >
       <Icon stroke={1.5} size={24} />
       {label}
     </Button>
-  );
-
-  const InputField = ({ label, value, onChange, placeholder, name, disabled }: any) => (
-    <div className="flex flex-col gap-2">
-      <label className="text-sm font-medium text-foreground dark:text-gray-300">{label}</label>
-      <input
-        type="text"
-        placeholder={placeholder}
-        value={value}
-        onChange={(e) => onChange(name, e.target.value)}
-        className="p-3 bg-offwhite dark:bg-gray-700 text-foreground dark:text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
-        disabled={disabled}
-        aria-label={label}
-      />
-    </div>
   );
 
   const ExtraFieldInput = ({ field }: { field: { field: string } }) => (
@@ -166,10 +206,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
     online: { label: "En ligne", icon: IconCreditCard },
   };
 
-  const handleProceedClick = () => {
-    setIsConfirmDialogOpen(true);
-  };
-
+  const handleProceedClick = () => setIsConfirmDialogOpen(true);
   const handleConfirmPayment = () => {
     setIsConfirmDialogOpen(false);
     handleOrderProcessing();
@@ -177,8 +214,6 @@ const PaymentStep: React.FC<PaymentStepProps & {
 
   return (
     <div className="flex flex-col gap-8 p-6 bg-offwhite dark:bg-gray-800 rounded-lg shadow-md">
-     
-
       {paymentMethods.length > 0 && (
         <div className="flex flex-col gap-4">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Mode de paiement</h2>
@@ -207,7 +242,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
             <InputField
               label="Nom"
               value={deliveryForm.firstName || firstName}
-              onChange={handleDeliveryChange}
+              onChange={memoizedHandleDeliveryChange}
               placeholder="Votre nom"
               name="firstName"
               disabled={isProcessingPayment}
@@ -215,7 +250,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
             <InputField
               label="Prénom"
               value={deliveryForm.lastName || lastName}
-              onChange={handleDeliveryChange}
+              onChange={memoizedHandleDeliveryChange}
               placeholder="Votre prénom"
               name="lastName"
               disabled={isProcessingPayment}
@@ -223,9 +258,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
             <InputField
               label="Numéro de téléphone"
               value={deliveryForm.phoneNumber}
-              onChange={(name, value) =>
-                setDeliveryForm(prev => ({ ...prev, [name]: String(value) }))
-              }
+              onChange={memoizedHandleDeliveryChange}
               placeholder="Votre numéro de téléphone"
               name="phoneNumber"
               disabled={isProcessingPayment}
@@ -244,7 +277,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
               <InputField
                 label="Adresse complète"
                 value={deliveryForm.address}
-                onChange={handleDeliveryChange}
+                onChange={memoizedHandleDeliveryChange}
                 placeholder="Votre adresse complète"
                 name="address"
                 disabled={isProcessingPayment}
@@ -331,6 +364,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
         {isProcessingPayment ? "Traitement en cours..." : "Procéder au paiement"}
       </Button>
 
+      {/* Confirmation Dialog */}
       <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
         <DialogContent className="sm:max-w-[425px] bg-background border border-offwhite">
           <DialogHeader>
@@ -359,18 +393,11 @@ const PaymentStep: React.FC<PaymentStepProps & {
         </DialogContent>
       </Dialog>
 
+      {/* Map Dialog */}
       <Dialog open={isMapOpen} onOpenChange={setIsMapOpen}>
         <DialogContent className="sm:max-w-[600px] bg-background border border-offwhite">
           <DialogHeader>
             <DialogTitle className="text-white">Sélectionnez votre adresse</DialogTitle>
-            {timer !== null && (
-              <div className="flex items-center gap-2">
-                <DialogTitle className="text-white">Temps Restant</DialogTitle>
-                <p className={`text-lg font-medium ${timer > 0 ? "text-red-500" : "text-gray-500"}`}>
-                  {timer > 0 ? formatTime(timer) : "Temps écoulé"}
-                </p>
-              </div>
-            )}
           </DialogHeader>
           <div className="py-4">
             <LocationMap
@@ -386,18 +413,12 @@ const PaymentStep: React.FC<PaymentStepProps & {
         </DialogContent>
       </Dialog>
 
+      {/* Payment Dialog */}
       <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
         <DialogContent className="sm:max-w-[80vw] max-h-[80vh] bg-background border border-offwhite">
           <DialogHeader>
             <DialogTitle className="text-white">Finaliser le paiement</DialogTitle>
-            {timer !== null && (
-              <div className="flex items-center gap-2">
-                <DialogTitle className="text-white">Temps Restant</DialogTitle>
-                <p className={`text-lg font-medium ${timer > 0 ? "text-red-500" : "text-gray-500"}`}>
-                  {timer > 0 ? formatTime(timer) : "Temps écoulé"}
-                </p>
-              </div>
-            )}
+            <Timer time={timer} timerError={timerError} />
           </DialogHeader>
           {paymentUrl ? (
             <iframe
@@ -412,6 +433,38 @@ const PaymentStep: React.FC<PaymentStepProps & {
           <DialogFooter>
             <Button onClick={() => setIsPaymentDialogOpen(false)} variant="outline" className="bg-main border-none">
               Fermer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Feedback Dialog */}
+      <Dialog open={feedback.isOpen} onOpenChange={(open) => setFeedback(prev => ({...prev, isOpen: open}))}>
+        <DialogContent className="sm:max-w-[425px] bg-background border border-offwhite">
+          <DialogHeader>
+            <DialogTitle className={feedback.isSuccess ? "text-main" : "text-main"}>
+              {feedback.title}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-foreground dark:text-gray-200">
+              {feedback.message}
+            </p>
+            {feedback.message && (
+                <p className="text-foreground dark:text-gray-200">
+              Vous pouvez voir vos tickets dans la partie Billets.
+            </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                setFeedback(prev => ({...prev, isOpen: false}));
+                setOpenTicketDrawer(true);
+              }}
+              className={feedback.isSuccess ? "bg-main hover:bg-main/90" : "bg-main hover:bg-main/90"}
+            >
+              OK
             </Button>
           </DialogFooter>
         </DialogContent>

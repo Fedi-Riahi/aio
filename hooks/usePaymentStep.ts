@@ -37,83 +37,57 @@ export const usePaymentStep = ({
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [addressError, setAddressError] = useState<string | null>(null);
   const [isMapOpen, setIsMapOpen] = useState(false);
-  const [selectedPosition, setSelectedPosition] = useState<Coordinates | null>(mapRegion || null);
+  const [selectedPosition, setSelectedPosition] = useState<Coordinates | null>(null);
 
-  useEffect(() => {
-    const fetchAddress = async () => {
-      if (!selectedPosition || !selectedPosition.latitude || !selectedPosition.longitude) {
-        setAddressError("Location not selected.");
-        return;
+  const fetchAddress = useCallback(async (position: Coordinates) => {
+    if (!position || !position.latitude || !position.longitude) {
+      setAddressError("Location not selected.");
+      return;
+    }
+
+    const apiKey = "ZcbGjTXz-jafgmOq_0vUDlS1xZOe-55AAz6q3Y2Io_c";
+    const url = `https://revgeocode.search.hereapi.com/v1/revgeocode?at=${position.latitude}%2C${position.longitude}&lang=fr-FR&apiKey=${apiKey}`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`API error: ${response.statusText}`);
       }
+      const data = await response.json();
 
-      const apiKey = "ZcbGjTXz-jafgmOq_0vUDlS1xZOe-55AAz6q3Y2Io_c";
-      const url = `https://revgeocode.search.hereapi.com/v1/revgeocode?at=${selectedPosition.latitude}%2C${selectedPosition.longitude}&lang=fr-FR&apiKey=${apiKey}`;
+      if (data.items && data.items.length > 0) {
+        const address = data.items[0].address.label || "Unknown Address";
+        const city = data.items[0].address.city || "Unknown City";
+        const province = data.items[0].address.state || "Unknown Province";
 
-      try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`API error: ${response.statusText}`);
-        }
-        const data = await response.json();
-
-        if (data.items && data.items.length > 0) {
-          const address = data.items[0].address.label || "Unknown Address";
-          const city = data.items[0].address.city || "Unknown City";
-          const province = data.items[0].address.state || "Unknown Province";
-
-          handleDeliveryChange("address", address);
-          handleDeliveryChange("city", city);
-          handleDeliveryChange("province", province);
-          setAddressError(null);
-        } else {
-          setAddressError("No address found for the selected location.");
-          handleDeliveryChange("address", "Unknown Address");
-          handleDeliveryChange("city", "Unknown City");
-          handleDeliveryChange("province", "Unknown Province");
-        }
-      } catch (error) {
-        setAddressError("Failed to fetch address. Please try again.");
+        handleDeliveryChange("address", address);
+        handleDeliveryChange("city", city);
+        handleDeliveryChange("province", province);
+        setAddressError(null);
+      } else {
+        setAddressError("No address found for the selected location.");
         handleDeliveryChange("address", "Unknown Address");
         handleDeliveryChange("city", "Unknown City");
         handleDeliveryChange("province", "Unknown Province");
       }
-    };
-
-    if (selectedPosition) {
-      fetchAddress();
-    }
-  }, [selectedPosition, handleDeliveryChange]);
-
-  const handleLocationSelect = async (coords: Coordinates) => {
-    setSelectedPosition(coords);
-
-    try {
-      const apiKey = "ZcbGjTXz-jafgmOq_0vUDlS1xZOe-55AAz6q3Y2Io_c";
-      const url = `https://revgeocode.search.hereapi.com/v1/revgeocode?at=${coords.latitude}%2C${coords.longitude}&lang=fr-FR&apiKey=${apiKey}`;
-
-      const response = await fetch(url);
-      const data = await response.json();
-
-      if (data.items?.[0]?.address) {
-        const address = data.items[0].address.label || "";
-        const city = data.items[0].address.city || "";
-        const province = data.items[0].address.state || "";
-
-        // Update all delivery fields at once
-        handleDeliveryChange("address", address);
-        handleDeliveryChange("city", city);
-        handleDeliveryChange("province", province);
-
-        setAddressError(null);
-      } else {
-        throw new Error("Could not fetch address details");
-      }
     } catch (error) {
-      setAddressError("Failed to fetch address details");
-    } finally {
-      setIsMapOpen(false);
+      setAddressError("Failed to fetch address. Please try again.");
+      handleDeliveryChange("address", "Unknown Address");
+      handleDeliveryChange("city", "Unknown City");
+      handleDeliveryChange("province", "Unknown Province");
     }
-  };
+  }, [handleDeliveryChange]);
+
+  useEffect(() => {
+    if (selectedPosition) {
+      fetchAddress(selectedPosition);
+    }
+  }, [selectedPosition, fetchAddress]);
+
+  const handleLocationSelect = useCallback(async (coords: Coordinates) => {
+    setSelectedPosition(coords);
+    setIsMapOpen(false);
+  }, []);
 
   const handleOrderProcessing = useCallback(async () => {
     setIsProcessingPayment(true);
@@ -160,7 +134,12 @@ export const usePaymentStep = ({
       const response = await processOrder(orderRequestBody);
 
       if (response.success) {
-        onPaymentSuccess(response);
+        // Check for "Order Finished" message (adjust based on actual response structure)
+        const isOrderFinished = response.data?.message === "Order Finished" || response.data?.status === "finished";
+        onPaymentSuccess({
+          ...response,
+          nextStep: isOrderFinished ? "confirmation" : undefined, // Signal to move to confirmation
+        });
       } else {
         alert(response.error?.details || "Failed to process order");
       }

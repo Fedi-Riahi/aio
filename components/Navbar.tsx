@@ -63,7 +63,7 @@ export default function Navbar() {
                     Billets
                   </Button>
                   {isOrganizer ? (
-                    <Link href="/https://organizer.aio.events/">
+                    <Link href="https://organizer.aio.events/">
                       <Button
                         variant="ghost"
                         className="text-md text-foreground hover:text-foreground/90 font-medium tracking-wider"

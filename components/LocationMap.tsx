@@ -44,7 +44,7 @@ const LocationMap: React.FC<LocationMapProps> = ({ initialPosition, onLocationSe
       >
         <TileLayer
     attribution=""
-    url="https://api.maptiler.com/maps/0195c78c-bbb1-7466-a584-dafc48fa471c/style.json?key=bl9EB9KLu19LVWhSNnCS"
+    url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
         />
         <Marker
           position={[position.latitude, position.longitude]}
