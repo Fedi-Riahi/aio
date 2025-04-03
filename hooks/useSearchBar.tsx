@@ -38,12 +38,14 @@ export const useSearchBar = ({
   const [searchLoading, setSearchLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Check if user is logged in by looking for authTokens in localStorage
+  const isLoggedIn = !!localStorage.getItem("authTokens");
+
   useEffect(() => {
     const loadCategories = async () => {
       try {
         setLoading(true);
         const categoryData = await fetchCategories();
-        // console.log("Categories loaded:", categoryData);
         setCategories(categoryData);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
@@ -84,7 +86,6 @@ export const useSearchBar = ({
       const response = await apiClient.get("/normalaccount/search", {
         params: { keyword: query, maxCount: 10, startCount: 0 },
       });
-    //   console.log("Search events response:", response.data);
       return response.data.respond?.data || [];
     } catch (err) {
       setError(err.response?.data?.message || "Failed to search events");
@@ -101,7 +102,6 @@ export const useSearchBar = ({
       const response = await apiClient.get("/normalaccount/searchforotheorgaccounts", {
         params: { keyword: query, maxCount: 10, startCount: 0 },
       });
-    //   console.log("Search owners response:", response.data);
       return response.data.respond?.data || [];
     } catch (err) {
       setError(err.response?.data?.message || "Failed to search owners");
@@ -116,7 +116,6 @@ export const useSearchBar = ({
     try {
       setSearchLoading(true);
       const categoryEvents = await fetchEventsByCategory(categoryId);
-    //   console.log("Fetched events for category ID", categoryId, ":", categoryEvents);
       return categoryEvents;
     } catch (err) {
       setError("Failed to fetch events for category");
@@ -128,16 +127,18 @@ export const useSearchBar = ({
   };
 
   useEffect(() => {
-    // Only run if theres a search query or active category
+    // Only run if there's a search query or active category
     if (!searchQuery.trim() && !activeCategory) {
-    //   console.log("Skipping debounced search - no query or category");
       return;
     }
 
     const debounceSearch = setTimeout(async () => {
-    //   console.log("Debounced search - searchQuery:", searchQuery, "activeCategory:", activeCategory);
       if (searchQuery.trim()) {
-        const [events, owners] = await Promise.all([searchEvents(searchQuery), searchOwners(searchQuery)]);
+        // Always search events, but conditionally search owners based on login status
+        const eventsPromise = searchEvents(searchQuery);
+        const ownersPromise = isLoggedIn ? searchOwners(searchQuery) : Promise.resolve([]);
+
+        const [events, owners] = await Promise.all([eventsPromise, ownersPromise]);
         onSearchResults?.(events, owners);
       } else if (activeCategory) {
         const categoryEvents = await fetchEventsForCategory(activeCategory);
@@ -148,7 +149,7 @@ export const useSearchBar = ({
     }, 500);
 
     return () => clearTimeout(debounceSearch);
-  }, [searchQuery, activeCategory, categories, onSearchResults]);
+  }, [searchQuery, activeCategory, categories, onSearchResults, isLoggedIn]);
 
   const getIconForCategory = (categoryName: string): JSX.Element => {
     switch (categoryName.toLowerCase()) {
@@ -191,7 +192,6 @@ export const useSearchBar = ({
 
   const handleCategoryChange = (categoryId: string) => {
     const newCategory = categoryId === "All" ? "" : categoryId;
-    // console.log("Category changed to ID:", newCategory);
     setActiveCategory(newCategory);
     onCategoryChange(newCategory);
   };

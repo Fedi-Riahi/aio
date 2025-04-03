@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Poppins, Work_Sans } from "next/font/google";
 import "./globals.css";
@@ -7,18 +6,16 @@ import Footer from "@/components/Footer";
 import { AuthProvider } from "@/context/AuthContext";
 import "leaflet/dist/leaflet.css";
 
-
-
+// Existing Google Fonts
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
-const PoppinsSans = Poppins({
+const poppinsSans = Poppins({
   variable: "--font-poppins-sans",
   subsets: ["latin"],
   weight: ["200", "300", "500", "600", "700"],
 });
-
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
@@ -28,6 +25,8 @@ const workSans = Work_Sans({
   subsets: ["latin"],
   weight: ["200", "300", "500", "600", "700"],
 });
+
+
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -42,17 +41,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.workSans} ${geistMono.variable} ${PoppinsSans.variable} antialiased bg-dark-background text-dark-foreground`}
+        className={`${geistSans.variable} ${geistMono.variable} ${poppinsSans.variable} ${workSans.variable}  antialiased bg-dark-background text-dark-foreground`}
+        style={{ fontFamily: "'Now', sans-serif" }}
       >
-
         <AuthProvider>
-
           <Navbar />
           {children}
           <Footer />
         </AuthProvider>
-
-
       </body>
     </html>
   );

@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "../context/AuthContext";
 import { Login } from "./Login";
 import { SignUp } from "./SignUp";
-import { UserCircle2, Mail, LogOut } from "lucide-react";
+import { UserCircle2, Mail, LogOut, User } from "lucide-react";
 import { IconBrandMyOppo } from "@tabler/icons-react";
 
 interface ProfileDrawerProps {
@@ -88,7 +88,7 @@ export const ProfileDrawer = ({ open, onOpenChange }: ProfileDrawerProps) => {
           </div>
           ) : (
             <div className="p-6 flex flex-col items-center text-center">
-              <UserCircle2 className="h-16 w-16 mb-4 text-muted-foreground" />
+              <User className="h-16 w-16 mb-4 text-muted-foreground" />
               <h3 className="text-lg font-medium mb-2">
                 {showSignUp ? "Créer un compte" : "Connectez-vous à votre compte"}
               </h3>

@@ -1,7 +1,6 @@
 import React from "react";
 import { cn } from "../lib/utils";
 import { QRCodeCanvas } from "qrcode.react";
-import Image from "next/image";
 
 interface TicketProps {
   eventName?: string;
@@ -16,12 +15,12 @@ interface TicketProps {
 
 export function TicketComponent(props: Partial<TicketProps>) {
   const {
-    eventName,
-    date,
-    time,
-    location,
-    referenceCode,
-    qrValue,
+    eventName = "HARDWAVE TEK",
+    date = "23 NOV 2024",
+    time = "00:00 - 05:00",
+    location = "CERCLE CLUB GAMMARTH",
+    referenceCode = "S_ESRBTLV4O_",
+    qrValue = "QR-VALUE",
     className,
     background_thumbnail,
   } = props;
@@ -39,37 +38,39 @@ export function TicketComponent(props: Partial<TicketProps>) {
         backgroundImage: `url(${background_thumbnail || defaultBackground})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
+
       }}
     >
       {/* Background Overlay */}
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
 
       <div className="relative z-10 h-full">
+        {/* Logo */}
+        <div className="absolute top-14 right-6 rotate-90">
+          <h2 className="text-2xl font-bold tracking-wider">AiO</h2>
+        </div>
 
         {/* Upper Section */}
-        <div className="mt-20 mr-0 flex flex-col items-start justify-between gap-10 rotate-90">
-          <Image src="/fichier_2.png" alt="AIO" width={80} height={10} />
-        <div>
-          <p className="text-md font-bold text-foreground mt-1 text-stroke-sm ">First Name</p>
-          <div className="w-1/2 border-t border-white border-dashed "/>
-          <p className="text-md font-bold text-foreground mt-1 text-stroke-sm">{date}</p>
-          <div className="w-1/2 border-t border-white border-dashed"/>
-          <p className="text-md font-bold  text-foreground mt-1 text-stroke-sm">{time}</p>
-          <div className="w-1/2 border-b border-white border-dashed "/>
-          <p className="text-md font-bold text-foreground mt-1 text-stroke-sm">{location}</p>
-        </div>
+        <div className="absolute -top-4 left-14 flex flex-col items-start justify-center p-5 rotate-90">
+          <p className="text-lg font-bold mt-4">First Name</p>
+          <div className="w-full border-t border-white border-dashed py-2"/>
+          <p className="text-lg font-bold mt-4">{date}</p>
+          <div className="w-full border-t border-white border-dashed py-2"/>
+          <p className="text-sm opacity-80">{time}</p>
+          <div className="w-full border-b border-white border-dashed py-2"/>
+          <p className="text-sm opacity-80 mt-2">{location}</p>
         </div>
 
         <div className="rotate-90 absolute top-80 right-10">
-          <p className="text-md w-[280px] font-bold text-foreground mt-1 text-stroke-sm">ACCÈS NORMAL • SECOND RELEASE</p>
-          <h1 className="text-2xl font-bold text-foreground mt-1 text-stroke-sm">{eventName}</h1>
+          <p className="text-sm font-medium mb-1">ACCÈS NORMAL • SECOND RELEASE</p>
+          <h1 className="text-xl font-bold tracking-wide">{eventName}</h1>
         </div>
 
         {/* Dashed Line */}
-        <div className="absolute bottom-60 w-full border-t border-white border-dashed py-2"/>
+        <div className="absolute bottom-52 w-full border-t border-white border-dashed py-2"/>
 
         {/* Lower Section */}
-        <div className="absolute bottom-16 w-full flex flex-col items-center p-5 rotate-90">
+        <div className="absolute bottom-0 w-full flex flex-col items-center p-5 rotate-90">
           <div className="text-center">
             <p className="text-[10px] uppercase tracking-wider opacity-60">REFERENCE</p>
             <p className="text-xs font-medium tracking-wider">{referenceCode}</p>

@@ -47,7 +47,7 @@ const EventCard: React.FC<EventCardProps> = ({
         {visibleEvents.map((event: Event) => {
           const startDate = new Date(event.event_date);
           const price = event.tickets[0]?.details.price;
-          const location = event.owner[0]?.organization_name;
+          const ownerName = event.owner[0]?.organization_name;
 
           return (
             <motion.div
@@ -113,10 +113,9 @@ const EventCard: React.FC<EventCardProps> = ({
                       </span>
                     </div>
 
-                    {location && (
+                    {ownerName && (
                       <div className="flex items-center text-muted-foreground">
-                        <MapPin className="w-4 h-4 mr-2.5" />
-                        <span className="text-sm">{location}</span>
+                        <span className="text-sm">by {ownerName}</span>
                       </div>
                     )}
                   </div>

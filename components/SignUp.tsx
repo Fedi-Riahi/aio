@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { IconLockOpen, IconUser, IconMail, IconPhone, IconCamera } from "@tabler/icons-react";
+import { IconLockOpen, IconUser, IconMail, IconPhone, IconCamera, IconEye, IconEyeOff } from "@tabler/icons-react";
 import { useSignUp } from "../hooks/useSignUp";
 import Link from "next/link";
 
@@ -33,6 +33,8 @@ export const SignUp = () => {
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [showAcceptanceError, setShowAcceptanceError] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [showPassword, setShowPassword] = useState(false); // For password field
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // For confirm password field
 
   const profilePicture = watch("profile_picture");
   console.log("Current profile picture state:", profilePicture);
@@ -150,10 +152,11 @@ export const SignUp = () => {
             )}
           </div>
 
+          {/* Password Field with Show/Hide */}
           <div className="relative">
             <IconLockOpen className="absolute left-3 top-4 h-5 w-5 text-gray-400" />
             <Input
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Mot de passe"
               {...register("password", {
                 required: "Le mot de passe est requis",
@@ -166,24 +169,39 @@ export const SignUp = () => {
                   message: "Le mot de passe doit contenir au moins une majuscule, des lettres, chiffres et caractères spéciaux",
                 },
               })}
-              className="bg-foreground/10 w-full pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
+              className="bg-foreground/10 w-full pl-10 pr-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-4 h-5 w-5 text-gray-400 hover:text-gray-600 focus:outline-none"
+            >
+              {showPassword ? <IconEyeOff className="h-5 w-5" /> : <IconEye className="h-5 w-5" />}
+            </button>
             {errors.password && (
               <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
             )}
           </div>
 
+          {/* Confirm Password Field with Show/Hide */}
           <div className="relative">
             <IconLockOpen className="absolute left-3 top-4 h-5 w-5 text-gray-400" />
             <Input
-              type="password"
+              type={showConfirmPassword ? "text" : "password"}
               placeholder="Confirmez le mot de passe"
               {...register("passwordConfirmation", {
                 required: "La confirmation du mot de passe est requise",
                 validate: (value) => value === password || "Les mots de passe ne correspondent pas",
               })}
-              className="bg-foreground/10 w-full pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
+              className="bg-foreground/10 w-full pl-10 pr-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
             />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword((prev) => !prev)}
+              className="absolute right-3 top-4 h-5 w-5 text-gray-400 hover:text-gray-600 focus:outline-none"
+            >
+              {showConfirmPassword ? <IconEyeOff className="h-5 w-5" /> : <IconEye className="h-5 w-5" />}
+            </button>
             {errors.passwordConfirmation && (
               <p className="text-red-500 text-sm mt-1">{errors.passwordConfirmation.message}</p>
             )}
@@ -274,7 +292,6 @@ export const SignUp = () => {
               Retour
             </Button>
             <Button
-
               className="w-1/2 py-3 text-md bg-main text-white rounded-lg hover:bg-main/90 focus:outline-none"
             >
               S&apos;inscrire {selectedFile ? "" : "(Passer)"}

@@ -42,7 +42,7 @@ export const resendMailVerifyToken = async (email: string): Promise<SignUpRespon
     try {
       console.log("Sending resend request with payload:", { email });
 
-      const response = await fetch("https://api-prod.aio.events/api/user/resendmailverifytoken", {
+      const response = await fetch("https://8rgspuz56m.eu-central-1.awsapprunner.com/api/user/resendmailverifytoken", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

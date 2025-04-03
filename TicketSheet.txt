@@ -33,6 +33,9 @@ export const TicketsSheet = ({ open, onOpenChange }: TicketDrawer) => {
         className={`fixed inset-0 bg-black/80 z-50 transition-opacity ${
           open ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
+        style={{
+          transition: "opacity 0.3s ease-in-out backdrop-filter 0.3s ease-in-out",
+        }}
         onClick={closeDrawer}
       ></div>
 
@@ -40,6 +43,10 @@ export const TicketsSheet = ({ open, onOpenChange }: TicketDrawer) => {
         className={`fixed top-0 right-0 z-50 w-full sm:w-96 h-full bg-background text-white shadow-lg transition-transform transform ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
+        style={{
+          transitionDuration: "0.3s",
+          transitionProperty: "transform",
+        }}
       >
         <div className="p-6 flex flex-col h-full">
           <div className="flex justify-between items-center mb-6">

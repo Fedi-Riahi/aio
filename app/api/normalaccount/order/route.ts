@@ -9,7 +9,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
-    const prodApiUrl = 'https://api-prod.aio.events/api/normalaccount/order';
+    const prodApiUrl = 'https://8rgspuz56m.eu-central-1.awsapprunner.com/api/normalaccount/order';
 
     const response = await fetch(prodApiUrl, {
       method: 'POST',

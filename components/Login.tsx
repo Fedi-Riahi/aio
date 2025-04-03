@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState} from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { IconLockOpen, IconUser, IconMail } from "@tabler/icons-react";
+import { IconLockOpen, IconUser, IconMail, IconEyeOff, IconEye } from "@tabler/icons-react";
 import { useLogin } from "@/hooks/useLogin";
 
 export const Login = () => {
@@ -18,6 +18,11 @@ export const Login = () => {
     onConfirmCode,
   } = useLogin();
 
+    const [showPassword, setShowPassword] = useState(false);
+
+    const togglePasswordVisibility = () => {
+      setShowPassword((prev) => !prev);
+    };
   return (
     <div className="space-y-4 my-8">
       {error && <p className="text-red-500 text-sm">{error}</p>}
@@ -42,17 +47,28 @@ export const Login = () => {
           </div>
 
           <div className="relative">
-            <IconLockOpen className="absolute left-3 top-4 h-5 w-5 text-gray-400" />
-            <Input
-              type="password"
-              placeholder="Mot de passe"
-              {...register("password", {
-                required: "Le mot de passe est requis",
-              })}
-              className="pl-10 w-full bg-foreground/10"
-            />
-            {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
-          </div>
+      <IconLockOpen className="absolute left-3 top-4 h-5 w-5 text-gray-400" />
+      <Input
+        type={showPassword ? "text" : "password"} // Toggle between text and password
+        placeholder="Mot de passe"
+        {...register("password", {
+          required: "Le mot de passe est requis",
+        })}
+        className="pl-10 pr-10 w-full bg-foreground/10" // Added pr-10 for right padding
+      />
+      <button
+        type="button" // Prevent form submission
+        onClick={togglePasswordVisibility}
+        className="absolute right-3 top-4 h-5 w-5 text-gray-400 hover:text-gray-600 focus:outline-none"
+      >
+        {showPassword ? (
+          <IconEyeOff className="h-5 w-5" />
+        ) : (
+          <IconEye className="h-5 w-5" />
+        )}
+      </button>
+      {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
+    </div>
 
           <Button
             type="submit"
