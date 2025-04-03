@@ -10,21 +10,26 @@ export const handleLoginRequest = async (data: LoginFormData): Promise<{ error?:
 
     const loginResult = loginResponse.data;
     console.log("Login response:", loginResult);
-
     if (!loginResult.success) {
       return { error: loginResult.error?.details || loginResult.clientMessage || "Invalid email or password" };
     }
 
-    const { user_data } = loginResult.respond.data;
+    const { user_data, tokens } = loginResult.respond.data;
 
-    // No token storage; assume server sets auth cookie
-    localStorage.setItem("userData", JSON.stringify(user_data)); // Optional: keep user data
-    localStorage.setItem("userTickets", JSON.stringify(user_data.events || [])); // Optional
+    const authTokens = {
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+    };
+
+    localStorage.setItem("authTokens", JSON.stringify(authTokens));
+    localStorage.setItem("userData", JSON.stringify(user_data));
+    localStorage.setItem("userTickets", JSON.stringify(user_data.events || []));
 
     return {};
   } catch (error: any) {
     console.log("Login error raw:", error.response?.data);
     if (error.response?.status === 401) {
+      // Adjust to match your response structure: error is nested in 'respond'
       const errorData = error.response?.data?.respond || error.response?.data;
       const errorDetails = errorData?.error?.details || errorData?.clientMessage;
       const errorCode = errorData?.error?.code;
