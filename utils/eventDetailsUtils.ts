@@ -1,6 +1,6 @@
 import apiClient from "@/utils/apiClient";
 import { Event, Period, Time, SeatData, TicketType, TicketGroup, LocationData, Ticket } from "@/types/eventDetails";
-
+import axios from "axios";
 export const fetchEventData = async (id: string): Promise<Event> => {
   try {
     console.log(`Fetching event data for event ${id}`);
@@ -76,43 +76,37 @@ export const fetchEventData = async (id: string): Promise<Event> => {
 };
 
 export const fetchSeatData = async (
-  id: string,
-  periodIndex: number,
-  locationIndex: number,
-  timeIndex: number
-): Promise<SeatData | null> => {
-  try {
-    console.log(`Fetching seat data for event ${id} with periodIndex=${periodIndex}, locationIndex=${locationIndex}, timeIndex=${timeIndex}`);
-    const response = await apiClient.get(`/event/getperiods/seats/${id}`, {
-      params: {
-        period_index: periodIndex,
-        location_index: locationIndex, 
-        time_index: timeIndex,
-        ticket_index: 0,
-      },
-    });
-
-    const result = response.data;
-    if (result.success) {
-      return {
-        seats: result.respond.data.seats,
-        room_name: result.respond.data.room_name,
-        taken: result.respond.data.taken || [],
-      };
-    }
-    console.warn("Seat data request succeeded but success flag is false:", result);
-    return null;
-  } catch (error) {
-    if (error.response?.status !== 404) {
-      console.log(`Failed to fetch seat data for event ${id}:`, {
-        status: error.response?.status,
-        message: error.response?.data?.message || error.message,
-        details: error.response?.data?.details,
+    id: string,
+    periodIndex: number,
+    locationIndex: number,
+    timeIndex: number
+  ): Promise<SeatData | null> => {
+    try {
+      const response = await apiClient.get(`/event/getperiods/seats/${id}`, {
+        params: {
+          period_index: periodIndex,
+          location_index: locationIndex,
+          time_index: timeIndex,
+          ticket_index: 0,
+        },
+        _handle404: true // Custom flag to mark this as a "soft" 404
       });
+
+      // Handle the transformed 404 response
+      if (response.data.success === false) {
+        return null;
+      }
+
+      return {
+        seats: response.data.respond.data.seats,
+        room_name: response.data.respond.data.room_name,
+        taken: response.data.respond.data.taken || [],
+      };
+    } catch (error) {
+      console.error("Unexpected error fetching seat data:", error);
+      return null;
     }
-    return null;
-  }
-};
+  };
 
 export const getTicketPrice = (ticketId: string, ticketType: TicketType[]): string => {
   if (!ticketType || !Array.isArray(ticketType)) return "N/A";
@@ -157,16 +151,16 @@ export const getLocalDate = (utcDateString?: string | string[]): string => {
   return utcDate.toLocaleDateString("en-US", { day: "numeric", month: "short", timeZone: "UTC" });
 };
 
-export const getTimeDisplay = (startTime: string | string[], endTime: string | string[], tickets: Ticket[]): string => {
+export const getTimeDisplay = (startTime: string | string[], endTime: string | string[]): string => {
   const startTimeString = Array.isArray(startTime) ? startTime[0] : startTime;
   const endTimeString = Array.isArray(endTime) ? endTime[0] : endTime;
 
   const startDisplay = startTimeString.split('T')[1]?.substring(0, 5) || startTimeString;
   const endDisplay = endTimeString ? (endTimeString.split('T')[1]?.substring(0, 5) || endTimeString) : '';
 
-  const ticketTypes = tickets.map(ticket => ticket.type).join(", ");
+//   const ticketTypes = tickets.map(ticket => ticket.type).join(", ");
   const timeDisplay = endDisplay ? `${startDisplay} - ${endDisplay}` : startDisplay;
-  return ticketTypes ? `${timeDisplay} (${ticketTypes})` : timeDisplay;
+  return timeDisplay;
 };
 
 export const getPeriodDisplay = (period: Period): string => {

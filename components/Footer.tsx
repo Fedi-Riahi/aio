@@ -24,7 +24,7 @@ const Footer = () => {
                 priority
               />
             </Link>
-            <nav className="flex gap-8">
+            {/* <nav className="flex gap-8">
               <Link
                 href="/about"
                 className="text-muted-foreground hover:text-primary transition-colors duration-200 text-sm font-medium"
@@ -37,7 +37,7 @@ const Footer = () => {
               >
                 Contact
               </Link>
-            </nav>
+            </nav> */}
           </div>
 
           <div className="flex flex-col items-center space-y-4">
@@ -126,15 +126,15 @@ const Footer = () => {
               </Link>
             </div>
             <div className="text-right">
-              <p className="text-sm font-medium text-primary mb-2">Contact Us:</p>
+              <p className="text-sm font-medium text-primary mb-2">Contact Us</p>
               <div className="space-y-1 text-sm text-muted-foreground">
-                <p className="hover:text-primary transition-colors duration-200">+216 12 345 678</p>
-                <p className="hover:text-primary transition-colors duration-200">+216 98 765 432</p>
+                <p className="hover:text-primary transition-colors duration-200">+216 55 559 058</p>
+                <p className="hover:text-primary transition-colors duration-200">+216 54 548 382</p>
                 <a
                   href="mailto:support@aio.events"
                   className="hover:text-primary transition-colors duration-200 inline-block"
                 >
-                  support@aio.events
+                  contact@aio.events
                 </a>
               </div>
             </div>

@@ -54,14 +54,13 @@ export const useTicketsSheet = ({ open, onOpenChange }: TicketDrawer) => {
         },
       });
 
-      // Treat 404 as success for DELETE requests
-      if (!response.ok && !(options.method === "DELETE" && response.status === 404)) {
+      // Only treat 404 as success for GET requests where resource might not exist
+      if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      // For DELETE with 404, return an empty response
-      if (options.method === "DELETE" && response.status === 404) {
-        console.log(`DELETE returned 404 for ${url} - treating as success`);
+      // For successful DELETE with no content
+      if (options.method === "DELETE" && response.status === 204) {
         return {} as T;
       }
 
@@ -101,50 +100,48 @@ export const useTicketsSheet = ({ open, onOpenChange }: TicketDrawer) => {
   );
 
   const cancelOrder = useCallback(
-    async (orderId: string) => {
+    async (order_id: string) => {
       try {
         setIsLoading(true);
         setError(null);
-        const order = orders.find((o) => o.order_id === orderId);
+
+        const order = orders.find((o) => o.order_id === order_id);
         if (!order || order.paymentMethod !== "Delivery") {
           throw new Error("Only orders in 'Delivery' state can be canceled");
         }
 
-        console.log(`Attempting to delete order: ${orderId}`);
+        console.log(`Attempting to delete order: ${order_id}`);
 
-        await fetchWithAuth(`/api/normalaccount/order/${orderId}`, {
+        // First optimistically update UI
+        setOrders(prevOrders => prevOrders.filter(o => o.order_id !== order_id));
+
+        // Then attempt deletion
+        await fetchWithAuth(`/api/normalaccount/orders/${order_id}`, {
           method: "DELETE",
         });
 
-        console.log(`Order ${orderId} deleted successfully`);
+        console.log(`Order ${order_id} deleted successfully`);
 
-        setOrders((prevOrders) => {
-          const newOrders = prevOrders.filter((o) => o.order_id !== orderId);
-          console.log("Updated orders after delete:", newOrders);
-          return newOrders;
-        });
-
-        // Background fetch without updating state
-        fetchOrders(false).catch((err) =>
-          console.error("Background fetch failed:", err)
-        );
+        // Refresh data to ensure consistency
+        await fetchOrders(false);
       } catch (error) {
         console.error("Error canceling order:", error);
-        setError(error instanceof Error ? error.message : "Failed to cancel order");
-        if (error instanceof Error && error.message.includes("404")) {
-          setOrders((prevOrders) => {
-            const newOrders = prevOrders.filter((o) => o.order_id !== orderId);
-            console.log("Updated orders after 404:", newOrders);
-            return newOrders;
-          });
-        }
+
+        // Revert UI if deletion failed
+        fetchOrders(true);
+
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Failed to cancel order. Please try again."
+        );
       } finally {
         setIsLoading(false);
       }
     },
     [fetchWithAuth, orders, fetchOrders]
   );
-    
+
 
   const fetchTicketsForOrder = useCallback(
     async (orderId: string) => {

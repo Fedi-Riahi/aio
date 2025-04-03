@@ -18,13 +18,13 @@ const Timer: React.FC<TimerProps> = ({ time, timerError }) => {
 
   return (
     <div className="flex flex-col gap-2">
-      <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Temps restant</h2>
+      <h2 className="text-xl font-semibold text-foreground/90">Temps restant</h2>
       {time !== null && (
         <p className={`text-lg font-medium ${time > 0 ? "text-red-500" : "text-gray-500"}`}>
           {time > 0 ? formatTime(time) : "Temps écoulé"}
         </p>
       )}
-      {timerError && <p className="text-sm text-red-500">{timerError}</p>}
+      {timerError && <p className="text-sm text-red-500">Vous avez atteint une limite de commandes aujourd&apos;hui pour ce Event.</p>}
     </div>
   );
 };

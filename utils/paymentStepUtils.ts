@@ -108,10 +108,6 @@ export const startOrderTimer = async (requestBody: {
 
     return response.data as TimerResponse;
   } catch (error: any) {
-    console.error("Timer start error:", {
-      message: error.message,
-      stack: error.stack,
-    });
     return {
       success: false,
       respond: {
@@ -126,54 +122,58 @@ export const startOrderTimer = async (requestBody: {
 };
 
 export const processOrder = async (orderRequestBody: OrderRequestBody): Promise<OrderResponse> => {
-  try {
-    const timerRequest = {
-      event_id: orderRequestBody.event_id,
-      ticketDataList: orderRequestBody.ticketDataList,
-      location_index: orderRequestBody.location_index ?? 0,
-      period_index: orderRequestBody.period_index ?? 0,
-      time_index: orderRequestBody.time_index ?? 0,
-    };
-
-    const timerResponse = await startOrderTimer(timerRequest);
-    if (!timerResponse.success) {
-      throw new Error(timerResponse.respond.error?.details || "Failed to initialize order timer");
-    }
-
-    const response = await apiClient.post("/normalaccount/order", orderRequestBody);
-
-    console.log("Order response:", response.data);
-
-    if (!response.data.success) {
-      const error = response.data.error || response.data.respond?.error || {
-        code: "UNKNOWN_ERROR",
-        details: response.data.respond?.msg || "Unknown error occurred",
+    try {
+      const timerRequest = {
+        event_id: orderRequestBody.event_id,
+        ticketDataList: orderRequestBody.ticketDataList,
+        location_index: orderRequestBody.location_index ?? 0,
+        period_index: orderRequestBody.period_index ?? 0,
+        time_index: orderRequestBody.time_index ?? 0,
       };
-      return { success: false, error };
+
+      const timerResponse = await startOrderTimer(timerRequest);
+      if (!timerResponse.success) {
+        // Handle order limit specifically
+        if (timerResponse.respond.error?.code === "ORDER_LIMIT_EXCEEDED") {
+          return {
+            success: false,
+            error: {
+              code: "ORDER_LIMIT_EXCEEDED",
+              details: "Vous avez atteint la limite de commandes autorisées pour cet événement"
+            }
+          };
+        }
+        throw new Error(timerResponse.respond.error?.details || "Failed to initialize order timer");
+      }
+
+      const response = await apiClient.post("/normalaccount/order", orderRequestBody);
+
+      if (!response.data.success) {
+        const error = response.data.error || response.data.respond?.error || {
+          code: "UNKNOWN_ERROR",
+          details: response.data.respond?.msg || "Unknown error occurred",
+        };
+        return { success: false, error };
+      }
+
+      return {
+        success: true,
+        data: {
+          payUrl: response.data.respond?.data?.payUrl,
+          order_id: response.data.respond?.data?.order_id,
+          isFreeOrder: response.data.respond?.data?.isFreeOrder,
+          delivery: response.data.respond?.data?.delivery,
+        },
+        msg: response.data.respond?.msg,
+      };
+    } catch (error: any) {
+      console.error("Order processing error:", error);
+      return {
+        success: false,
+        error: {
+          code: "NETWORK_ERROR",
+          details: error.message || "Network request failed",
+        },
+      };
     }
-
-    return {
-      success: true,
-      data: {
-        payUrl: response.data.respond?.data?.payUrl,
-        order_id: response.data.respond?.data?.order_id,
-        isFreeOrder: response.data.respond?.data?.isFreeOrder,
-        delivery: response.data.respond?.data?.delivery,
-
-      },
-      msg: response.data.respond?.msg,
-    };
-  } catch (error: any) {
-    console.error("Order processing error:", {
-      message: error.message,
-      stack: error.stack,
-    });
-    return {
-      success: false,
-      error: {
-        code: "NETWORK_ERROR",
-        details: error.message || "Network request failed",
-      },
-    };
-  }
-};
+  };

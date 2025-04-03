@@ -177,8 +177,8 @@ export default function Navbar() {
                               className="w-full justify-start text-lg font-medium relative"
                             >
                               Notifications
-                              {unreadNotificationsCount >= 0 && (
-                                <span className="ml-2 bg-red-500 text-white text-3xl rounded-full h-5 w-5 flex items-center justify-center">
+                              {unreadNotificationsCount > 0 && (
+                                <span className="ml-2 bg-red-500 text-white text-sm rounded-full h-1 w-1 flex items-center justify-center">
                                   {unreadNotificationsCount}
                                 </span>
                               )}

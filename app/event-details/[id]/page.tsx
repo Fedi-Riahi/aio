@@ -76,7 +76,7 @@ const EventDetails: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 my-10 md:my-40">
+    <div className="max-w-7xl mx-auto px-4 my-40 md:my-40">
       <Link href="/" className="flex items-center gap-2 text-foreground w-fit py-2 px-4 rounded-lg">
         <ArrowLeft size={24} />
         <span className="text-lg">Retour</span>
@@ -143,37 +143,60 @@ const EventDetails: React.FC = () => {
           </div>
 
           {selectedPeriod && (
-            <div>
-              <h2 className="text-2xl font-bold text-foreground mb-4">Programme de l'événement</h2>
-              <div className="space-y-6">
-                {selectedPeriod.locations?.map((location, locationIndex) => (
-                  <div key={locationIndex} className="space-y-4">
-                    <h3 className="text-xl font-semibold text-foreground">
-                      Lieu: <span className="text-main">{getLocationName(location.location, event.owner[0]?.organization_name)}</span>
-                    </h3>
-                    <div className="flex flex-wrap gap-4">
-                      {location.times?.map((time, timeIndex) => (
-                        <button
-                          key={timeIndex}
-                          onClick={() => {
-                            setSelectedLocation(location);
-                            setSelectedTime(time);
-                          }}
-                          className={`px-6 py-3 rounded-lg font-medium transition duration-300 ${
-                            selectedTime === time && selectedLocation === location
-                              ? "bg-main text-foreground"
-                              : "bg-offwhite text-foreground hover:bg-foreground/20"
-                          }`}
-                        >
-                          {getTimeDisplay(time.start_time, time.end_time, time.tickets)}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
+  <div>
+    <h2 className="text-2xl font-bold text-foreground mb-4">Programme de l'événement</h2>
+    <div className="space-y-6">
+      {selectedPeriod.locations?.map((location, locationIndex) => {
+        // Get the location name
+        const locationName = getLocationName(location.location, event.owner[0]?.organization_name);
+        const locationNameMap = locationName + ",Tunisia";
+
+        // Simplified Google Maps URL (not embed, for opening in a new tab)
+        const mapUrl = `https://www.google.com/maps/search/?q=${encodeURIComponent(locationNameMap)}`;
+
+        // Log for debugging
+        console.log("Location Name:", locationName);
+        console.log("Map URL:", mapUrl);
+
+        return (
+          <div key={locationIndex} className="space-y-4">
+            <div className="flex items-center gap-4">
+              <h3 className="text-xl font-semibold text-foreground">
+                Lieu: <span className="text-main">{locationName}</span>
+              </h3>
+        
+              <button
+                onClick={() => window.open(mapUrl, "_blank", "noopener,noreferrer")}
+                className="px-4 py-2 bg-main text-foreground rounded-lg font-medium transition duration-300 hover:bg-main/90"
+                title="Voir sur Google Maps"
+              >
+                Voir la carte
+              </button>
             </div>
-          )}
+            <div className="flex flex-wrap gap-4">
+              {location.times?.map((time, timeIndex) => (
+                <button
+                  key={timeIndex}
+                  onClick={() => {
+                    setSelectedLocation(location);
+                    setSelectedTime(time);
+                  }}
+                  className={`px-6 py-3 rounded-lg font-medium transition duration-300 ${
+                    selectedTime === time && selectedLocation === location
+                      ? "bg-main text-foreground"
+                      : "bg-offwhite text-foreground hover:bg-foreground/20"
+                  }`}
+                >
+                  {getTimeDisplay(time.start_time, time.end_time, time.tickets)}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+)}
 
           {selectedTime && selectedLocation && hasValidTicketType && !isEventTimePassed(selectedTime) ? (
             <div>

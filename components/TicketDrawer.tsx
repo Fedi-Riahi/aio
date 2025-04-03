@@ -270,20 +270,21 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
             </Button>
             )}
             <Button
-              onClick={step === "payment" ? handleCancel : handleContinue}
-              className="bg-main text-foreground hover:bg-main/90"
-              disabled={
+            onClick={step === "payment" ? handleCancel : handleContinue}
+            className="bg-main text-foreground hover:bg-main/90"
+            disabled={
                 (step === "selectSeats" && selectedSeats.length !== maxSeats) ||
                 (step === "selectQuantity" && Object.values(selectedTickets).every((quantity) => quantity === 0)) ||
                 (step === "enterNames" &&
-                  !Object.entries(selectedTickets).every(([ticketId, quantity]) => {
+                !Object.entries(selectedTickets).every(([ticketId, quantity]) => {
                     const ticketUsers = userNames[ticketId] || [];
                     return ticketUsers.length === quantity && ticketUsers.every((name) => name.trim() !== "");
-                  })) ||
-                (timer === 0)
-              }
+                })) ||
+                (timer === 0) ||
+                (timerError !== null) // Add this condition to disable when there's a timer error
+            }
             >
-              {step === "payment" ? "Terminer" : "Suivant"}
+            {step === "payment" ? "Annuler" : "Suivant"}
             </Button>
           </div>
         </DrawerFooter>

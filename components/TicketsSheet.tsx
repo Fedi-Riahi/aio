@@ -164,7 +164,7 @@ export const TicketsSheet = ({ open, onOpenChange }: TicketDrawer) => {
                             </div>
                           </div>
                         </div>
-                        {order.paymentMethod === "Delivery" && (
+                        {order.paymentMethod === "Delivery" && order.paymentState !== "Failed" &&(
                           <div className="mt-4">
                             <button
                               className="w-full text-main font-medium hover:text-main/90 py-2 px-3 rounded-md"
@@ -177,6 +177,11 @@ export const TicketsSheet = ({ open, onOpenChange }: TicketDrawer) => {
                               Annuler la commande
                             </button>
                           </div>
+                        )}
+                        {order.paymentState === "Failed" && (
+                            <span className="w-full flex items-center justify-center mt-4 text-main font-medium hover:text-main/90 py-2 px-3">
+                                Commande Annulé
+                            </span>
                         )}
                       </div>
                     </div>

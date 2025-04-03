@@ -58,7 +58,7 @@ export const usePaymentStep = ({
       if (data.items && data.items.length > 0) {
         const address = data.items[0].address.label || "Unknown Address";
         const city = data.items[0].address.city || "Unknown City";
-        const province = data.items[0].address.state || "Unknown Province";
+        const province = data.items[0].address.state || data.items[0].address.city;
 
         handleDeliveryChange("address", address);
         handleDeliveryChange("city", city);

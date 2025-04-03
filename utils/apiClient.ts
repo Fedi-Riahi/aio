@@ -36,24 +36,45 @@ apiClient.interceptors.request.use(
 
 // Consolidated response interceptor
 apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const originalRequest = error.config;
-    if (
-      error.response &&
-      (error.response.status === 401 || error.response.status === 403) &&
-      !originalRequest._retry &&
-      originalRequest.url !== "/user/login" && // Exclude login endpoint
-      originalRequest.url !== "https://api-prod.aio.events/api/user/resendmailverifytoken" // Exclude resend endpoint
-    ) {
-      console.log("Access token expired, logging out:", error.response.status, originalRequest.url);
-      originalRequest._retry = true;
-      logoutUser();
+    (response) => response,
+    (error) => {
+      const originalRequest = error.config;
+
+      // Special case: Don't treat 404 for seat maps as error
+      if (error.response?.status === 404 &&
+          originalRequest.url?.includes('/event/getperiods/seats/')) {
+        return Promise.resolve({
+          data: {
+            success: false,
+            respond: {
+              data: null,
+              error: error.response.data?.respond?.error
+            }
+          }
+        });
+      }
+
+      // Handle auth errors normally
+      if (
+        error.response &&
+        (error.response.status === 401 || error.response.status === 403) &&
+        !originalRequest._retry &&
+        originalRequest.url !== "/user/login" &&
+        originalRequest.url !== "/user/resendmailverifytoken"
+      ) {
+        console.log("Access token expired, logging out");
+        originalRequest._retry = true;
+        logoutUser();
+      }
+
+      // For all other errors, log and reject
+      console.error("Request failed:", {
+        status: error.response?.status,
+        url: originalRequest.url,
+        message: error.message
+      });
       return Promise.reject(error);
     }
-    console.error("Request failed:", error.response?.status, error.response?.data, error.message);
-    return Promise.reject(error);
-  }
-);
+  );
 
 export default apiClient;

@@ -11,42 +11,40 @@ import { useAuth } from "../context/AuthContext";
 import Timer from "@/components/Timer";
 import { useNavbar } from "@/hooks/useNavbar";
 
-
 const InputField = memo(({ label, value, onChange, placeholder, name, disabled }: any) => {
-  console.log(`[InputField] Rendering ${name}, value: ${value}`);
-  const inputRef = React.useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    console.log(`[InputField] Mounted/Updated ${name}, focused: ${document.activeElement === inputRef.current}`);
-  }, [name]);
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange(name, e.target.value);
+    },
+    [name, onChange]
+  );
 
   return (
     <div className="flex flex-col gap-2">
       <label className="text-sm font-medium text-foreground dark:text-gray-300">{label}</label>
       <input
-        ref={inputRef}
         type="text"
         placeholder={placeholder}
         value={value}
-        onChange={(e) => {
-          console.log(`[InputField] ${name} onChange: ${e.target.value}`);
-          onChange(name, e.target.value);
-        }}
-        onFocus={() => console.log(`[InputField] ${name} focused`)}
-        onBlur={() => console.log(`[InputField] ${name} blurred`)}
+        onChange={handleChange}
         className="p-3 bg-offwhite dark:bg-gray-700 text-foreground dark:text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
         disabled={disabled}
         aria-label={label}
       />
     </div>
   );
-});
+}, (prevProps, nextProps) => (
+  prevProps.value === nextProps.value &&
+  prevProps.disabled === nextProps.disabled &&
+  prevProps.label === nextProps.label &&
+  prevProps.placeholder === nextProps.placeholder
+));
 InputField.displayName = "InputField";
 
 const PaymentStep: React.FC<PaymentStepProps & {
   timer: number | null;
   timerError: string | null;
-}> = ({
+}> = memo(({
   paymentMode,
   handlePaymentModeChange,
   handleDeliveryChange: parentHandleDeliveryChange,
@@ -71,10 +69,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
   timerError,
 }) => {
   const { userData } = useAuth();
-  const {
-    setOpenTicketDrawer,
-  } = useNavbar();
-
+  const { setOpenTicketDrawer } = useNavbar();
 
   const email = userData?.email || propEmail || "";
   const phoneNumber = String(userData?.phone_number) || propPhoneNumber || "";
@@ -88,19 +83,14 @@ const PaymentStep: React.FC<PaymentStepProps & {
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [deliveryForm, setDeliveryForm] = useState({
-    firstName: "",
-    lastName: "",
-    phoneNumber: "",
+    firstName,
+    lastName,
+    phoneNumber,
     address: "",
     city: "",
     province: "",
   });
-  const [   feedback, setFeedback] = useState<{
-    isOpen: boolean;
-    title: string;
-    message: string;
-    isSuccess: boolean;
-  }>({
+  const [feedback, setFeedback] = useState({
     isOpen: false,
     title: "",
     message: "",
@@ -108,11 +98,9 @@ const PaymentStep: React.FC<PaymentStepProps & {
   });
 
   const memoizedHandleDeliveryChange = useCallback((field: string, value: string) => {
-    console.log(`[PaymentStep] handleDeliveryChange: ${field} = ${value}`);
-    setDeliveryForm((prev) => {
-      const newForm = { ...prev, [field]: value };
-      console.log(`[PaymentStep] Updated deliveryForm:`, newForm);
-      return newForm;
+    setDeliveryForm(prev => {
+      if (prev[field] === value) return prev;
+      return { ...prev, [field]: value };
     });
     parentHandleDeliveryChange(field, value);
   }, [parentHandleDeliveryChange]);
@@ -170,13 +158,14 @@ const PaymentStep: React.FC<PaymentStepProps & {
   const defaultPosition = { latitude: 36.8065, longitude: 10.1815 };
   const initialPosition = mapRegion || defaultPosition;
 
-  useEffect(() => {
-    console.log("[PaymentStep] Mounted");
-  }, []);
-
-  const PaymentModeButton = ({ mode, label, icon: Icon, isActive }: { mode: string; label: string; icon: any; isActive: boolean }) => (
+  const PaymentModeButton = memo(({ mode, label, icon: Icon, isActive }: {
+    mode: string;
+    label: string;
+    icon: any;
+    isActive: boolean
+  }) => (
     <Button
-      className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 text disponibilité-lg shadow-sm hover:shadow-md font-medium rounded-lg transition duration-300 ${
+      className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 text-lg shadow-sm hover:shadow-md font-medium rounded-lg transition duration-300 ${
         isActive
           ? "bg-main text-foreground border-main"
           : "bg-offwhite dark:bg-gray-700 text-foreground hover:bg-black/10 dark:hover:bg-gray-600"
@@ -188,29 +177,32 @@ const PaymentStep: React.FC<PaymentStepProps & {
       <Icon stroke={1.5} size={24} />
       {label}
     </Button>
-  );
+  ));
 
-  const ExtraFieldInput = ({ field }: { field: { field: string } }) => (
+  const ExtraFieldInput = memo(({ field }: { field: { field: string } }) => (
     <InputField
       label={field.field}
       value={extraFieldValues[field.field] || ""}
-      onChange={(_, value: string) => setExtraFieldValues((prev) => ({ ...prev, [field.field]: value }))}
+      onChange={(_, value: string) => setExtraFieldValues(prev => {
+        if (prev[field.field] === value) return prev;
+        return { ...prev, [field.field]: value };
+      })}
       placeholder={`Entrez ${field.field}`}
       name={field.field}
       disabled={isProcessingPayment}
     />
-  );
+  ));
 
   const paymentOptions = {
     delivery: { label: "Livraison", icon: IconTruckDelivery },
     online: { label: "En ligne", icon: IconCreditCard },
   };
 
-  const handleProceedClick = () => setIsConfirmDialogOpen(true);
-  const handleConfirmPayment = () => {
+  const handleProceedClick = useCallback(() => setIsConfirmDialogOpen(true), []);
+  const handleConfirmPayment = useCallback(() => {
     setIsConfirmDialogOpen(false);
     handleOrderProcessing();
-  };
+  }, [handleOrderProcessing]);
 
   return (
     <div className="flex flex-col gap-8 p-6 bg-offwhite dark:bg-gray-800 rounded-lg shadow-md">
@@ -241,7 +233,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField
               label="Nom"
-              value={deliveryForm.firstName || firstName}
+              value={deliveryForm.firstName}
               onChange={memoizedHandleDeliveryChange}
               placeholder="Votre nom"
               name="firstName"
@@ -249,7 +241,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
             />
             <InputField
               label="Prénom"
-              value={deliveryForm.lastName || lastName}
+              value={deliveryForm.lastName}
               onChange={memoizedHandleDeliveryChange}
               placeholder="Votre prénom"
               name="lastName"
@@ -283,14 +275,6 @@ const PaymentStep: React.FC<PaymentStepProps & {
                 disabled={isProcessingPayment}
               />
               {addressError && <p className="text-sm text-red-500 mt-1">{addressError}</p>}
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-foreground dark:text-gray-300">Ville</label>
-              <p className="p-3 bg-gray-200 dark:bg-gray-600 text-foreground dark:text-gray-200 rounded-lg">{deliveryForm.city || "Sélectionnez sur la carte"}</p>
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-foreground dark:text-gray-300">Province</label>
-              <p className="p-3 bg-gray-200 dark:bg-gray-600 text-foreground dark:text-gray-200 rounded-lg">{deliveryForm.province || "Sélectionnez sur la carte"}</p>
             </div>
           </div>
         </div>
@@ -364,36 +348,48 @@ const PaymentStep: React.FC<PaymentStepProps & {
         {isProcessingPayment ? "Traitement en cours..." : "Procéder au paiement"}
       </Button>
 
-      {/* Confirmation Dialog */}
       <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
-        <DialogContent className="sm:max-w-[425px] bg-background border border-offwhite">
+        <DialogContent className="sm:max-w-[500px] bg-background border border-offwhite">
           <DialogHeader>
-            <DialogTitle className="text-white">Confirmation</DialogTitle>
+            <DialogTitle className="text-foreground dark:text-gray-200 text-center">
+              Avez-vous tout vérifié ?
+            </DialogTitle>
           </DialogHeader>
-          <div className="py-4">
-            <p className="text-foreground dark:text-gray-200">
-              Êtes-vous sûr de vouloir continuer avec ces détails ?
+          <div className="pt-4 text-foreground dark:text-gray-200">
+            <p className="">
+              Vous serez contacté(e) par téléphone au <span className="font-semibold">{deliveryForm.phoneNumber || phoneNumber}</span>.
+            </p>
+            <p className="">Vos billets seront livrés à l'adresse suivante :</p>
+            <p>
+              {deliveryForm.address ? (
+                <span className="font-semibold">{deliveryForm.address}</span>
+              ) : (
+                <span className="text-gray-500">Aucune adresse sélectionnée</span>
+              )}
+            </p>
+            <p className="text-sm opacity-80 mt-4">
+              Vérifiez votre numéro de téléphone. En cas d'erreur, vous pouvez le modifier dans vos{" "}
+              <span className="font-semibold text-main">Paramètres &gt; Modifier le profil</span>{" "}
+              avant de commander vos billets.
             </p>
           </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsConfirmDialogOpen(false)}
-              className="bg-offwhite text-foreground hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
-            >
-              Annuler
-            </Button>
+          <DialogFooter className="flex flex-col gap-2">
             <Button
               onClick={handleConfirmPayment}
-              className="bg-main text-foreground hover:bg-main/90"
+              className="w-full bg-main text-foreground hover:bg-main/90 py-6 text-lg"
             >
-              Continuer
+              Oui, c'est fait !
+            </Button>
+            <Button
+              onClick={() => setIsConfirmDialogOpen(false)}
+              className="w-full bg-transparent text-foreground hover:text-main py-6 text-lg"
+            >
+              Vérifier à nouveau
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Map Dialog */}
       <Dialog open={isMapOpen} onOpenChange={setIsMapOpen}>
         <DialogContent className="sm:max-w-[600px] bg-background border border-offwhite">
           <DialogHeader>
@@ -413,7 +409,6 @@ const PaymentStep: React.FC<PaymentStepProps & {
         </DialogContent>
       </Dialog>
 
-      {/* Payment Dialog */}
       <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
         <DialogContent className="sm:max-w-[80vw] max-h-[80vh] bg-background border border-offwhite">
           <DialogHeader>
@@ -438,22 +433,40 @@ const PaymentStep: React.FC<PaymentStepProps & {
         </DialogContent>
       </Dialog>
 
-      {/* Feedback Dialog */}
       <Dialog open={feedback.isOpen} onOpenChange={(open) => setFeedback(prev => ({...prev, isOpen: open}))}>
-        <DialogContent className="sm:max-w-[425px] bg-background border border-offwhite">
+        <DialogContent className="sm:max-w-[500px] bg-background border border-offwhite">
           <DialogHeader>
             <DialogTitle className={feedback.isSuccess ? "text-main" : "text-main"}>
-              {feedback.title}
+              {paymentMode !== "delivery" && (
+                  <span>{feedback.message}</span>
+              )}
             </DialogTitle>
           </DialogHeader>
-          <div className="py-4">
-            <p className="text-foreground dark:text-gray-200">
-              {feedback.message}
-            </p>
-            {feedback.message && (
-                <p className="text-foreground dark:text-gray-200">
-              Vous pouvez voir vos tickets dans la partie Billets.
-            </p>
+          <div className="py-4 text-foreground dark:text-gray-200 space-y-4">
+            {paymentMode === "delivery" && feedback.isSuccess ? (
+              <>
+              <div className="flex items-center justify-center">
+                  <IconTruckDelivery size={80} className="text-main"/>
+              </div>
+                <p className="text-center">
+                  Un agent vous contactera sous peu au{" "}
+                  <span className="font-semibold">{deliveryForm.phoneNumber || phoneNumber}</span>{" "}
+                  pour confirmer votre commande ! Gardez votre téléphone à portée de main.
+                </p>
+                <p className="text-center text-sm opacity-80">
+                  En cas d'erreur sur votre numéro, vous pouvez toujours annuler la commande avant sa confirmation
+                  et en repasser une pour la livraison. Pas de stress !
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-center">{feedback.message}</p>
+                {feedback.message && (
+                  <p className="text-center text-sm opacity-80">
+                    Vous pouvez voir vos tickets dans la partie Billets.
+                  </p>
+                )}
+              </>
             )}
           </div>
           <DialogFooter>
@@ -462,15 +475,24 @@ const PaymentStep: React.FC<PaymentStepProps & {
                 setFeedback(prev => ({...prev, isOpen: false}));
                 setOpenTicketDrawer(true);
               }}
-              className={feedback.isSuccess ? "bg-main hover:bg-main/90" : "bg-main hover:bg-main/90"}
+              className="w-full bg-main hover:bg-main/90 py-6 text-lg"
             >
-              OK
+              {paymentMode === "delivery" && feedback.isSuccess ? "Parfait" : "OK"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
   );
-};
+}, (prevProps, nextProps) => (
+  prevProps.paymentMode === nextProps.paymentMode &&
+  prevProps.couponCode === nextProps.couponCode &&
+  prevProps.discount === nextProps.discount &&
+  prevProps.timer === nextProps.timer &&
+  prevProps.timerError === nextProps.timerError &&
+  prevProps.isProcessingPayment === nextProps.isProcessingPayment &&
+  prevProps.ticketDataList === nextProps.ticketDataList
+));
 
+PaymentStep.displayName = "PaymentStep";
 export default PaymentStep;
