@@ -1,4 +1,4 @@
-// searchBarUtils.ts
+
 import apiClient from "./apiClient";
 import { Category, CategoryItem } from "../types/searchBar";
 
@@ -16,7 +16,7 @@ export const fetchCategories = async (): Promise<Category[]> => {
     const data = response.data;
     return Array.isArray(data.respond?.data)
       ? data.respond.data.map((cat: any) => ({
-          id: cat._id, // Store the category ID
+          id: cat._id,
           name: cat.name,
         }))
       : [];
@@ -28,16 +28,15 @@ export const fetchCategories = async (): Promise<Category[]> => {
 
 export const buildCategoryNames = (categories: Category[]): Omit<CategoryItem, "icon">[] => {
   return [
-    { name: "All", href: "", id: "" }, // No ID for "All"
+    { name: "All", href: "", id: "" },
     ...categories.map((category) => ({
       name: category.name,
       href: category.name,
-      id: category.id, // Include the ID
+      id: category.id,
     })),
   ];
 };
 
-// Update the Category type in types/searchBar.ts if needed
 export interface Category {
   id: string;
   name: string;

@@ -5,6 +5,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/context/AuthContext";
 import "leaflet/dist/leaflet.css";
+import { Toaster } from "react-hot-toast"; // Add this import
+
 
 // Existing Google Fonts
 const geistSans = Geist({
@@ -48,6 +50,31 @@ export default function RootLayout({
           <Navbar />
           {children}
           <Footer />
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              style: {
+                borderRadius: '8px',
+                background: 'rgb(9,17,28)',
+                color: '#fff',
+                padding: '16px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                border: '1px solid #2d2d2d',
+              },
+              success: {
+                iconTheme: {
+                  primary: '#10B981',
+                  secondary: '#fff',
+                },
+              },
+              error: {
+                iconTheme: {
+                  primary: '#EF4444',
+                  secondary: '#fff',
+                },
+              },
+            }}
+          />
         </AuthProvider>
       </body>
     </html>

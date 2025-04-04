@@ -3,7 +3,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import axios from "axios";
-
+import toast from "react-hot-toast";
 interface AuthTokens {
   access_token: string;
   refresh_token: string;
@@ -85,7 +85,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const storedUserData = localStorage.getItem("userData");
       const storedTokens = localStorage.getItem("authTokens");
 
-      console.log("RefreshUserData - storedTokens:", storedTokens); // Debug log
 
       if (storedUserData) {
         const parsedUserData: UserData = JSON.parse(storedUserData);
@@ -95,13 +94,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (storedTokens) {
         const parsedTokens = JSON.parse(storedTokens);
-        console.log("Parsed tokens:", parsedTokens); // Debug log
+
         setAuthTokens(parsedTokens);
       } else {
         setAuthTokens(null);
       }
     } catch (error) {
-      console.error("Error refreshing user data:", error);
+
       setUserData(null);
       setAuthTokens(null);
       setUnreadNotificationsCount(0);
@@ -135,7 +134,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUserData(null);
       setAuthTokens(null);
       setUnreadNotificationsCount(0);
-      window.location.href = "/";
       return null;
     }
   };
@@ -144,10 +142,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem("authTokens");
     localStorage.removeItem("userData");
     localStorage.removeItem("userTickets");
+    toast.success("Déconnexion réussie !");
     setUserData(null);
     setAuthTokens(null);
     setUnreadNotificationsCount(0);
-    window.location.href = "/";
+
   };
 
   return (

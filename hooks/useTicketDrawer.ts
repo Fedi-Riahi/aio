@@ -3,6 +3,7 @@ import { Ticket } from "@/types/eventDetails";
 import { DeliveryDetails, TicketOrder } from "@/types/ticketDrawer";
 import { TicketData } from "@/types/paymentStep";
 import { calculateTotal, applyCoupon } from "@/utils/ticketDrawerUtils";
+import toast from "react-hot-toast";
 
 // Define types (assumed from context; adjust as needed)
 interface TicketType {
@@ -87,10 +88,6 @@ export const useTicketDrawer = (
     [selectedTickets, userNames, tickets, ticketType, hasSeatTemplate, selectedSeats]
   );
 
-  // Log ticketDataList for debugging when it actually changes
-  useEffect(() => {
-    console.log("ticketDataList in useTicketDrawer:", ticketDataList);
-  }, [ticketDataList]);
 
   // Handle ticket quantity changes
   const handleQuantityChange = (ticketId: string, quantity: number) => {
@@ -153,13 +150,13 @@ export const useTicketDrawer = (
     if (step === "selectQuantity") {
       const hasSelectedTickets = Object.values(selectedTickets).some((quantity) => quantity > 0);
       if (!hasSelectedTickets) {
-        alert("Please select at least one ticket.");
+        toast("Please select at least one ticket.");
         return;
       }
       setStep(hasSeatTemplate ? "selectSeats" : "enterNames");
     } else if (step === "selectSeats") {
       if (selectedSeats.length !== maxSeats) {
-        alert(`Please select exactly ${maxSeats} seat${maxSeats !== 1 ? "s" : ""}. You have selected ${selectedSeats.length}.`);
+        toast(`Please select exactly ${maxSeats} seat${maxSeats !== 1 ? "s" : ""}. You have selected ${selectedSeats.length}.`)
         return;
       }
       setStep("enterNames");
@@ -169,7 +166,7 @@ export const useTicketDrawer = (
         return ticketUsers.length === quantity && ticketUsers.every((name) => name.trim() !== "");
       });
       if (!allNamesEntered) {
-        alert("Please enter names for all selected tickets.");
+        toast("Please enter names for all selected tickets.");
         return;
       }
       setStep("payment");

@@ -1,6 +1,6 @@
 import apiClient from "@/utils/apiClient";
-import { Event, Period, Time, SeatData, TicketType, TicketGroup, LocationData, Ticket } from "@/types/eventDetails";
-import axios from "axios";
+import { Event, Period, Time, SeatData, TicketType, TicketGroup, LocationData } from "@/types/eventDetails";
+
 export const fetchEventData = async (id: string): Promise<Event> => {
   try {
     console.log(`Fetching event data for event ${id}`);
@@ -92,7 +92,6 @@ export const fetchSeatData = async (
         _handle404: true // Custom flag to mark this as a "soft" 404
       });
 
-      // Handle the transformed 404 response
       if (response.data.success === false) {
         return null;
       }
@@ -158,7 +157,7 @@ export const getTimeDisplay = (startTime: string | string[], endTime: string | s
   const startDisplay = startTimeString.split('T')[1]?.substring(0, 5) || startTimeString;
   const endDisplay = endTimeString ? (endTimeString.split('T')[1]?.substring(0, 5) || endTimeString) : '';
 
-//   const ticketTypes = tickets.map(ticket => ticket.type).join(", ");
+
   const timeDisplay = endDisplay ? `${startDisplay} - ${endDisplay}` : startDisplay;
   return timeDisplay;
 };
@@ -175,7 +174,7 @@ export const getPeriodDisplay = (period: Period): string => {
     ? getLocalDate(period.locations[0].times[0].end_time)
     : start;
 
-  // If start and end dates are the same, return only the start date
+
   if (start === end) {
     return start;
   }

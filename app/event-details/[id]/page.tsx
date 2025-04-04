@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { Users, Tag, ArrowLeft, Info, Ticket, Phone, Mail } from "lucide-react";
+import { Users, ArrowLeft, Info, Ticket, Phone, Mail } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import TicketDrawer from "@/components/TicketDrawer";
-import { IconBrandFacebook, IconBrandInstagram, IconCopy, IconPhoneRinging } from "@tabler/icons-react";
+import { IconBrandFacebook, IconBrandInstagram, IconCopy, IconMap2, IconMapPin, IconPhoneRinging } from "@tabler/icons-react";
 import { useEventDetails } from "@/hooks/useEventDetails";
 import { getTicketPrice, getAvailableTicketCount, getLocationName, getTimeDisplay, getPeriodDisplay, isEventTimePassed } from "@/utils/eventDetailsUtils";
 import { useNavbar } from "@/hooks/useNavbar";
+import toast from "react-hot-toast";
 
 const EventDetails: React.FC = () => {
   const {
@@ -29,7 +30,7 @@ const EventDetails: React.FC = () => {
   const [isCopied, setIsCopied] = useState(false);
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen text-xl font-semibold">Chargement des détails de l'événement...</div>;
+    return <div className="flex justify-center items-center h-screen text-xl font-semibold">Chargement des détails de &apos;événement...</div>;
   }
 
   if (error || !event) {
@@ -37,10 +38,6 @@ const EventDetails: React.FC = () => {
   }
 
   const openDrawer = () => {
-    if (process.env.NODE_ENV === "development") {
-      console.log("selectedTime.tickets:", selectedTime?.tickets);
-      console.log("event.ticket_type:", event.ticket_type);
-    }
     setIsDrawerOpen(true);
   };
 
@@ -48,10 +45,11 @@ const EventDetails: React.FC = () => {
 
   const handleCopyLink = async () => {
     try {
-      const currentUrl = window.location.href; // Get the current page URL
-      await navigator.clipboard.writeText(currentUrl); // Copy to clipboard
-      setIsCopied(true); // Show feedback
-      setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
+      const currentUrl = window.location.href;
+      await navigator.clipboard.writeText(currentUrl);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+      toast.success("Event URL Copied")
     } catch (err) {
       console.error("Failed to copy URL:", err);
     }
@@ -62,7 +60,6 @@ const EventDetails: React.FC = () => {
   const ownerPhone = event.owner[0]?.phone || "N/A";
   const ownerEmail = event.owner[0]?.email || "N/A";
   const ownerSocialLinks = event.owner[0]?.social_links || [];
-  console.log(event)
 
   const getSocialIcon = (platform: string) => {
     switch (platform.toLowerCase()) {
@@ -116,7 +113,7 @@ const EventDetails: React.FC = () => {
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="w-full lg:w-1/2 space-y-8">
           <div>
-            <h2 className="text-2xl font-bold text-foreground mb-4">Périodes de l'événement</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-4">Périodes de &apos;événement</h2>
             <div className="flex flex-wrap gap-4">
               {event.periods.length > 0 ? (
                 event.periods.map((period, index) => (
@@ -143,34 +140,34 @@ const EventDetails: React.FC = () => {
           </div>
 
           {selectedPeriod && (
-  <div>
-    <h2 className="text-2xl font-bold text-foreground mb-4">Programme de l'événement</h2>
+  <div >
+    <h2 className="text-2xl font-bold text-foreground mb-4">Localisation</h2>
     <div className="space-y-6">
       {selectedPeriod.locations?.map((location, locationIndex) => {
         // Get the location name
         const locationName = getLocationName(location.location, event.owner[0]?.organization_name);
         const locationNameMap = locationName + ",Tunisia";
 
-        // Simplified Google Maps URL (not embed, for opening in a new tab)
         const mapUrl = `https://www.google.com/maps/search/?q=${encodeURIComponent(locationNameMap)}`;
 
-        // Log for debugging
-        console.log("Location Name:", locationName);
-        console.log("Map URL:", mapUrl);
 
         return (
           <div key={locationIndex} className="space-y-4">
-            <div className="flex items-center gap-4">
-              <h3 className="text-xl font-semibold text-foreground">
-                Lieu: <span className="text-main">{locationName}</span>
+            <div className="flex items-center justify-between gap-4">
+              <h3 className="text-xl font-semibold text-foreground flex items-center gap-4">
+                <div className="bg-foreground/10 p-4 flex items-center justify-center rounded-full">
+                    <IconMapPin className="text-main" size={30}/>
+                </div>
+                <span className="text-foreground/80">{locationName}</span>
               </h3>
-        
+
               <button
                 onClick={() => window.open(mapUrl, "_blank", "noopener,noreferrer")}
-                className="px-4 py-2 bg-main text-foreground rounded-lg font-medium transition duration-300 hover:bg-main/90"
+                className="flex items-center gap-2 px-4 py-2 text-main rounded-lg font-medium transition duration-300 hover:text-main/90 cursor-pointer"
                 title="Voir sur Google Maps"
               >
-                Voir la carte
+                Voir Carte
+                <IconMap2 size={30} className="text-main"/>
               </button>
             </div>
             <div className="flex flex-wrap gap-4">
@@ -187,7 +184,7 @@ const EventDetails: React.FC = () => {
                       : "bg-offwhite text-foreground hover:bg-foreground/20"
                   }`}
                 >
-                  {getTimeDisplay(time.start_time, time.end_time, time.tickets)}
+                  {getTimeDisplay(time.start_time, time.end_time)}
                 </button>
               ))}
             </div>
@@ -223,6 +220,11 @@ const EventDetails: React.FC = () => {
                     const isDisabled = isSoloTicket && availableCount <= 0;
                     const isAvailable = !isDisabled;
 
+                    // Find the full ticket type details
+                    const ticketType = event.ticket_type.find(t =>
+                        t._id === ticket.ticket_id || t.ticket._id === ticket.ticket_id
+                      );
+
                     return (
                       <div
                         key={ticketIndex}
@@ -233,16 +235,17 @@ const EventDetails: React.FC = () => {
                             <Ticket size={24} className="text-main" />
                           </div>
                           <div>
-                            <h4 className="text-lg font-semibold text-foreground">Billet {ticket.type}</h4>
+                            <h4 className="text-lg font-semibold text-foreground">Billet {ticket.type} - <span className="opacity-80 font-normal">{ticketType?.ticket?.description?.replace(/^Ticket\s+/i, '')} </span></h4>
                             <p className="text-lg font-bold text-main">
                               {price === "N/A" ? "Prix N/A" : `${price}.00 DT`}
                             </p>
+
                           </div>
                         </div>
                         <button
                           onClick={openDrawer}
                           disabled={(!session) || (isDisabled && session)}
-                          className={`px-6 py-2 rounded-lg transition duration-300 ${
+                          className={`px-6 py-3 rounded-lg cursor-pointer transition duration-300 ${
                             isAvailable
                               ? "bg-main text-foreground hover:bg-main/90"
                               : "bg-gray-400 text-gray-700 cursor-not-allowed"
@@ -270,7 +273,7 @@ const EventDetails: React.FC = () => {
               <div className="flex items-center justify-start gap-2">
                 <IconPhoneRinging className="text-main" size={24} />
                 <span className="text-main font-medium text-lg">
-                  Veuillez contacter l'organisateur pour obtenir des billets.
+                  Veuillez contacter &apos;organisateur pour obtenir des billets.
                 </span>
               </div>
             )}
@@ -314,7 +317,7 @@ const EventDetails: React.FC = () => {
         </div>
 
         <div className="w-full lg:w-1/2">
-          <h2 className="text-2xl font-bold text-blacks mb-4">Description de l'événement</h2>
+          <h2 className="text-2xl font-bold text-blacks mb-4">Description de &apos;événement</h2>
           <div className="bg-offwhite backdrop-blur-sm rounded-xl p-6">
             <p className="text-lg/6 text-foreground/80 leading-relaxed text-justify">{event.description}</p>
           </div>

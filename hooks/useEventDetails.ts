@@ -21,7 +21,7 @@ export const useEventDetails = () => {
       try {
         setLoading(true);
         const eventData = await fetchEventData(id as string);
-
+        
         if (eventData.ticket_type) {
           eventData.ticket_type = eventData.ticket_type.filter(
             (type: any) => type?.ticket && type.ticket._id && type.ticket.price
@@ -47,10 +47,6 @@ export const useEventDetails = () => {
           }));
         } else {
           eventData.periods = [];
-        }
-
-        if (process.env.NODE_ENV === "development") {
-          console.log("Validated event data:", eventData);
         }
 
         setEvent(eventData);

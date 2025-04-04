@@ -29,7 +29,6 @@ export const handleLoginRequest = async (data: LoginFormData): Promise<{ error?:
   } catch (error: any) {
     console.log("Login error raw:", error.response?.data);
     if (error.response?.status === 401) {
-      // Adjust to match your response structure: error is nested in 'respond'
       const errorData = error.response?.data?.respond || error.response?.data;
       const errorDetails = errorData?.error?.details || errorData?.clientMessage;
       const errorCode = errorData?.error?.code;

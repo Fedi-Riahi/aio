@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { PaymentStepProps, Coordinates } from "../types/paymentStep";
 import { createOrderRequestBody, processOrder } from "../utils/paymentStepUtils";
+import toast from "react-hot-toast";
 
 export const usePaymentStep = ({
   paymentMode,
@@ -58,8 +59,8 @@ export const usePaymentStep = ({
       if (data.items && data.items.length > 0) {
         const address = data.items[0].address.label || "Unknown Address";
         const city = data.items[0].address.city || "Unknown City";
-        const province = data.items[0].address.state || data.items[0].address.city;
-
+        const province = data.items[0].address.county || data.items[0].address.city;
+        console.log(data.items[0])
         handleDeliveryChange("address", address);
         handleDeliveryChange("city", city);
         handleDeliveryChange("province", province);
@@ -134,14 +135,16 @@ export const usePaymentStep = ({
       const response = await processOrder(orderRequestBody);
 
       if (response.success) {
-        // Check for "Order Finished" message (adjust based on actual response structure)
+
         const isOrderFinished = response.data?.message === "Order Finished" || response.data?.status === "finished";
+        toast.success("Order Finished")
         onPaymentSuccess({
           ...response,
           nextStep: isOrderFinished ? "confirmation" : undefined, // Signal to move to confirmation
         });
       } else {
         alert(response.error?.details || "Failed to process order");
+        toast.error("Failed to process order")
       }
     } catch (error) {
       alert(error instanceof Error ? error.message : "An unknown error occurred");

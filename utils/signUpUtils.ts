@@ -27,7 +27,7 @@ export const submitSignUp = async (data: SignUpFormData): Promise<SignUpResponse
       ok: response.status >= 200 && response.status < 300,
     };
   } catch (error: any) {
-    console.log("Signup error response:", error.response?.data); // Debugging
+    console.log("Signup error response:", error.response?.data);
     return {
       ...(error.response?.data || {}),
       status: error.response?.status || 500,
@@ -48,7 +48,7 @@ export const resendMailVerifyToken = async (email: string): Promise<SignUpRespon
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email }),
-        credentials: "omit", // This ensures no cookies are sent
+        credentials: "omit", 
       });
 
       const data = await response.json();
@@ -71,7 +71,7 @@ export const resendMailVerifyToken = async (email: string): Promise<SignUpRespon
     }
   };
 
-// No changes needed below
+
 export const submitConfirmation = async (email: string, code: string): Promise<SignUpResponse> => {
   try {
     const response = await apiClient.post("/user/mailconfopensession", {

@@ -27,7 +27,7 @@ const SelectQuantityStep: React.FC<SelectQuantityStepProps> = ({
   const total = calculateTotal(tickets, selectedTickets, ticketType);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       {tickets.map((ticket, ticketIndex) => {
         const ticketQuantity = selectedTickets[ticket.ticket_id] || 0;
         const { name: ticketName, price: ticketPrice } = getTicketInfo(ticket, ticketType);
@@ -37,53 +37,68 @@ const SelectQuantityStep: React.FC<SelectQuantityStepProps> = ({
         return (
           <div
             key={ticket.ticket_id}
-            className="flex flex-col md:flex-row justify-between items-center p-6 bg-offwhite backdrop-blur-sm rounded-xl shadow-sm hover:bg-offwhite90 hover:shadow-md transition duration-300"
+            className="flex flex-col md:flex-row justify-between items-center p-5 bg-gray-800 rounded-xl border border-gray-700 hover:border-gray-600 transition-all duration-200 shadow-lg hover:shadow-xl"
           >
-            <div className="flex items-center gap-6">
-              <div className="p-3 bg-main/10 rounded-full">
-                <IconTicket stroke={2} width={32} height={32} className="text-main" />
+            <div className="flex items-center gap-4 w-full md:w-auto">
+              <div className="p-3 bg-gradient-to-br from-main to-main/90 rounded-xl shadow-md">
+                <IconTicket stroke={2} width={28} height={28} className="text-white" />
               </div>
-              <div>
-                <h4 className="text-xl font-semibold text-white">Billet {ticketName}</h4>
-                <p className="text-lg text-main font-medium">{ticketPrice}.00 DT</p>
-
+              <div className="flex-1">
+                <h4 className="text-lg font-semibold text-white">Billet {ticketName}</h4>
+                <div className="flex items-center gap-2">
+                  <p className="text-lg font-medium bg-gradient-to-r from-main to-main/90 bg-clip-text text-transparent">
+                    {ticketPrice}.00 DT
+                  </p>
+                  {availableCount > 0 && !isSoloTicket && (
+                    <span className="text-xs text-gray-400">
+                      ({availableCount} disponibles)
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 mt-4 md:mt-0">
+            <div className="flex items-center gap-3 mt-4 md:mt-0 w-full md:w-auto justify-between md:justify-normal">
               <button
                 className={`flex items-center justify-center p-2 rounded-lg transition-all ${
                   ticketQuantity === 0
-                    ? "bg-gray-500 cursor-not-allowed"
-                    : "bg-main text-white hover:bg-main/90"
+                    ? "bg-gray-700 text-gray-500 cursor-not-allowed"
+                    : "bg-gray-700 text-white hover:bg-gray-600 hover:shadow-md"
                 }`}
                 onClick={() => handleQuantityUpdate(ticket, ticketIndex, -1)}
                 disabled={ticketQuantity === 0}
+                aria-label="Réduire la quantité"
               >
-                <IconMinus stroke={2} width={20} height={20} />
+                <IconMinus stroke={2} width={18} height={18} />
               </button>
-              <span className="text-xl font-medium text-white">{ticketQuantity}</span>
+
+              <div className="min-w-[40px] text-center">
+                <span className="text-xl font-medium text-white">{ticketQuantity}</span>
+              </div>
+
               <button
                 className={`flex items-center justify-center p-2 rounded-lg transition-all ${
                   ticketQuantity >= availableCount
-                    ? "bg-gray-200 cursor-not-allowed"
-                    : "bg-main text-white hover:bg-main/90"
+                    ? "bg-gray-700 text-gray-500 cursor-not-allowed"
+                    : "bg-gray-700 text-white hover:bg-gray-600 hover:shadow-md"
                 }`}
                 onClick={() => handleQuantityUpdate(ticket, ticketIndex, 1)}
                 disabled={ticketQuantity >= availableCount}
+                aria-label="Augmenter la quantité"
               >
-                <IconPlus stroke={2} width={20} height={20} />
+                <IconPlus stroke={2} width={18} height={18} />
               </button>
             </div>
           </div>
         );
       })}
 
-      <div className="flex justify-end mt-6">
-        <div className="p-6 border bg-offwhite backdrop-blur-sm rounded-xl border-white/20 shadow-sm">
-          <h3 className="text-2xl font-semibold text-white">
-            Total : <span className="text-main">{total}.00 DT</span>
-          </h3>
+      <div className="sticky bottom-0 bg-gray-900/90 backdrop-blur-md py-4 px-6 rounded-xl border border-gray-700 shadow-2xl mt-4">
+        <div className="flex justify-between items-center">
+          <h3 className="text-xl font-medium text-gray-300">Total</h3>
+          <div className="text-2xl font-bold bg-gradient-to-r from-main to-main/90 bg-clip-text text-transparent">
+            {total}.00 DT
+          </div>
         </div>
       </div>
     </div>

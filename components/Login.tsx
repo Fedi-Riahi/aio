@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState} from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { IconLockOpen, IconUser, IconMail, IconEyeOff, IconEye } from "@tabler/icons-react";
@@ -16,13 +16,22 @@ export const Login = () => {
     confirmationCode,
     setConfirmationCode,
     onConfirmCode,
+    resendCode,
   } = useLogin();
 
-    const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isResending, setIsResending] = useState(false);
 
-    const togglePasswordVisibility = () => {
-      setShowPassword((prev) => !prev);
-    };
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
+
+  const handleResendCode = async () => {
+    setIsResending(true);
+    await resendCode();
+    setIsResending(false);
+  };
+
   return (
     <div className="space-y-4 my-8">
       {error && <p className="text-red-500 text-sm">{error}</p>}
@@ -47,28 +56,28 @@ export const Login = () => {
           </div>
 
           <div className="relative">
-      <IconLockOpen className="absolute left-3 top-4 h-5 w-5 text-gray-400" />
-      <Input
-        type={showPassword ? "text" : "password"} // Toggle between text and password
-        placeholder="Mot de passe"
-        {...register("password", {
-          required: "Le mot de passe est requis",
-        })}
-        className="pl-10 pr-10 w-full bg-foreground/10" // Added pr-10 for right padding
-      />
-      <button
-        type="button" // Prevent form submission
-        onClick={togglePasswordVisibility}
-        className="absolute right-3 top-4 h-5 w-5 text-gray-400 hover:text-gray-600 focus:outline-none"
-      >
-        {showPassword ? (
-          <IconEyeOff className="h-5 w-5" />
-        ) : (
-          <IconEye className="h-5 w-5" />
-        )}
-      </button>
-      {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
-    </div>
+            <IconLockOpen className="absolute left-3 top-4 h-5 w-5 text-gray-400" />
+            <Input
+              type={showPassword ? "text" : "password"}
+              placeholder="Mot de passe"
+              {...register("password", {
+                required: "Le mot de passe est requis",
+              })}
+              className="pl-10 pr-10 w-full bg-foreground/10"
+            />
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              className="absolute right-3 top-4 h-5 w-5 text-gray-400 hover:text-gray-600 focus:outline-none"
+            >
+              {showPassword ? (
+                <IconEyeOff className="h-5 w-5" />
+              ) : (
+                <IconEye className="h-5 w-5" />
+              )}
+            </button>
+            {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
+          </div>
 
           <Button
             type="submit"
@@ -80,13 +89,13 @@ export const Login = () => {
       ) : (
         <div className="space-y-4">
           <p className="text-sm text-gray-600">
-            A new confirmation code has been sent to your email. Please check your inbox (and spam folder) and enter it below:
+            Un nouveau code de confirmation a été envoyé à votre email. Veuillez vérifier votre boîte de réception (et le dossier spam) et entrez-le ci-dessous :
           </p>
           <div className="relative">
             <IconMail className="absolute left-3 top-4 h-5 w-5 text-gray-400" />
             <Input
               type="text"
-              placeholder="Confirmation Code"
+              placeholder="Code de confirmation"
               value={confirmationCode}
               onChange={(e) => setConfirmationCode(e.target.value)}
               className="pl-10 w-full bg-foreground/10"
@@ -96,7 +105,14 @@ export const Login = () => {
             onClick={onConfirmCode}
             className="w-full text-md bg-main text-white rounded-lg hover:bg-main/90"
           >
-            Verify Code
+            Vérifier le code
+          </Button>
+          <Button
+            onClick={handleResendCode}
+            disabled={isResending}
+            className="w-full text-md  text-main rounded-lg hover:text-main/90 disabled:text-gray-400"
+          >
+            {isResending ? "Envoi en cours..." : "Renvoyer le code"}
           </Button>
         </div>
       )}

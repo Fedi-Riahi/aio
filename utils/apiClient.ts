@@ -1,4 +1,5 @@
 import axios from "axios";
+import toast from "react-hot-toast";
 
 interface AuthTokens {
   access_token: string;
@@ -17,9 +18,6 @@ const logoutUser = () => {
   localStorage.removeItem("authTokens");
   localStorage.removeItem("userData");
   localStorage.removeItem("userTickets");
-
-  // Redirect to login page
-  window.location.href = "/";
 };
 
 apiClient.interceptors.request.use(
@@ -34,13 +32,13 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Consolidated response interceptor
+
 apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
       const originalRequest = error.config;
 
-      // Special case: Don't treat 404 for seat maps as error
+
       if (error.response?.status === 404 &&
           originalRequest.url?.includes('/event/getperiods/seats/')) {
         return Promise.resolve({
@@ -54,7 +52,7 @@ apiClient.interceptors.response.use(
         });
       }
 
-      // Handle auth errors normally
+
       if (
         error.response &&
         (error.response.status === 401 || error.response.status === 403) &&
@@ -62,12 +60,12 @@ apiClient.interceptors.response.use(
         originalRequest.url !== "/user/login" &&
         originalRequest.url !== "/user/resendmailverifytoken"
       ) {
-        console.log("Access token expired, logging out");
+        toast("Session expired, logging out");
         originalRequest._retry = true;
         logoutUser();
       }
 
-      // For all other errors, log and reject
+
       console.error("Request failed:", {
         status: error.response?.status,
         url: originalRequest.url,

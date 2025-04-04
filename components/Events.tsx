@@ -19,11 +19,9 @@ const Events: React.FC = () => {
   } = useEventFilters();
 
   const handleSearchResultsFromSearchBar = useCallback((events: any[], owners: any[]) => {
-    console.log("Search results received - events:", events, "owners:", owners);
-    handleSearchResults(events); // Pass only events to useEventFilters
+    handleSearchResults(events); 
   }, [handleSearchResults]);
 
-  console.log("Events.tsx - visibleEvents:", visibleEvents);
 
   return (
     <div className="min-h-screen">

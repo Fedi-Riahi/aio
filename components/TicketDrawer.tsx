@@ -9,7 +9,7 @@ import EnterNamesStep from "@/components/EnterNamesStep";
 import PaymentStep from "@/components/PaymentStep";
 import ConfirmationStep from "@/components/ConfirmationStep";
 import TheatreView from "@/components/TheatreView";
-import Timer from "@/components/Timer"; // Import the updated Timer component
+import Timer from "@/components/Timer";
 import { TicketDrawerProps } from "@/types/ticketDrawer";
 import { useTicketDrawer } from "@/hooks/useTicketDrawer";
 import { startOrderTimer } from "@/utils/paymentStepUtils";
@@ -67,7 +67,7 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
 
   const [timer, setTimer] = useState<number | null>(null);
   const [timerError, setTimerError] = useState<string | null>(null);
-  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null); // Ref to store interval ID
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const startTimer = async () => {
     try {
@@ -75,7 +75,7 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
         .filter((ticket) => selectedTickets[ticket.ticket_id] > 0)
         .map((ticket) => ({
           ticket_id: ticket.ticket_id,
-          name: ticket.name || "Unknown Ticket",
+          name: ticket.name || "Billet inconnu",
           ticket_index: 0,
           seat_index: "N/A",
         }));
@@ -87,30 +87,27 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
         period_index: periodIndex,
         time_index: timeIndex,
       };
-      console.log("Starting timer with requestBody:", JSON.stringify(requestBody, null, 2));
       const response = await startOrderTimer(requestBody);
       if (response.success && response.respond.data?.timer) {
         setTimer(response.respond.data.timer);
         setTimerError(null);
       } else {
-        const errorMsg = response.respond.error?.details || "Failed to retrieve timer value";
+        const errorMsg = response.respond.error?.details || "Échec de récupération du minuteur";
         setTimerError(errorMsg);
       }
     } catch (error) {
-      console.error("Failed to start timer:", error);
-      const errorMsg = error instanceof Error ? error.message : "Unknown timer error";
+      const errorMsg = error instanceof Error ? error.message : "Erreur inconnue du minuteur";
       setTimerError(errorMsg);
     }
   };
 
-  // Start timer when entering "enterNames" step and drawer is open
   useEffect(() => {
     if (isOpen && step === "enterNames" && timer === null && !timerError) {
       startTimer();
     }
   }, [isOpen, step, timer, timerError, eventId, selectedTickets, locationIndex, periodIndex, timeIndex]);
 
-  // Countdown logic
+  // Logique de compte à rebours
   useEffect(() => {
     if (timer === null || timer <= 0 || !isOpen) {
       if (timerIntervalRef.current) {
@@ -125,7 +122,7 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
         if (prev !== null && prev > 0) {
           const newTimer = prev - 1;
           if (newTimer === 0) {
-            onClose(); // Close the drawer when timer hits 0
+            handleCancel();
           }
           return newTimer;
         }
@@ -139,9 +136,9 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
         timerIntervalRef.current = null;
       }
     };
-  }, [timer, isOpen, onClose]);
+  }, [timer, isOpen, handleCancel]);
 
-  // Reset timer when drawer closes
+  // Réinitialiser le minuteur lorsque le tiroir se ferme
   useEffect(() => {
     if (!isOpen && timer !== null) {
       setTimer(null);
@@ -149,38 +146,66 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
     }
   }, [isOpen]);
 
+  const stepTitles = {
+    selectQuantity: "Sélectionner la quantité",
+    selectSeats: "Choisir vos places",
+    enterNames: "Informations des participants",
+    payment: "Méthode de paiement",
+    confirmation: "Confirmation de commande"
+  };
+
+  const stepDescriptions = {
+    selectQuantity: "Sélectionnez le nombre de billets dont vous avez besoin",
+    selectSeats: "Choisissez vos places préférées sur le plan de la salle",
+    enterNames: "Entrez les informations pour chaque participant",
+    payment: "Finalisez votre achat en toute sécurité",
+    confirmation: "Votre commande a été confirmée"
+  };
+
   return (
     <Drawer open={isOpen} onClose={onClose}>
       <div
-        className={`fixed inset-0 bg-background/10 backdrop-blur-sm z-50 transition-opacity duration-300 ${
+        className={`fixed inset-0 bg-black/30 backdrop-blur-sm z-50 transition-opacity duration-300 ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         aria-hidden="true"
       />
-      <DrawerContent className="bg-background flex items-center justify-center border border-offwhite">
-        <DrawerHeader className="w-full md:w-3/4 lg:w-2/3">
-          <div className="flex justify-between items-center w-full">
-            <DrawerTitle className="text-foreground relative text-xl md:text-2xl">
-              {step === "selectQuantity"
-                ? "Sélectionner la quantité"
-                : step === "selectSeats"
-                ? "Choisir vos places"
-                : step === "enterNames"
-                ? "Saisir les noms"
-                : step === "payment"
-                ? "Paiement"
-                : "Confirmation"}
-            </DrawerTitle>
-            <XIcon
-              className="w-6 h-6 text-foreground hover:text-foreground/90 cursor-pointer"
+      <DrawerContent className="bg-gray-900 border-gray-800 max-h-[90vh] rounded-t-2xl">
+        <DrawerHeader className="text-left px-6 pt-6 pb-4 border-b border-gray-800">
+          <div className="flex justify-between items-start">
+            <div>
+              <DrawerTitle className="text-2xl font-bold text-white">
+                {stepTitles[step]}
+              </DrawerTitle>
+              <p className="text-gray-400 mt-1 text-sm">
+                {stepDescriptions[step]}
+              </p>
+            </div>
+            <button
               onClick={handleCancel}
-            />
+              className="p-2 rounded-full hover:bg-gray-800 transition-colors"
+              aria-label="Fermer le tiroir"
+            >
+              <XIcon className="w-5 h-5 text-gray-400" />
+            </button>
+          </div>
+
+          {/* Indicateur de progression */}
+          <div className="flex gap-2 mt-4">
+            {Object.keys(stepTitles).map((key, index) => (
+              <div
+                key={key}
+                className={`h-1 flex-1 rounded-full ${step === key ? 'bg-main' : 'bg-gray-700'}`}
+              />
+            ))}
           </div>
         </DrawerHeader>
 
-        <div className="p-4 flex flex-col gap-4 w-full md:w-3/4 lg:w-2/3 max-h-[70vh] overflow-y-auto">
-          {(step === "enterNames" || step === "payment") && (
-            <Timer time={timer} timerError={timerError} />
+        <div className="p-6 overflow-y-auto flex-1">
+          {(step === "enterNames" || step === "payment") && timer !== null && (
+            <div className="mb-6">
+              <Timer time={timer} timerError={timerError} />
+            </div>
           )}
 
           {step === "selectQuantity" && (
@@ -197,13 +222,16 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
           )}
 
           {step === "selectSeats" && hasSeatTemplate === null && (
-            <div className="flex justify-center items-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+              <p className="text-gray-400">Chargement du plan de salle...</p>
             </div>
           )}
 
           {step === "selectSeats" && hasSeatTemplate === false && (
-            <p className="text-center text-gray-500">Aucun plan de salle disponible. Passage à l'étape suivante.</p>
+            <div className="bg-gray-800/50 rounded-lg p-6 text-center">
+              <p className="text-gray-400">Aucun plan de salle disponible. Passage à l'étape suivante.</p>
+            </div>
           )}
 
           {step === "selectSeats" && hasSeatTemplate === true && seatData && (
@@ -219,7 +247,14 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
             />
           )}
 
-          {step === "enterNames" && (
+          {step === "enterNames" && timer === null && !timerError && (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+              <p className="text-gray-400">Préparation de votre réservation...</p>
+            </div>
+          )}
+
+          {step === "enterNames" && timer !== null && !timerError && (
             <EnterNamesStep
               tickets={tickets}
               selectedTickets={selectedTickets}
@@ -233,7 +268,13 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
             />
           )}
 
-          {step === "payment" && (
+          {step === "enterNames" && timerError && (
+            <div className="bg-red-900/20 border border-red-800 rounded-lg p-4">
+              <p className="text-red-400">Erreur de chargement du minuteur : {timerError}</p>
+            </div>
+          )}
+
+          {step === "payment" && timer !== null && !timerError && (
             <PaymentStep
               paymentMode={paymentMode}
               handlePaymentModeChange={handlePaymentModeChange}
@@ -255,36 +296,39 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
               paymentMethods={paymentMethods}
             />
           )}
-
         </div>
 
-        <DrawerFooter className="w-full md:w-3/4 lg:w-2/3">
-          <div className="flex gap-4">
-            {step !== "payment" && (
-
-                <Button
+        <DrawerFooter className="px-6 pb-6 pt-4 border-t border-gray-800 bg-gray-900/50 backdrop-blur-sm">
+          <div className="flex gap-3 w-full">
+            {step !== "selectQuantity" && step !== "payment" && (
+              <Button
                 onClick={handleBack}
-                className="text-foreground transition duration-300 hover:bg-black/10 hover:border-transparent"
-                >
-              Retour
-            </Button>
+                variant="outline"
+                className="flex-1 bg-transparent text-white border-gray-700 hover:bg-gray-800 hover:border-gray-600"
+              >
+                Retour
+              </Button>
             )}
             <Button
-            onClick={step === "payment" ? handleCancel : handleContinue}
-            className="bg-main text-foreground hover:bg-main/90"
-            disabled={
+              onClick={step === "payment" ? handleCancel : handleContinue}
+              className={`flex-1 ${
+                step === "payment"
+                  ? "bg-transparent border border-gray-700 text-white hover:bg-gray-800"
+                  : "bg-main hover:bg-main/90"
+              }`}
+              disabled={
                 (step === "selectSeats" && selectedSeats.length !== maxSeats) ||
                 (step === "selectQuantity" && Object.values(selectedTickets).every((quantity) => quantity === 0)) ||
                 (step === "enterNames" &&
-                !Object.entries(selectedTickets).every(([ticketId, quantity]) => {
+                  !Object.entries(selectedTickets).every(([ticketId, quantity]) => {
                     const ticketUsers = userNames[ticketId] || [];
                     return ticketUsers.length === quantity && ticketUsers.every((name) => name.trim() !== "");
-                })) ||
+                  })) ||
                 (timer === 0) ||
-                (timerError !== null) // Add this condition to disable when there's a timer error
-            }
+                (timerError !== null)
+              }
             >
-            {step === "payment" ? "Annuler" : "Suivant"}
+              {step === "payment" ? "Annuler" : "Continuer"}
             </Button>
           </div>
         </DrawerFooter>
