@@ -91,3 +91,11 @@ export interface TicketGroup {
     room_name: string;
     taken: string[];
   }
+  export interface Comment {
+    _id: string;
+    content: string;
+    profilePicture: string;
+    username: string;
+    ownerId: string;
+    date: string;
+  }

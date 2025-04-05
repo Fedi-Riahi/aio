@@ -1,21 +1,50 @@
-
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Calendar, MapPin } from "lucide-react";
+import { Calendar, MapPin, Heart } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { IconBolt, IconFlame } from "@tabler/icons-react";
 import { Event, EventCardProps } from "../types/event";
 import { checkEventAdVideo } from "../utils/eventUtils";
 import { AdVideoPopup } from "./AdVideoPopup";
+import { toggleEventLike } from "../utils/eventDetailsUtils";
+import toast from "react-hot-toast";
 
-const EventCard: React.FC<EventCardProps> = ({
-  visibleEvents,
-}) => {
+const EventCard: React.FC<EventCardProps> = ({ visibleEvents }) => {
   const [adVideoUrl, setAdVideoUrl] = useState<string | null>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [navigateTo, setNavigateTo] = useState<string | null>(null);
+  const [likedEvents, setLikedEvents] = useState<Record<string, boolean>>({});
+  const [processingLikes, setProcessingLikes] = useState<Record<string, boolean>>({});
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Get userId from localStorage
+    const storedUserData = localStorage.getItem("userData");
+    let parsedUserData = null;
+
+    if (storedUserData) {
+      try {
+        parsedUserData = JSON.parse(storedUserData);
+        setUserId(parsedUserData._id || null);
+      } catch (error) {
+        console.error("Failed to parse userData from localStorage:", error);
+      }
+    }
+
+    // Initialize liked events from localStorage if userId exists
+    if (parsedUserData?._id) {
+      const storedLikes = localStorage.getItem(`likedEvents_${parsedUserData._id}`);
+      if (storedLikes) {
+        try {
+          setLikedEvents(JSON.parse(storedLikes));
+        } catch (error) {
+          console.error("Failed to parse likedEvents from localStorage:", error);
+        }
+      }
+    }
+  }, []);
 
   const handleEventNameClick = async (eventId: string) => {
     try {
@@ -24,15 +53,51 @@ const EventCard: React.FC<EventCardProps> = ({
         setAdVideoUrl(response.videoUrl);
         setIsPopupOpen(true);
       } else {
-
         setNavigateTo(`/event-details/${eventId}`);
       }
     } catch (error) {
-      console.error("Erreur dans handleEventNameClick:", error);
+      console.error("Error in handleEventNameClick:", error);
       setNavigateTo(`/event-details/${eventId}`);
     }
   };
 
+  const handleLikeToggle = async (eventId: string) => {
+    if (!userId) {
+      toast.error("Please login to like events");
+      return;
+    }
+
+    setProcessingLikes((prev) => ({ ...prev, [eventId]: true }));
+
+    try {
+      const isLiked = !likedEvents[eventId];
+
+      // Optimistic update
+      setLikedEvents((prev) => ({
+        ...prev,
+        [eventId]: isLiked,
+      }));
+
+      // Update localStorage
+      const userLikedEventsKey = `likedEvents_${userId}`;
+      localStorage.setItem(
+        userLikedEventsKey,
+        JSON.stringify({ ...likedEvents, [eventId]: isLiked })
+      );
+
+      // API call to update server
+      await toggleEventLike(eventId);
+    } catch (error) {
+      // Rollback on error
+      setLikedEvents((prev) => ({
+        ...prev,
+        [eventId]: !prev[eventId],
+      }));
+      toast.error("Failed to update like status");
+    } finally {
+      setProcessingLikes((prev) => ({ ...prev, [eventId]: false }));
+    }
+  };
 
   useEffect(() => {
     if (!isPopupOpen && navigateTo) {
@@ -48,6 +113,8 @@ const EventCard: React.FC<EventCardProps> = ({
           const startDate = new Date(event.event_date);
           const price = event.tickets[0]?.details.price;
           const ownerName = event.owner[0]?.organization_name;
+          const isLiked = likedEvents[event._id] || event.likes?.includes(userId || "") || false;
+          const isLoading = processingLikes[event._id] || false;
 
           return (
             <motion.div
@@ -67,8 +134,20 @@ const EventCard: React.FC<EventCardProps> = ({
                     layout="fill"
                     priority
                   />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLikeToggle(event._id);
+                    }}
+                    disabled={isLoading}
+                    className={`absolute top-4 right-4 p-2 rounded-full backdrop-blur-sm transition-colors ${
+                      isLiked ? "bg-red-500/20 text-red-500" : "bg-black/60 text-white"
+                    }`}
+                  >
+                    <Heart size={18} className={isLiked ? "fill-red-500" : ""} />
+                  </button>
                   {price && (
-                    <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm text-white px-4 py-1.5 rounded-full text-sm font-medium">
+                    <div className="absolute top-4 right-16 bg-black/60 backdrop-blur-sm text-white px-4 py-1.5 rounded-full text-sm font-medium">
                       {price} DT
                     </div>
                   )}

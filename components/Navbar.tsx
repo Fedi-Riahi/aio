@@ -202,7 +202,7 @@ export default function Navbar() {
         </div>
       </nav>
 
-      <AdBanner />
+
 
       <TicketsSheet open={openTicketDrawer} onOpenChange={setOpenTicketDrawer} />
       <ProfileDrawer open={openProfileDrawer} onOpenChange={setOpenProfileDrawer} />

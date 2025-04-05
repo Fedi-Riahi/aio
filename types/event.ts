@@ -22,3 +22,11 @@ export interface Event {
     selectedCategory: string;
     visibleEvents: Event[];
   }
+  export interface LikeResponse {
+    likes?: string[];
+    respond?: {
+      data?: {
+        likes?: string[];
+      };
+    };
+  }

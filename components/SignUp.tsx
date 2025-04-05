@@ -300,7 +300,7 @@ export const SignUp = () => {
             <Button
               className="w-full md:w-1/2 py-2 sm:py-2.5 md:py-3 text-sm sm:text-md md:text-lg bg-main text-white rounded-lg hover:bg-main/90 focus:outline-none"
             >
-              S'inscrire {selectedFile ? "" : "(Passer)"}
+              S'inscrire
             </Button>
           </div>
         </form>

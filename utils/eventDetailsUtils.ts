@@ -1,5 +1,5 @@
 import apiClient from "@/utils/apiClient";
-import { Event, Period, Time, SeatData, TicketType, TicketGroup, LocationData } from "@/types/eventDetails";
+import { Event, Period, Time, SeatData, TicketType, TicketGroup, LocationData, Comment } from "@/types/eventDetails";
 
 export const fetchEventData = async (id: string): Promise<Event> => {
   try {
@@ -7,7 +7,7 @@ export const fetchEventData = async (id: string): Promise<Event> => {
     const eventResponse = await apiClient.get(`/event/${id}`);
 
     const eventData = eventResponse.data;
-    console.log("event data",eventData)
+    console.log("event data", eventData);
     const eventDetails = eventData.respond?.data || eventData;
     if (!eventDetails || !eventDetails._id) {
       throw new Error("Invalid event data structure");
@@ -76,34 +76,88 @@ export const fetchEventData = async (id: string): Promise<Event> => {
 };
 
 export const fetchSeatData = async (
-    id: string,
-    periodIndex: number,
-    locationIndex: number,
-    timeIndex: number
-  ): Promise<SeatData | null> => {
-    try {
-      const response = await apiClient.get(`/event/getperiods/seats/${id}`, {
-        params: {
-          period_index: periodIndex,
-          location_index: locationIndex,
-          time_index: timeIndex,
-          ticket_index: 0,
-        },
-        _handle404: true // Custom flag to mark this as a "soft" 404
-      });
+  id: string,
+  periodIndex: number,
+  locationIndex: number,
+  timeIndex: number
+): Promise<SeatData | null> => {
+  try {
+    const response = await apiClient.get(`/event/getperiods/seats/${id}`, {
+      params: {
+        period_index: periodIndex,
+        location_index: locationIndex,
+        time_index: timeIndex,
+        ticket_index: 0,
+      },
+      _handle404: true
+    });
 
-      if (response.data.success === false) {
-        return null;
+    if (response.data.success === false) {
+      return null;
+    }
+
+    return {
+      seats: response.data.respond.data.seats,
+      room_name: response.data.respond.data.room_name,
+      taken: response.data.respond.data.taken || [],
+    };
+  } catch (error) {
+    console.error("Unexpected error fetching seat data:", error);
+    return null;
+  }
+};
+
+export const fetchEventComments = async (
+  eventId: string,
+  startCount: number,
+  maxCount: number
+): Promise<Comment[]> => {
+  try {
+    const response = await apiClient.get(`/comment/${eventId}/comments`, {
+      params: { startCount, maxCount }
+    });
+
+    const commentsData = response.data.respond?.data || response.data;
+    if (!Array.isArray(commentsData)) {
+      throw new Error("Invalid comments data structure");
+    }
+
+    return commentsData.map((comment: any) => ({
+      _id: comment._id,
+      content: comment.content,
+      profilePicture: comment.profile_picture,
+      username: comment.username,
+      ownerId: comment.owner_id,
+      date: comment.date
+    }));
+  } catch (error) {
+    console.error(`Failed to fetch comments for event ${eventId}:`, error);
+    return [];
+  }
+};
+
+export const toggleEventLike = async (eventId: string): Promise<boolean> => {
+    try {
+      const response = await apiClient.post(`/normalaccount/like/event/${eventId}`);
+      const responseData = response.data;
+
+
+      if (responseData?.success && typeof responseData?.respond?.data?.liked === 'boolean') {
+        return responseData.respond.data.liked;
       }
 
-      return {
-        seats: response.data.respond.data.seats,
-        room_name: response.data.respond.data.room_name,
-        taken: response.data.respond.data.taken || [],
-      };
+
+      if (typeof responseData?.liked === 'boolean') {
+        return responseData.liked;
+      }
+
+      throw new Error("Unexpected API response format");
     } catch (error) {
-      console.error("Unexpected error fetching seat data:", error);
-      return null;
+      console.error("Like API Error:", {
+        error: error.message,
+        response: error.response?.data
+      });
+      throw new Error("Failed to toggle like status");
     }
   };
 
@@ -150,19 +204,21 @@ export const getLocalDate = (utcDateString?: string | string[]): string => {
   return utcDate.toLocaleDateString("en-US", { day: "numeric", month: "short", timeZone: "UTC" });
 };
 
-export const getTimeDisplay = (startTime: string | string[], endTime: string | string[]): string => {
+export const getTimeDisplay = (startTime: string | string[], endTime: string | string[]): { display: string; isPassed: boolean } => {
   const startTimeString = Array.isArray(startTime) ? startTime[0] : startTime;
   const endTimeString = Array.isArray(endTime) ? endTime[0] : endTime;
 
   const startDisplay = startTimeString.split('T')[1]?.substring(0, 5) || startTimeString;
   const endDisplay = endTimeString ? (endTimeString.split('T')[1]?.substring(0, 5) || endTimeString) : '';
+  const display = endDisplay ? `${startDisplay} - ${endDisplay}` : startDisplay;
 
+  const currentDate = new Date();
+  const isPassed = endTimeString ? new Date(endTimeString) < currentDate : false;
 
-  const timeDisplay = endDisplay ? `${startDisplay} - ${endDisplay}` : startDisplay;
-  return timeDisplay;
+  return { display, isPassed };
 };
 
-export const getPeriodDisplay = (period: Period): string => {
+export const getPeriodDisplay = (period: Period): { display: string; isPassed: boolean } => {
   const start = period.start_day
     ? getLocalDate(period.start_day)
     : period.locations?.[0]?.times?.[0]?.start_time
@@ -174,19 +230,36 @@ export const getPeriodDisplay = (period: Period): string => {
     ? getLocalDate(period.locations[0].times[0].end_time)
     : start;
 
+  const display = start === end ? start : `${start} - ${end}`;
 
-  if (start === end) {
-    return start;
+  const currentDate = new Date();
+  let isPassed = false;
+
+  if (period.end_day) {
+    const endDateString = Array.isArray(period.end_day) ? period.end_day[0] : period.end_day;
+    const periodEndDate = new Date(endDateString);
+    isPassed = periodEndDate < currentDate;
+  } else {
+    const allTimes = period.locations.flatMap(loc => loc.times || []);
+    if (allTimes.length > 0) {
+      const latestTime = allTimes.reduce((latest, current) => {
+        const currentEnd = Array.isArray(current.end_time) ? current.end_time[0] : current.end_time;
+        const latestEnd = Array.isArray(latest.end_time) ? latest.end_time[0] : latest.end_time;
+        return new Date(currentEnd) > new Date(latestEnd) ? current : latest;
+      });
+      const endTimeString = Array.isArray(latestTime.end_time) ? latestTime.end_time[0] : latestTime.end_time;
+      const periodEndTime = new Date(endTimeString);
+      isPassed = periodEndTime < currentDate;
+    }
   }
 
-  return `${start} - ${end}`;
+  return { display, isPassed };
 };
 
 export const isEventTimePassed = (time: Time | null): boolean => {
   if (!time || !time.end_time) return false;
 
   const currentDate = new Date();
-
   const endTimeString = Array.isArray(time.end_time) ? time.end_time[0] : time.end_time;
   const eventEndTime = new Date(endTimeString);
 
