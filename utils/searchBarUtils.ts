@@ -37,7 +37,4 @@ export const buildCategoryNames = (categories: Category[]): Omit<CategoryItem, "
   ];
 };
 
-export interface Category {
-  id: string;
-  name: string;
-}
+

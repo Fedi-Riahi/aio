@@ -89,20 +89,20 @@ export const fetchEventsByCategory = async (categoryId: string): Promise<Event[]
               _id: ticket._id,
               discount: ticket.discount || 0,
               details: {
-                price: ticket.details.price || 0, // Default to 0 if no price
+                price: ticket.details.price || 0,
                 phases: ticket.details.phases || [],
               },
             }))
-          : [{ details: { price: 0, phases: [] } }], // Default if no tickets
+          : [{ details: { price: 0, phases: [] } }],
         owner: event.owner.map((org: any) => ({
           _id: org._id,
           organization_name: org.organization_name,
           profile_picture: org.profile_picture || "/default-org-image.jpg",
         })),
-        categories: [], // Will be populated later if needed
-        type: "category", // Custom type for category-based events
-        visibility: event.isValid ? "Public" : "Private", // Infer from isValid
-        likes: event.likes || [], // Include likes if needed
+        categories: [],
+        type: "category",
+        visibility: event.isValid ? "Public" : "Private",
+        likes: event.likes || [],
         isValid: event.isValid,
       }));
     } catch (error) {

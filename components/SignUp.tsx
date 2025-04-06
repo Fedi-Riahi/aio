@@ -24,7 +24,6 @@ export const SignUp = () => {
     apiSuccess,
     showConfirmationForm,
     setValue,
-    watch,
     methods,
     onBackToStep1,
   } = useSignUp();
@@ -36,7 +35,6 @@ export const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const profilePicture = watch("profile_picture");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -84,7 +82,7 @@ export const SignUp = () => {
             type="submit"
             className="w-full py-2 sm:py-2.5 md:py-3 text-sm sm:text-md md:text-lg bg-main text-white rounded-lg hover:bg-main/90 focus:outline-none"
           >
-            Confirmer l'email
+            Confirmer l&apos;email
           </Button>
         </form>
       ) : step === 1 ? (
@@ -222,9 +220,9 @@ export const SignUp = () => {
                 className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 mt-0.5 rounded border-gray-300 text-main focus:ring-main"
               />
               <label htmlFor="terms" className="text-xs sm:text-sm md:text-base text-gray-600 leading-tight">
-                J'accepte les{' '}
+                J&apos;accepte les{' '}
                 <Link href="/legal#terms" className="text-main hover:underline">
-                  Conditions d'utilisation
+                  Conditions d&apos;utilisation
                 </Link>
               </label>
             </div>
@@ -237,7 +235,7 @@ export const SignUp = () => {
                 className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 mt-0.5 rounded border-gray-300 text-main focus:ring-main"
               />
               <label htmlFor="privacy" className="text-xs sm:text-sm md:text-base text-gray-600 leading-tight">
-                J'accepte la{' '}
+                J&apos;accepte la{' '}
                 <Link href="/legal#privacy" className="text-main hover:underline">
                   Politique de confidentialité
                 </Link>
@@ -300,7 +298,7 @@ export const SignUp = () => {
             <Button
               className="w-full md:w-1/2 py-2 sm:py-2.5 md:py-3 text-sm sm:text-md md:text-lg bg-main text-white rounded-lg hover:bg-main/90 focus:outline-none"
             >
-              S'inscrire
+              S&apos&apos;inscrire
             </Button>
           </div>
         </form>

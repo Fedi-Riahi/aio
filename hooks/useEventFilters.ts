@@ -5,7 +5,7 @@ import { useEvents } from "./useEvents";
 export const useEventFilters = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [visibleEventsCount, setVisibleEventsCount] = useState<number>(6); // Always start with 6
+  const [visibleEventsCount, setVisibleEventsCount] = useState<number>(6);
   const [categoryEvents, setCategoryEvents] = useState<any[]>([]);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -60,7 +60,7 @@ export const useEventFilters = () => {
     console.log("Search query changed:", e.target.value);
     setSearchQuery(e.target.value);
     setSearchResults([]);
-    setVisibleEventsCount(6); // Reset to 6 when search changes
+    setVisibleEventsCount(6); 
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -72,14 +72,14 @@ export const useEventFilters = () => {
     console.log("Category changed in useEventFilters:", categoryId);
     setSelectedCategory(categoryId === "All" ? "" : categoryId);
     setSearchResults([]);
-    setVisibleEventsCount(6); // Reset to 6 when category changes
+    setVisibleEventsCount(6);
   };
 
   const handleSearchResults = (events: any[]) => {
     console.log("Setting search results in useEventFilters:", events);
     if (JSON.stringify(events) !== JSON.stringify(searchResults)) {
       setSearchResults(events);
-      setVisibleEventsCount(6); // Reset to 6 when new search results arrive
+      setVisibleEventsCount(6);
     }
   };
 

@@ -16,14 +16,14 @@ const OrgProfile = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Redirection vers la page d'accueil si non connecté
+
   useEffect(() => {
     if (!userData) {
       router.push("/");
     }
   }, [userData, router]);
 
-  // Récupération des données du profil de l'organisateur
+
   useEffect(() => {
     const loadOrganizerProfile = async () => {
       if (!id || typeof id !== "string") {
@@ -33,7 +33,7 @@ const OrgProfile = () => {
       }
 
       if (!userData) {
-        return; // Attente de redirection si non connecté
+        return;
       }
 
       try {
@@ -58,7 +58,7 @@ const OrgProfile = () => {
   }, [id, userData]);
 
   if (!userData) {
-    return null; // Ne rien afficher pendant la redirection
+    return null;
   }
 
   if (loading) {
@@ -87,13 +87,13 @@ const OrgProfile = () => {
 
   return (
     <div className="my-40 w-full max-w-7xl mx-auto px-4 space-y-12">
-      {/* Section d'en-tête */}
+
       <div className="relative bg-gradient-to-r from-main to-background rounded-xl shadow-lg overflow-hidden">
-        {/* Superposition d'arrière-plan */}
+
         <div className="absolute inset-0 bg-black/30"></div>
 
         <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start p-8 space-y-6 md:space-y-0 md:space-x-8">
-          {/* Photo de profil */}
+
           <div className="flex-shrink-0">
             <Image
               src={organizerData.user_data?.profile_picture || "https://via.placeholder.com/150?text=Organisateur"}
@@ -104,12 +104,11 @@ const OrgProfile = () => {
             />
           </div>
 
-          {/* Informations sur l'organisateur */}
           <div className="flex-1 text-center md:text-left text-white">
             <h1 className="text-4xl font-bold mb-2">{organizerData.user_data?.organization_name || "Organisateur"}</h1>
             <p className="text-lg mb-4">{organizerData.details || "Aucune description disponible."}</p>
 
-            {/* Statistiques */}
+
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-md">
               <div className="p-4 rounded-lg shadow-sm ">
                 <p className="text-sm font-medium text-foreground">Abonnés</p>
@@ -131,7 +130,7 @@ const OrgProfile = () => {
               </div>
             </div>
 
-            {/* Réseaux sociaux */}
+  
             {organizerData.social_medias && organizerData.social_medias.length > 0 && (
               <div className="mt-4">
                 <h3 className="text-lg font-semibold">Réseaux sociaux</h3>

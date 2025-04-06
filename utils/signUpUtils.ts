@@ -1,6 +1,5 @@
 import apiClient from "./apiClient";
 import { SignUpFormData, SignUpResponse } from "../types/signUp";
-import axios from "axios";
 export const submitSignUp = async (data: SignUpFormData): Promise<SignUpResponse> => {
   const formData = new FormData();
 
@@ -42,13 +41,13 @@ export const resendMailVerifyToken = async (email: string): Promise<SignUpRespon
     try {
       console.log("Sending resend request with payload:", { email });
 
-      const response = await fetch("https://8rgspuz56m.eu-central-1.awsapprunner.com/api/user/resendmailverifytoken", {
-        method: "POST",
+      const response = await fetch("https://api-prod.aio.events/api/user/resendmailverifytoken", {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email }),
-        credentials: "omit", 
+        credentials: "omit",
       });
 
       const data = await response.json();

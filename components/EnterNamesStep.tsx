@@ -15,10 +15,6 @@ const EnterNamesStep: React.FC<EnterNamesStepProps & {
   userNames,
   handleNameChange,
   ticketType,
-  eventId,
-  locationIndex = 0,
-  periodIndex = 0,
-  timeIndex = 0,
 }) => {
   const { onNameChange } = useEnterNamesStep({
     tickets,

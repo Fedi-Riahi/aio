@@ -27,7 +27,6 @@ export const useSearchBar = ({
   onSearchSubmit,
   onCategoryChange,
   onSearchResults,
-  onSearchChange,
 }: HeaderProps & { onSearchResults?: (events: any[], owners: any[]) => void }) => {
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
   const [animateDown, setAnimateDown] = useState(false);
@@ -38,7 +37,6 @@ export const useSearchBar = ({
   const [searchLoading, setSearchLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Check if user is logged in by looking for authTokens in localStorage
   const isLoggedIn = !!localStorage.getItem("authTokens");
 
   useEffect(() => {
@@ -127,14 +125,12 @@ export const useSearchBar = ({
   };
 
   useEffect(() => {
-    // Only run if there's a search query or active category
     if (!searchQuery.trim() && !activeCategory) {
       return;
     }
 
     const debounceSearch = setTimeout(async () => {
       if (searchQuery.trim()) {
-        // Always search events, but conditionally search owners based on login status
         const eventsPromise = searchEvents(searchQuery);
         const ownersPromise = isLoggedIn ? searchOwners(searchQuery) : Promise.resolve([]);
 

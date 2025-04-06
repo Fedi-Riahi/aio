@@ -1,11 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Ticket } from "@/types/eventDetails";
 import { DeliveryDetails, TicketOrder } from "@/types/ticketDrawer";
 import { TicketData } from "@/types/paymentStep";
 import { calculateTotal, applyCoupon } from "@/utils/ticketDrawerUtils";
 import toast from "react-hot-toast";
 
-// Define types (assumed from context; adjust as needed)
 interface TicketType {
   id: string;
   name: string;
@@ -17,7 +16,6 @@ interface Seat {
   name: string;
 }
 
-// Utility function to build ticketDataList with ticket_index based on ticket type
 const buildTicketDataList = (
   selectedTickets: { [key: string]: number },
   userNames: { [key: string]: string[] },
@@ -30,14 +28,14 @@ const buildTicketDataList = (
   Object.entries(selectedTickets).forEach(([ticketId, quantity]) => {
     const ticket = tickets.find((t) => t.id === ticketId);
     const ticketTypeData = ticketType.find((tt) => tt.id === ticketId);
-    const ticketTypeIndex = ticketType.findIndex((tt) => tt.id === ticketId); // Get index of ticket type
+    const ticketTypeIndex = ticketType.findIndex((tt) => tt.id === ticketId);
     const names = userNames[ticketId] || [];
 
     for (let i = 0; i < quantity; i++) {
       ticketDataList.push({
         ticket_id: ticketId,
         name: names[i] || ticketTypeData?.name || ticket?.name || "Unnamed",
-        ticket_index: ticketTypeIndex !== -1 ? ticketTypeIndex : 0, // Use ticket type index, default to 0 if not found
+        ticket_index: ticketTypeIndex !== -1 ? ticketTypeIndex : 0,
         seat_index: hasSeatTemplate && selectedSeats[i] ? selectedSeats[i] : "N/A",
       });
     }
@@ -56,12 +54,9 @@ export const useTicketDrawer = (
   seatData: { seats: { list_of_seat: Seat[] }; room_name: string; taken: string[] } | null,
   onClose: () => void
 ) => {
-  // State declarations
   const [selectedTickets, setSelectedTickets] = useState<{ [key: string]: number }>({});
   const [userNames, setUserNames] = useState<{ [key: string]: string[] }>({});
-  const [step, setStep] = useState<"selectQuantity" | "selectSeats" | "enterNames" | "payment" | "confirmation">(
-    "selectQuantity"
-  );
+  const [step, setStep] = useState<"selectQuantity" | "selectSeats" | "enterNames" | "payment">("selectQuantity");
   const [paymentMode, setPaymentMode] = useState<"delivery" | "online" | null>(null);
   const [deliveryDetails, setDeliveryDetails] = useState<DeliveryDetails>({
     name: "",
@@ -73,7 +68,6 @@ export const useTicketDrawer = (
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [maxSeats, setMaxSeats] = useState<number>(0);
 
-  // Update maxSeats based on selectedTickets
   useEffect(() => {
     const totalSelectedTickets = Object.values(selectedTickets).reduce((sum, quantity) => sum + quantity, 0);
     setMaxSeats(totalSelectedTickets);
@@ -82,22 +76,18 @@ export const useTicketDrawer = (
     }
   }, [selectedTickets]);
 
-  // Memoize ticketDataList to prevent unnecessary recalculations
   const ticketDataList = useMemo(
     () => buildTicketDataList(selectedTickets, userNames, tickets, ticketType, hasSeatTemplate, selectedSeats),
     [selectedTickets, userNames, tickets, ticketType, hasSeatTemplate, selectedSeats]
   );
 
-
-  // Handle ticket quantity changes
   const handleQuantityChange = (ticketId: string, quantity: number) => {
     setSelectedTickets((prev) => ({
       ...prev,
-      [ticketId]: Math.max(0, quantity), // Prevent negative quantities
+      [ticketId]: Math.max(0, quantity),
     }));
   };
 
-  // Handle name input for each ticket
   const handleNameChange = (ticketId: string, index: number, name: string) => {
     setUserNames((prev) => {
       const updatedNames = [...(prev[ticketId] || Array(selectedTickets[ticketId] || 0).fill(""))];
@@ -109,12 +99,10 @@ export const useTicketDrawer = (
     });
   };
 
-  // Handle payment mode selection
   const handlePaymentModeChange = (mode: "delivery" | "online") => {
     setPaymentMode(mode);
   };
 
-  // Handle delivery details input
   const handleDeliveryChange = (field: keyof DeliveryDetails, value: string) => {
     setDeliveryDetails((prev) => ({
       ...prev,
@@ -122,31 +110,33 @@ export const useTicketDrawer = (
     }));
   };
 
-  // Handle coupon code input
   const handleCouponChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCouponCode(e.target.value);
   };
 
-  // Apply coupon and update discount
   const handleApplyCoupon = () => {
     const newDiscount = applyCoupon(couponCode);
     setDiscount(newDiscount);
   };
 
-  // Cancel the ticket drawer process
-  const handleCancel = () => {
+  const resetOrderState = useCallback(() => {
     setSelectedTickets({});
     setUserNames({});
-    setStep("selectQuantity");
     setPaymentMode(null);
+    setDeliveryDetails({ name: "", prename: "", address: "" });
     setCouponCode("");
     setDiscount(0);
     setSelectedSeats([]);
-    onClose();
-  };
+    setMaxSeats(0);
+    setStep("selectQuantity");
+  }, []);
 
-  // Move to the next step with validation
-  const handleContinue = () => {
+  const handleCancel = useCallback(() => {
+    resetOrderState();
+    onClose();
+  }, [resetOrderState, onClose]);
+
+  const handleContinue = useCallback(() => {
     if (step === "selectQuantity") {
       const hasSelectedTickets = Object.values(selectedTickets).some((quantity) => quantity > 0);
       if (!hasSelectedTickets) {
@@ -156,7 +146,7 @@ export const useTicketDrawer = (
       setStep(hasSeatTemplate ? "selectSeats" : "enterNames");
     } else if (step === "selectSeats") {
       if (selectedSeats.length !== maxSeats) {
-        toast(`Please select exactly ${maxSeats} seat${maxSeats !== 1 ? "s" : ""}. You have selected ${selectedSeats.length}.`)
+        toast(`Please select exactly ${maxSeats} seat${maxSeats !== 1 ? "s" : ""}. You have selected ${selectedSeats.length}.`);
         return;
       }
       setStep("enterNames");
@@ -171,13 +161,11 @@ export const useTicketDrawer = (
       }
       setStep("payment");
     } else if (step === "payment") {
-        onClose();
+      resetOrderState();
     }
+  }, [step, selectedTickets, hasSeatTemplate, selectedSeats, maxSeats, userNames, resetOrderState]);
 
-  };
-
-
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     if (step === "selectSeats") {
       setStep("selectQuantity");
     } else if (step === "enterNames") {
@@ -185,8 +173,7 @@ export const useTicketDrawer = (
     } else if (step === "payment") {
       setStep("enterNames");
     }
-  };
-
+  }, [step, hasSeatTemplate]);
 
   const order: TicketOrder = {
     event_id: { id: eventId },
@@ -196,16 +183,15 @@ export const useTicketDrawer = (
     takenSeats: seatData?.taken || [],
   };
 
-  // Calculate total cost
   const total = calculateTotal(tickets, selectedTickets, ticketType, paymentMode, discount);
 
-  // Return all state and handlers
   return {
     selectedTickets,
     handleQuantityChange,
     userNames,
     handleNameChange,
     step,
+    setStep,
     paymentMode,
     handlePaymentModeChange,
     deliveryDetails,
@@ -223,5 +209,6 @@ export const useTicketDrawer = (
     order,
     total,
     ticketDataList,
+    resetOrderState,
   };
 };

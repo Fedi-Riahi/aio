@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "../context/AuthContext";
 import { Login } from "./Login";
 import { SignUp } from "./SignUp";
-import { UserCircle2, Mail, LogOut, User } from "lucide-react";
+import {  Mail, LogOut, User } from "lucide-react";
 import { IconBrandMyOppo } from "@tabler/icons-react";
 
 interface ProfileDrawerProps {

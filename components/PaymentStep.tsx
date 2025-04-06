@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState, memo, useCallback } from "react";
+import React, { useState, memo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { IconTruckDelivery, IconCreditCard, IconDiscount, IconMapPin, IconCheck } from "@tabler/icons-react";
+import { IconTruckDelivery, IconCreditCard, IconDiscount, IconMapPin } from "@tabler/icons-react";
 import { PaymentStepProps } from "../types/paymentStep";
 import { usePaymentStep } from "../hooks/usePaymentStep";
 import LocationMap from "./LocationMap";
@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { useAuth } from "../context/AuthContext";
 import Timer from "@/components/Timer";
 import { useNavbar } from "@/hooks/useNavbar";
-import toast from "react-hot-toast";
+;
 
 const InputField = memo(({ label, value, onChange, placeholder, name, disabled }: any) => {
   const handleChange = useCallback(
@@ -372,55 +372,53 @@ const PaymentStep: React.FC<PaymentStepProps & {
       </Button>
 
       <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] bg-gray-800 border border-gray-700 rounded-xl">
-          <DialogHeader>
-            <DialogTitle className="text-white text-center text-2xl">
-              Prêt à confirmer ?
-            </DialogTitle>
-          </DialogHeader>
-          <div className="pt-4 text-gray-300 space-y-4">
-            <div className="flex items-center gap-3 bg-gray-700 p-4 rounded-lg">
-              <div className="p-2 bg-purple-600/20 rounded-full">
-                <IconCheck className="text-purple-400" size={20} />
-              </div>
-              <p>
-                Nous vous contacterons au <span className="font-semibold text-white">{deliveryForm.phoneNumber || phoneNumber}</span>
-              </p>
-            </div>
-            <div className="flex items-center gap-3 bg-gray-700 p-4 rounded-lg">
-              <div className="p-2 bg-blue-600/20 rounded-full">
-                <IconMapPin className="text-blue-400" size={20} />
-              </div>
-              <p>
-                {deliveryForm.address ? (
-                  <span className="font-semibold text-white">{deliveryForm.address}</span>
-                ) : (
-                  <span className="text-gray-400">Aucune adresse sélectionnée</span>
-                )}
-              </p>
-            </div>
-            <p className="text-sm text-gray-400 mt-4">
-              Veuillez vérifier votre numéro de téléphone. Vous pouvez le mettre à jour dans vos{" "}
-              <span className="font-semibold text-purple-400">Paramètres &gt; Modifier le profil</span>{" "}
-              avant de finaliser votre commande.
-            </p>
-          </div>
-          <DialogFooter className="flex flex-col gap-3 mt-6">
-            <Button
-              onClick={handleConfirmPayment}
-              className="w-full bg-gradient-to-r from-main to-main/90 text-white  py-4 text-lg font-semibold"
-            >
-              Oui, confirmer la commande
-            </Button>
-            <Button
-              onClick={() => setIsConfirmDialogOpen(false)}
-              className="w-full bg-transparent text-gray-300 hover:text-white hover:bg-gray-700 py-4 text-lg"
-            >
-              Vérifier à nouveau
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+  <DialogContent className="sm:max-w-[500px] bg-background border border-offwhite">
+    <DialogHeader>
+      <DialogTitle className="text-foreground dark:text-gray-200 text-center">
+        Avez-vous tout vérifié ?
+      </DialogTitle>
+    </DialogHeader>
+    <div className="pt-4 text-foreground dark:text-gray-200">
+      {paymentMode === "delivery" ? (
+        <>
+          <p className="">
+            Vous serez contacté(e) par téléphone au <span className="font-semibold">{deliveryForm.phoneNumber || phoneNumber}</span>.
+          </p>
+          <p className="">Vos billets seront livrés à l&apos;adresse suivante :</p>
+          <p>
+            {deliveryForm.address ? (
+              <span className="font-semibold">{deliveryForm.address}</span>
+            ) : (
+              <span className="text-gray-500">Aucune adresse sélectionnée</span>
+            )}
+          </p>
+          <p className="text-sm opacity-80 mt-4">
+        Vérifiez vos informations. En cas d&apos;erreur, vous pouvez les modifier dans vos{" "}
+        <span className="font-semibold text-main">Paramètres &gt; Modifier le profil</span>{" "}
+        avant de confirmer.
+      </p>
+        </>
+      ) : (
+<></>
+      )}
+
+    </div>
+    <DialogFooter className="flex flex-col gap-2">
+      <Button
+        onClick={handleConfirmPayment}
+        className="w-full bg-main text-foreground hover:bg-main/90 py-6 text-lg"
+      >
+        Oui, c&apos;est fait !
+      </Button>
+      <Button
+        onClick={() => setIsConfirmDialogOpen(false)}
+        className="w-full bg-transparent text-foreground hover:text-main py-6 text-lg"
+      >
+        Vérifier à nouveau
+      </Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
 
       <Dialog open={isMapOpen} onOpenChange={setIsMapOpen}>
         <DialogContent className="sm:max-w-[600px] bg-gray-800 border border-gray-700 rounded-xl">
@@ -495,7 +493,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
                     pour confirmer votre commande ! Gardez votre téléphone à portée de main.
                   </p>
                   <p className="text-center text-sm text-gray-400">
-                    En cas d'erreur sur votre numéro, vous pouvez annuler la commande avant confirmation
+                    En cas d&apos&apos;erreur sur votre numéro, vous pouvez annuler la commande avant confirmation
                     et en passer une nouvelle pour la livraison. Pas de stress !
                   </p>
                 </div>
@@ -504,9 +502,17 @@ const PaymentStep: React.FC<PaymentStepProps & {
               <>
                 <p className="text-center">{feedback.message}</p>
                 {feedback.message && (
+                    <>
+
+                  <p className="text-center text-sm text-gray-400">
+                  Félicitations ! Votre commande a été traitée avec succès. Nous vous
+          remercions d&apos;avoir choisi d&apos;utiliser votre carte de crédit pour votre
+          achat.
+                  </p>
                   <p className="text-center text-sm text-gray-400">
                     Vous pouvez voir vos billets dans la section Billets.
                   </p>
+                    </>
                 )}
               </>
             )}

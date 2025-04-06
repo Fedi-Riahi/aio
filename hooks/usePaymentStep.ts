@@ -17,7 +17,6 @@ export const usePaymentStep = ({
   phoneNumber,
   firstName,
   lastName,
-  mapRegion,
   couponCode,
   onPaymentSuccess,
   deliveryForm,
@@ -137,10 +136,12 @@ export const usePaymentStep = ({
       if (response.success) {
 
         const isOrderFinished = response.data?.message === "Order Finished" || response.data?.status === "finished";
-        toast.success("Order Finished")
+        if(paymentMode === "delivery"){
+            toast.success("Order Finished")
+        }
         onPaymentSuccess({
           ...response,
-          nextStep: isOrderFinished ? "confirmation" : undefined, // Signal to move to confirmation
+          nextStep: isOrderFinished ? "confirmation" : undefined, 
         });
       } else {
         alert(response.error?.details || "Failed to process order");

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Calendar, MapPin, Heart } from "lucide-react";
+import { Calendar, Heart } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { IconBolt, IconFlame } from "@tabler/icons-react";

@@ -163,8 +163,8 @@ export const useSignUp = () => {
 
         localStorage.setItem("authTokens", JSON.stringify(authTokens));
 
-        if (loginResponse.user_data) {
-          localStorage.setItem("userData", JSON.stringify(loginResponse.user_data));
+        if (loginResponse?.user_data) {
+          localStorage.setItem("userData", JSON.stringify(loginResponse?.user_data));
         }
 
         localStorage.removeItem("signUpFormData");

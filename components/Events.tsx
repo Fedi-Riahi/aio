@@ -18,8 +18,8 @@ const Events: React.FC = () => {
     loadMoreEvents,
   } = useEventFilters();
 
-  const handleSearchResultsFromSearchBar = useCallback((events: any[], owners: any[]) => {
-    handleSearchResults(events); 
+  const handleSearchResultsFromSearchBar = useCallback((events: any[]) => {
+    handleSearchResults(events);
   }, [handleSearchResults]);
 
 

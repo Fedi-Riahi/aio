@@ -1,4 +1,4 @@
-import apiClient from "./apiClient"; // Adjust path as needed
+import apiClient from "./apiClient";
 import { OrderRequestBody, TicketData } from "../types/paymentStep";
 
 interface TimerResponse {
@@ -25,12 +25,9 @@ export const createOrderRequestBody = ({
   timeIndex = 0,
   paymentMode,
   extraFields,
-  email,
   phoneNumber,
   firstName,
   lastName,
-  couponCode,
-  calculateTotal,
 }: {
   eventId: string;
   ticketDataList: TicketData[];

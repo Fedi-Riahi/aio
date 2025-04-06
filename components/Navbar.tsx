@@ -10,7 +10,7 @@ import { IconMenuDeep, IconBell } from "@tabler/icons-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { useNavbar } from "../hooks/useNavbar";
-import AdBanner from "./AdBanner";
+
 
 export default function Navbar() {
   const {
