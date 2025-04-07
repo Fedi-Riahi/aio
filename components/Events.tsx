@@ -20,7 +20,7 @@ const Events: React.FC = () => {
     loadMoreEvents,
   } = useEventFilters();
 
-  const handleSearchResultsFromSearchBar = useCallback((events: AppEvent[], owners: Owner[]) => {
+  const handleSearchResultsFromSearchBar = useCallback((events: AppEvent[]) => {
     // Here we'll assume you want to merge the results
     const combinedResults = [...events];
     handleSearchResults(combinedResults);
