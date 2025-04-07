@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { useEventFilters } from "@/hooks/useEventFilters";
 import SearchBar from "./SearchBar";
 import { Event as AppEvent } from "@/types/eventDetails";
-import { Owner } from "@/types/event";
 
 const Events: React.FC = () => {
   const {
