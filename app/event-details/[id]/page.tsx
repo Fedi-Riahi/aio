@@ -475,7 +475,7 @@ const EventDetails: React.FC = () => {
         ticketIndex={0}
         ticketsGroups={event.ticketsGroups || []}
         hasSeatTemplate={hasSeatTemplate}
-        seatData={seatData}
+        seatData={seatData || undefined}
         paymentMethods={event.paymentMethods || []}
       />
     </div>
