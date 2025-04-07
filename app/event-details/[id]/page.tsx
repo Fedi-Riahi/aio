@@ -16,7 +16,7 @@ interface ExtendedTicket {
   _id: string;
   name: string;
   price: number;
-  description?: string; // Optional description field
+  description?: string; 
 }
 
 const EventDetails: React.FC = () => {
@@ -304,8 +304,8 @@ const EventDetails: React.FC = () => {
 
                 // Explicitly type ticket_type with ExtendedTicket
                 const ticketType = event.ticket_type.find((t: { _id?: string; ticket: ExtendedTicket }) =>
-                  t._id === ticket.ticket_id || t.ticket._id === ticket.ticket_id
-                );
+                  t._id === ticket.ticket_id || (t.ticket as ExtendedTicket)._id === ticket.ticket_id
+                ) as { _id?: string; ticket: ExtendedTicket } | undefined;
 
                 return (
                   <div
