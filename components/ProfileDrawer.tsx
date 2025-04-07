@@ -42,7 +42,7 @@ export const ProfileDrawer = ({ open, onOpenChange }: ProfileDrawerProps) => {
               {/* Header Section */}
               <div className="flex items-center gap-6 mb-8">
                 <Avatar className="h-20 w-20 ring-2 ring-purple-500/20 ring-offset-2 ring-offset-background">
-                  <AvatarImage src={userData?.profile_picture} />
+                  <AvatarImage src={userData?.profile_picture ?? undefined} />
                   <AvatarFallback className="text-xl bg-purple-600 text-white">
                     {getInitials(userData.username)}
                   </AvatarFallback>
