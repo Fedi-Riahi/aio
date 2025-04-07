@@ -302,6 +302,7 @@ const EventDetails: React.FC = () => {
                 const isDisabled = isSoloTicket && availableCount <= 0;
                 const isAvailable = !isDisabled;
 
+                // Explicitly type ticket_type with ExtendedTicket
                 const ticketType = event.ticket_type.find((t: { _id?: string; ticket: ExtendedTicket }) =>
                   t._id === ticket.ticket_id || t.ticket._id === ticket.ticket_id
                 );
