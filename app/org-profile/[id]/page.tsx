@@ -8,6 +8,7 @@ import { UserData } from "@/types/signUp";
 import EventCard from "@/components/EventCard";
 import Image from "next/image";
 
+
 const OrgProfile = () => {
   const { userData } = useAuth();
   const router = useRouter();
@@ -96,7 +97,7 @@ const OrgProfile = () => {
 
           <div className="flex-shrink-0">
             <Image
-              src={organizerData.user_data?.profile_picture || "https://via.placeholder.com/150?text=Organisateur"}
+              src={organizerData.profile_picture || "https://via.placeholder.com/150?text=Organisateur"}
               alt={organizerData.organization_name || "Organisateur"}
               width={150}
               height={150}
@@ -105,7 +106,7 @@ const OrgProfile = () => {
           </div>
 
           <div className="flex-1 text-center md:text-left text-white">
-            <h1 className="text-4xl font-bold mb-2">{organizerData.user_data?.organization_name || "Organisateur"}</h1>
+            <h1 className="text-4xl font-bold mb-2">{organizerData.organization_name || "Organisateur"}</h1>
             <p className="text-lg mb-4">{organizerData.details || "Aucune description disponible."}</p>
 
 
@@ -113,19 +114,19 @@ const OrgProfile = () => {
               <div className="p-4 rounded-lg shadow-sm ">
                 <p className="text-sm font-medium text-foreground">Abonnés</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {organizerData.user_data?.followers || 0}
+                  {organizerData.followers || 0}
                 </p>
               </div>
               <div className="p-4 rounded-lg shadow-sm ">
                 <p className="text-sm font-medium text-foreground">Participants totaux</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {organizerData.user_data?.total_attendees || 0}
+                  {organizerData.total_attendees || 0}
                 </p>
               </div>
               <div className="p-4 rounded-lg shadow-sm ">
                 <p className="text-sm font-medium text-foreground">Événements</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {organizerData.user_data?.owned_events || 0}
+                  {organizerData.owned_events || 0}
                 </p>
               </div>
             </div>

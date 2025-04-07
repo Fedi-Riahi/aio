@@ -31,7 +31,7 @@ export interface UserData {
   n_account_id: string;
   liked_events: any[];
   is_org: boolean;
-  organization_name?: string;
+  organization_name: string;
   details?: string;
   social_medias?: { social_link: string; platform: "instagram" | "facebook" | "tiktok" | "youtube" }[];
   has_pending_org_request?: boolean;
