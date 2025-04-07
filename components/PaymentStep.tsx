@@ -10,15 +10,26 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { useAuth } from "../context/AuthContext";
 import Timer from "@/components/Timer";
 import { useNavbar } from "@/hooks/useNavbar";
-;
 
-const InputField = memo(({ label, value, onChange, placeholder, name, disabled }: any) => {
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      onChange(name, e.target.value);
-    },
-    [name, onChange]
-  );
+
+
+interface InputFieldProps {
+  label: string;
+  value: string; 
+  onChange: (name: string, value: string) => void;
+  placeholder?: string;
+  name: string;
+  disabled?: boolean;
+}
+
+const InputField = memo(
+  ({ label, value, onChange, placeholder, name, disabled }: InputFieldProps) => {
+    const handleChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        onChange(name, e.target.value);
+      },
+      [name, onChange]
+    );
 
   return (
     <div className="flex flex-col gap-2">
@@ -476,16 +487,14 @@ const PaymentStep: React.FC<PaymentStepProps & {
       <Dialog open={feedback.isOpen} onOpenChange={(open) => setFeedback(prev => ({...prev, isOpen: open}))}>
         <DialogContent className="sm:max-w-[500px] bg-gray-800 border border-gray-700 rounded-xl">
           <DialogHeader>
-            <DialogTitle className={feedback.isSuccess ? "text-green-400" : "text-red-400"}>
-              {feedback.title}
-            </DialogTitle>
+            {/* Dialog Header */}
           </DialogHeader>
           <div className="py-4 text-gray-300 space-y-6">
             {paymentMode === "delivery" && feedback.isSuccess ? (
               <>
                 <div className="flex flex-col items-center justify-center gap-4">
-                  <div className="p-4 bg-green-600/20 rounded-full">
-                    <IconTruckDelivery size={48} className="text-green-400"/>
+                  <div className="p-4 bg-main/10 rounded-full">
+                    <IconTruckDelivery size={48} className="text-main"/>
                   </div>
                   <p className="text-center">
                     Un agent vous contactera sous peu au{" "}
@@ -523,9 +532,9 @@ const PaymentStep: React.FC<PaymentStepProps & {
                 setFeedback(prev => ({...prev, isOpen: false}));
                 setOpenTicketDrawer(true);
               }}
-              className={`w-full py-4 text-lg font-semibold ${
+              className={`w-full py-4 text-lg font-semibold cursor-pointer ${
                 feedback.isSuccess
-                  ? "bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white"
+                  ? "bg-gradient-to-r from-main to-main/90 hover:bg-main/90  text-white"
                   : "bg-gray-700 text-white hover:bg-gray-600"
               }`}
             >

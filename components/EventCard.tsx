@@ -88,7 +88,7 @@ const EventCard: React.FC<EventCardProps> = ({ visibleEvents }) => {
       // API call to update server
       await toggleEventLike(eventId);
     } catch (error) {
-      // Rollback on error
+      console.log(error)
       setLikedEvents((prev) => ({
         ...prev,
         [eventId]: !prev[eventId],

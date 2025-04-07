@@ -4,8 +4,10 @@ import { FloatingDock } from "@/components/ui/floating-dock";
 import { HeaderProps } from "../types/searchBar";
 import { useSearchBar } from "../hooks/useSearchBar";
 import { placeholders } from "../utils/searchBarUtils";
+import { Owner } from "@/types/event";
+import { Event } from "@/types/eventDetails";
 
-const SearchBar: React.FC<HeaderProps & { onSearchResults?: (events: any[], owners: any[]) => void }> = ({
+const SearchBar: React.FC<HeaderProps & { onSearchResults?: (events: Event[], owners: Owner[]) => void }> = ({
   searchQuery,
   onSearchChange,
   onSearchSubmit,

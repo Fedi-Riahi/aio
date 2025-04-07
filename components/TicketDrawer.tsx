@@ -191,7 +191,7 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
 
           {/* Indicateur de progression */}
           <div className="flex gap-2 mt-4">
-            {Object.keys(stepTitles).map((key, index) => (
+            {Object.keys(stepTitles).map((key) => (
               <div
                 key={key}
                 className={`h-1 flex-1 rounded-full ${step === key ? 'bg-main' : 'bg-gray-700'}`}
