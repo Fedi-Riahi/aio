@@ -87,19 +87,23 @@ const EventDetails: React.FC = () => {
       toast.error("Please login to like this event");
       return;
     }
-
+  
     try {
       await toggleLike(userId);
-
-
+  
       const userLikedEventsKey = `likedEvents_${userId}`;
       const storedLikes = localStorage.getItem(userLikedEventsKey);
       const likedEvents = storedLikes ? JSON.parse(storedLikes) : {};
       likedEvents[event._id] = !event.likes?.includes(userId);
       localStorage.setItem(userLikedEventsKey, JSON.stringify(likedEvents));
     } catch (err) {
-      if (!err.message.includes("Unexpected API")) {
-        toast.error(err.message || "Failed to update like status");
+      if (err instanceof Error) {
+        if (!err.message.includes("Unexpected API")) {
+          toast.error(err.message || "Failed to update like status");
+        }
+      } else {
+        // Handle non-Error cases (e.g., if err is a string or something else)
+        toast.error("An unexpected error occurred");
       }
     }
   };
