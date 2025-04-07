@@ -73,7 +73,7 @@ export const TicketsSheet = ({ open, onOpenChange }: TicketDrawer) => {
                     </Button>
                     {ticketData.map((ticket, index) => (
                       <div key={index} className="flex flex-col items-center gap-2">
-                        <div ref={(el) => (ticketRefs.current[index] = el)}>
+                        <div ref={(el) => { ticketRefs.current[index] = el; }}>
                           <TicketComponent
                             eventName={ticket.eventName}
                             date={ticket.date}
@@ -89,7 +89,7 @@ export const TicketsSheet = ({ open, onOpenChange }: TicketDrawer) => {
                         </div>
                         <Button
                           className="w-1/2 max-w-[280px] bg-[#e91e63] text-white hover:bg-[#d81557] transition-colors duration-200"
-                          onClick={() => handleDownloadPDF(index)}
+                          onClick={() => handleDownloadPDF(index.toString())}
                         >
                           Télécharger PDF
                         </Button>

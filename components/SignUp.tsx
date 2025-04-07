@@ -39,7 +39,7 @@ export const SignUp = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setSelectedFile(file);
-    setValue("profile_picture", file);
+    setValue("profile_picture", file || undefined);
   };
 
   const handleStep1Submit = (e: React.FormEvent) => {
