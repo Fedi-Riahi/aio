@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { useAuth } from "../context/AuthContext";
 import Timer from "@/components/Timer";
 import { useNavbar } from "@/hooks/useNavbar";
+import { Icon } from "@tabler/icons-react";
 
 
 
@@ -178,7 +179,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
   }: {
     mode: string;
     label: string;
-    icon: any;
+    icon: Icon;
     isActive: boolean;
   }) => (
     <Button
