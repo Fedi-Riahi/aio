@@ -275,68 +275,68 @@ const EventDetails: React.FC = () => {
               {selectedTime.tickets.length > 0 ? (
                 <div className="space-y-4">
                   {selectedTime.tickets.map((ticket, ticketIndex) => {
-                    const price = getTicketPrice(ticket.ticket_id, event.ticket_type);
-                    const periodIndex = selectedPeriod?.originalIndex || 0;
-                    const locationIndex = selectedPeriod?.locations.indexOf(selectedLocation!) || 0;
-                    const timeIndex = selectedLocation?.times.indexOf(selectedTime!) || 0;
+  const price = getTicketPrice(ticket.ticket_id, event.ticket_type);
+  const periodIndex = selectedPeriod?.originalIndex || 0;
+  const locationIndex = selectedPeriod?.locations.indexOf(selectedLocation!) || 0;
+  const timeIndex = selectedLocation?.times.indexOf(selectedTime!) || 0;
 
-                    const availableCount = getAvailableTicketCount(
-                      ticket.ticket_id,
-                      periodIndex,
-                      locationIndex,
-                      timeIndex,
-                      ticketIndex,
-                      ticket.count,
-                      event.ticketsGroups
-                    );
+  const availableCount = getAvailableTicketCount(
+    ticket.ticket_id,
+    periodIndex,
+    locationIndex,
+    timeIndex,
+    ticketIndex,
+    ticket.count,
+    event.ticketsGroups
+  );
 
-                    const isSoloTicket = ticket.type.toLowerCase() === "solo";
-                    const isDisabled = isSoloTicket && availableCount <= 0;
-                    const isAvailable = !isDisabled;
+  const isSoloTicket = ticket.type.toLowerCase() === "solo";
+  const isDisabled = isSoloTicket && availableCount <= 0;
+  const isAvailable = !isDisabled;
 
-                    const ticketType = event.ticket_type.find(t =>
-                      t._id === ticket.ticket_id || t.ticket._id === ticket.ticket_id
-                    );
+  const ticketType = event.ticket_type.find((t: { _id?: string; ticket: ExtendedTicket }) =>
+    t._id === ticket.ticket_id || t.ticket._id === ticket.ticket_id
+  );
 
-                    return (
-                      <div
-                        key={ticketIndex}
-                        className="bg-offwhite backdrop-blur-sm rounded-xl p-6 border border-black/10 hover:border-black/20 shadow-sm hover:shadow-lg flex items-center justify-between transition duration-300"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="p-3 bg-main/10 rounded-full">
-                            <Ticket size={24} className="text-main" />
-                          </div>
-                          <div className="relative">
-                            <h4 className="text-lg font-normal text-foreground opacity-80">
-                              <span className="font-semibold relative group">
-                                {ticketType?.ticket?.name}
-                                {ticketType?.ticket?.description && (
-                                  <span className="absolute left-0 -bottom-10 hidden group-hover:block bg-gray-800 text-white text-sm rounded py-2 px-3 z-10 max-w-xs whitespace-normal">
-                                    {ticketType.ticket?.description}
-                                  </span>
-                                )}
-                              </span> - Billet
-                            </h4>
-                            <p className="text-lg font-bold text-main">
-                              {price === "N/A" ? "Prix N/A" : `${price}.00 DT`}
-                            </p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={openDrawer}
-                          disabled={(!session) || (isDisabled && session)}
-                          className={`px-6 py-3 rounded-lg font-medium cursor-pointer transition duration-300 ${
-                            isAvailable
-                              ? "bg-foreground text-background hover:bg-gray-300"
-                              : "bg-gray-400 text-gray-700 cursor-not-allowed"
-                          }`}
-                        >
-                          Acheter
-                        </button>
-                      </div>
-                    );
-                  })}
+  return (
+    <div
+      key={ticketIndex}
+      className="bg-offwhite backdrop-blur-sm rounded-xl p-6 border border-black/10 hover:border-black/20 shadow-sm hover:shadow-lg flex items-center justify-between transition duration-300"
+    >
+      <div className="flex items-center gap-4">
+        <div className="p-3 bg-main/10 rounded-full">
+          <Ticket size={24} className="text-main" />
+        </div>
+        <div className="relative">
+          <h4 className="text-lg font-normal text-foreground opacity-80">
+            <span className="font-semibold relative group">
+              {ticketType?.ticket?.name}
+              {ticketType?.ticket?.description && (
+                <span className="absolute left-0 -bottom-10 hidden group-hover:block bg-gray-800 text-white text-sm rounded py-2 px-3 z-10 max-w-xs whitespace-normal">
+                  {ticketType.ticket.description}
+                </span>
+              )}
+            </span> - Billet
+          </h4>
+          <p className="text-lg font-bold text-main">
+            {price === "N/A" ? "Prix N/A" : `${price}.00 DT`}
+          </p>
+        </div>
+      </div>
+      <button
+        onClick={openDrawer}
+        disabled={!session || (isDisabled && session)}
+        className={`px-6 py-3 rounded-lg font-medium cursor-pointer transition duration-300 ${
+          isAvailable
+            ? "bg-foreground text-background hover:bg-gray-300"
+            : "bg-gray-400 text-gray-700 cursor-not-allowed"
+        }`}
+      >
+        Acheter
+      </button>
+    </div>
+  );
+})}
                 </div>
               ) : (
                 <p className="text-gray-500">Aucun billet disponible pour ce créneau horaire.</p>
