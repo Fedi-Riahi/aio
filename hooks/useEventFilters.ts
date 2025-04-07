@@ -36,15 +36,39 @@ export const useEventFilters = () => {
     fetchCategoryEvents();
   }, [selectedCategory]);
 
+  const filterEventsAndOwners = (events: any[], query: string) => {
+    if (!query) return events;
+
+    const lowerCaseQuery = query.toLowerCase();
+    
+    return events.filter(event => {
+      // Check event fields
+      const eventMatch = 
+        event.title?.toLowerCase().includes(lowerCaseQuery) ||
+        event.description?.toLowerCase().includes(lowerCaseQuery) ||
+        event.location?.toLowerCase().includes(lowerCaseQuery);
+
+      // Check owner fields
+      const ownerMatch = 
+        event.owner?.name?.toLowerCase().includes(lowerCaseQuery) ||
+        event.owner?.email?.toLowerCase().includes(lowerCaseQuery);
+
+      return eventMatch || ownerMatch;
+    });
+  };
+
   const filteredEvents = (() => {
     if (searchResults.length > 0) {
       return searchResults;
     } else if (searchQuery) {
-      return filterEvents(allEvents, searchQuery, selectedCategory);
+      return filterEventsAndOwners(
+        selectedCategory ? categoryEvents : allEvents,
+        searchQuery
+      );
     } else if (selectedCategory) {
       return categoryEvents;
     } else {
-      return filterEvents(allEvents, searchQuery, selectedCategory);
+      return allEvents;
     }
   })();
 

@@ -1,9 +1,11 @@
 "use client";
 import React, { useCallback } from "react";
-import SearchBar from "./SearchBar";
 import EventCard from "./EventCard";
 import { motion } from "framer-motion";
 import { useEventFilters } from "@/hooks/useEventFilters";
+import SearchBar from "./SearchBar";
+import { Event as AppEvent } from "@/types/eventDetails";
+import { Owner } from "@/types/event";
 
 const Events: React.FC = () => {
   const {
@@ -18,12 +20,11 @@ const Events: React.FC = () => {
     loadMoreEvents,
   } = useEventFilters();
 
-
-  const handleSearchResultsFromSearchBar = useCallback((events: Event[]) => {
-    handleSearchResults(events);
+  const handleSearchResultsFromSearchBar = useCallback((events: AppEvent[], owners: Owner[]) => {
+    // Here we'll assume you want to merge the results
+    const combinedResults = [...events];
+    handleSearchResults(combinedResults);
   }, [handleSearchResults]);
-
-
 
   return (
     <div className="min-h-screen">
@@ -33,7 +34,7 @@ const Events: React.FC = () => {
           onSearchChange={handleSearchChange}
           onSearchSubmit={handleSearchSubmit}
           onCategoryChange={handleCategoryChange}
-          onSearchResults={handleSearchResultsFromSearchBar}
+          onSearchResults={handleSearchResultsFromSearchBar} 
         />
       </div>
 
@@ -47,7 +48,7 @@ const Events: React.FC = () => {
         <EventCard
           searchQuery={searchQuery}
           selectedCategory={selectedCategory}
-          visibleEvents={visibleEvents} // Displays up to 6 initially
+          visibleEvents={visibleEvents}
         />
       </motion.div>
 
