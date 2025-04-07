@@ -43,17 +43,23 @@ const SearchBar: React.FC<HeaderProps & { onSearchResults?: (events: Event[], ow
   return (
     <div className="flex justify-center flex-col items-center mt-10 lg:mx-10 mx-2">
       <div className="relative w-full lg:max-w-screen-lg sm:max-w-screen-sm">
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={onSearchChange}
-          onKeyPress={(e) => e.key === "Enter" && onSearchSubmit(e)}
-          className="w-full p-3 pl-14 pr-14 text-foreground bg-offwhite rounded-full backdrop-blur-lg shadow-lg focus:outline-none focus:ring-1 focus:ring-black"
-          placeholder={placeholders[currentPlaceholder]}
-        />
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSearchSubmit(e);
+          }}
+        >
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={onSearchChange}
+            className="w-full p-3 pl-14 pr-14 text-foreground bg-offwhite rounded-full backdrop-blur-lg shadow-lg focus:outline-none focus:ring-1 focus:ring-black"
+            placeholder={placeholders[currentPlaceholder]}
+          />
+        </form>
         <IconSearch
           className="absolute right-4 top-1/2 transform -translate-y-1/2 text-foreground w-5 h-5 cursor-pointer"
-          onClick={onSearchSubmit}
+          onClick={() => onSearchSubmit({ preventDefault: () => {} } as React.FormEvent<HTMLFormElement>)}
         />
       </div>
 
@@ -72,7 +78,7 @@ const SearchBar: React.FC<HeaderProps & { onSearchResults?: (events: Event[], ow
 
       <div className="mt-8 relative">
         <FloatingDock
-          items={categoryItems}
+          items={categoryItems.map((item, index) => ({ ...item, id: `category-${index}` }))}
           activeCategory={activeCategory}
           onItemClick={handleCategoryChange}
         />

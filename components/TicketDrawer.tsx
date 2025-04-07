@@ -74,7 +74,7 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
         .filter((ticket) => selectedTickets[ticket.ticket_id] > 0)
         .map((ticket) => ({
           ticket_id: ticket.ticket_id,
-          name: ticket.name || "Billet inconnu",
+          name: ticket?.name || "Billet inconnu",
           ticket_index: 0,
           seat_index: "N/A",
         }));
