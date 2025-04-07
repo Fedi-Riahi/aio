@@ -112,7 +112,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
 
   const memoizedHandleDeliveryChange = useCallback((field: string, value: string) => {
     setDeliveryForm(prev => {
-      if (prev[field] === value) return prev;
+      if (prev[field as keyof typeof prev] === value) return prev;
       return { ...prev, [field]: value };
     });
     parentHandleDeliveryChange(field, value);
@@ -235,7 +235,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
           <h2 className="text-xl font-semibold text-white">Mode de paiement</h2>
           <div className="flex flex-col md:flex-row gap-4">
             {paymentMethods.map((method) => {
-              const option = paymentOptions[method.toLowerCase()];
+              const option = paymentOptions[method.toLowerCase() as keyof typeof paymentOptions];
               if (!option) return null;
               return (
                 <PaymentModeButton
@@ -552,7 +552,6 @@ const PaymentStep: React.FC<PaymentStepProps & {
   prevProps.discount === nextProps.discount &&
   prevProps.timer === nextProps.timer &&
   prevProps.timerError === nextProps.timerError &&
-  prevProps.isProcessingPayment === nextProps.isProcessingPayment &&
   prevProps.ticketDataList === nextProps.ticketDataList
 ));
 
