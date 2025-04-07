@@ -334,7 +334,7 @@ const EventDetails: React.FC = () => {
                     </div>
                     <button
                       onClick={openDrawer}
-                      disabled={!session || (isDisabled && session)}
+                      disabled={!session || (isDisabled && !!session)}
                       className={`px-6 py-3 rounded-lg font-medium cursor-pointer transition duration-300 ${
                         isAvailable
                           ? "bg-foreground text-background hover:bg-gray-300"
