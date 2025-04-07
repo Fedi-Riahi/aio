@@ -7,6 +7,7 @@ import Link from "next/link";
 import TicketDrawer from "@/components/TicketDrawer";
 import { IconBrandFacebook, IconBrandInstagram, IconCopy, IconMap2, IconMapPin, IconPhoneRinging } from "@tabler/icons-react";
 import { useEventDetails } from "@/hooks/useEventDetails";
+import { SeatData } from "@/types/ticketDrawer"; // Adjust the path based on your project structure
 import { getTicketPrice, getAvailableTicketCount, getLocationName, getTimeDisplay, getPeriodDisplay, isEventTimePassed } from "@/utils/eventDetailsUtils";
 import { useNavbar } from "@/hooks/useNavbar";
 import toast from "react-hot-toast";
@@ -475,7 +476,7 @@ const EventDetails: React.FC = () => {
         ticketIndex={0}
         ticketsGroups={event.ticketsGroups || []}
         hasSeatTemplate={hasSeatTemplate}
-        seatData={seatData || undefined}
+        seatData={seatData as SeatData | null | undefined}
         paymentMethods={event.paymentMethods || []}
       />
     </div>
