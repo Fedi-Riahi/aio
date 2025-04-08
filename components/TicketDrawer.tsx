@@ -1,3 +1,4 @@
+// ./components/TicketDrawer.tsx
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -12,6 +13,7 @@ import Timer from "@/components/Timer";
 import { TicketDrawerProps } from "@/types/ticketDrawer";
 import { useTicketDrawer } from "@/hooks/useTicketDrawer";
 import { startOrderTimer } from "@/utils/paymentStepUtils";
+import { TicketType as EventTicketType } from "@/types/eventDetails";
 
 const TicketDrawer: React.FC<TicketDrawerProps> = ({
   tickets,
@@ -54,13 +56,13 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
     ticketDataList,
   } = useTicketDrawer(
     tickets,
-    ticketType,
+    ticketType as EventTicketType[],
     eventId,
     periodIndex,
     locationIndex,
     timeIndex,
     hasSeatTemplate,
-    seatData,
+    seatData, // Type matches SeatData from ticketDrawer.ts
     onClose
   );
 
@@ -74,7 +76,7 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
         .filter((ticket) => selectedTickets[ticket.ticket_id] > 0)
         .map((ticket) => ({
           ticket_id: ticket.ticket_id,
-          name: ticket?.name || "Billet inconnu",
+          name: ticket?.type || "Billet inconnu",
           ticket_index: 0,
           seat_index: "N/A",
         }));
@@ -106,7 +108,6 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
     }
   }, [isOpen, step, timer, timerError, eventId, selectedTickets, locationIndex, periodIndex, timeIndex]);
 
-  // Logique de compte à rebours
   useEffect(() => {
     if (timer === null || timer <= 0 || !isOpen) {
       if (timerIntervalRef.current) {
@@ -137,7 +138,6 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
     };
   }, [timer, isOpen, handleCancel]);
 
-  // Réinitialiser le minuteur lorsque le tiroir se ferme
   useEffect(() => {
     if (!isOpen && timer !== null) {
       setTimer(null);
@@ -150,7 +150,7 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
     selectSeats: "Choisir vos places",
     enterNames: "Informations des participants",
     payment: "Méthode de paiement",
-    confirmation: "Confirmation de commande"
+    confirmation: "Confirmation de commande",
   };
 
   const stepDescriptions = {
@@ -158,7 +158,7 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
     selectSeats: "Choisissez vos places préférées sur le plan de la salle",
     enterNames: "Entrez les informations pour chaque participant",
     payment: "Finalisez votre achat en toute sécurité",
-    confirmation: "Votre commande a été confirmée"
+    confirmation: "Votre commande a été confirmée",
   };
 
   return (
@@ -173,12 +173,8 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
         <DrawerHeader className="text-left px-6 pt-6 pb-4 border-b border-gray-800">
           <div className="flex justify-between items-start">
             <div>
-              <DrawerTitle className="text-2xl font-bold text-white">
-                {stepTitles[step]}
-              </DrawerTitle>
-              <p className="text-gray-400 mt-1 text-sm">
-                {stepDescriptions[step]}
-              </p>
+              <DrawerTitle className="text-2xl font-bold text-white">{stepTitles[step]}</DrawerTitle>
+              <p className="text-gray-400 mt-1 text-sm">{stepDescriptions[step]}</p>
             </div>
             <button
               onClick={handleCancel}
@@ -189,12 +185,11 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
             </button>
           </div>
 
-          {/* Indicateur de progression */}
           <div className="flex gap-2 mt-4">
             {Object.keys(stepTitles).map((key) => (
               <div
                 key={key}
-                className={`h-1 flex-1 rounded-full ${step === key ? 'bg-main' : 'bg-gray-700'}`}
+                className={`h-1 flex-1 rounded-full ${step === key ? "bg-main" : "bg-gray-700"}`}
               />
             ))}
           </div>
@@ -229,7 +224,7 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
 
           {step === "selectSeats" && hasSeatTemplate === false && (
             <div className="bg-gray-800/50 rounded-lg p-6 text-center">
-              <p className="text-gray-400">Aucun plan de salle disponible. Passage à l&apos;étape suivante.</p>
+              <p className="text-gray-400">Aucun plan de salle disponible. Passage à l'étape suivante.</p>
             </div>
           )}
 
@@ -323,8 +318,8 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
                     const ticketUsers = userNames[ticketId] || [];
                     return ticketUsers.length === quantity && ticketUsers.every((name) => name.trim() !== "");
                   })) ||
-                (timer === 0) ||
-                (timerError !== null)
+                timer === 0 ||
+                timerError !== null
               }
             >
               {step === "payment" ? "Annuler" : "Continuer"}
