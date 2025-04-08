@@ -14,7 +14,13 @@ import { TicketDrawerProps } from "@/types/ticketDrawer";
 import { useTicketDrawer } from "@/hooks/useTicketDrawer";
 import { startOrderTimer } from "@/utils/paymentStepUtils";
 import { TicketType as EventTicketType } from "@/types/eventDetails";
+import { Seat as EventSeat } from "@/types/eventDetails";
 
+interface TheatreSeat {
+  seat_index: string;
+  is_removed: boolean;
+  _id: string;
+}
 const TicketDrawer: React.FC<TicketDrawerProps> = ({
   tickets,
   isOpen,
@@ -144,7 +150,12 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
       setTimerError(null);
     }
   }, [isOpen]);
-
+// Transform EventSeat[] to TheatreSeat[]
+const transformedSeats: TheatreSeat[] = seatData?.seats.list_of_seat.map((seat: EventSeat) => ({
+  _id: seat.id,
+  seat_index: `${seat.row}-${seat.number}`, // Example transformation; adjust as needed
+  is_removed: false, // Default value; adjust if data provides this
+})) || [];
   const stepTitles = {
     selectQuantity: "Sélectionner la quantité",
     selectSeats: "Choisir vos places",
@@ -232,7 +243,7 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
             <TheatreView
               order={order}
               ticketIndex={ticketIndex.toString()}
-              seats={seatData.seats.list_of_seat}
+              seats={transformedSeats}
               roomName={seatData.room_name}
               selectedSeats={selectedSeats}
               setSelectedSeats={setSelectedSeats}

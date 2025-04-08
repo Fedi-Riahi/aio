@@ -1,3 +1,4 @@
+import { DeliveryDetails } from "./ticketDrawer";
 export interface Coordinates {
     latitude: number;
     longitude: number;
@@ -12,8 +13,8 @@ export interface Coordinates {
 
   export interface PaymentStepProps {
     paymentMode: string | null;
-    handlePaymentModeChange: (mode: string) => void;
-    handleDeliveryChange: (field: string, value: string) => void;
+    handlePaymentModeChange: (mode: "delivery" | "online") => void;
+    handleDeliveryChange: (field: keyof DeliveryDetails, value: string) => void;
     couponCode: string;
     handleCouponChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     applyCoupon: () => void;
