@@ -29,15 +29,7 @@ const SeatComponent: React.FC<SeatProps> = ({ seat_index, taken, seatActive, is_
 
 const SeatMap: React.FC<SeatMapProps> = React.memo(
   ({ seats, taken = [], selectedSeats, setSelectedSeats, containerWidth, containerHeight }) => {
-    if (!seats || seats.length === 0) {
-      return null;
-    }
-
-    const orderedSeats = sortSeats(seats);
-    const uniqueRows = getUniqueRows(orderedSeats);
-    const columns = 18;
-    const seatSize = calculateSeatSize(containerWidth, containerHeight, columns, uniqueRows.length);
-
+    // Move hooks to the top level
     const handleSeatSelect = useCallback(
       (id: string) => {
         setSelectedSeats((prev) =>
@@ -47,7 +39,19 @@ const SeatMap: React.FC<SeatMapProps> = React.memo(
       [setSelectedSeats]
     );
 
+    const orderedSeats = useMemo(() => (seats ? sortSeats(seats) : []), [seats]);
+    const uniqueRows = useMemo(() => getUniqueRows(orderedSeats), [orderedSeats]);
+    const columns = 18;
+    const seatSize = useMemo(
+      () => calculateSeatSize(containerWidth, containerHeight, columns, uniqueRows.length),
+      [containerWidth, containerHeight, uniqueRows.length]
+    );
+
     const memoizedRows = useMemo(() => {
+      if (!seats || seats.length === 0) {
+        return null; // Return null inside useMemo if no seats
+      }
+
       return uniqueRows.map((row) => {
         const rowSeats = orderedSeats.filter((seat) => seat.seat_index[0] === row);
         const seatElements = Array(columns)
@@ -66,7 +70,7 @@ const SeatMap: React.FC<SeatMapProps> = React.memo(
                   taken={isTaken}
                   seatActive={selectedSeats.includes(seatId)}
                   is_removed={seat.is_removed}
-                  _id={seat._id} // Add _id here
+                  _id={seat._id}
                   seatSize={seatSize}
                   onSelect={handleSeatSelect}
                 />
@@ -87,7 +91,12 @@ const SeatMap: React.FC<SeatMapProps> = React.memo(
           </div>
         );
       });
-    }, [uniqueRows, orderedSeats, taken, selectedSeats, seatSize, handleSeatSelect]);
+    }, [uniqueRows, orderedSeats, taken, selectedSeats, seatSize, handleSeatSelect, seats]);
+
+    // Early return after hooks
+    if (!seats || seats.length === 0) {
+      return null;
+    }
 
     return <div className="flex flex-col items-center w-full gap-2">{memoizedRows}</div>;
   }
