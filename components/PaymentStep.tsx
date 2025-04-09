@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { useAuth } from "../context/AuthContext";
 import Timer from "@/components/Timer";
 import { useNavbar } from "@/hooks/useNavbar";
-import { Icon } from "@tabler/icons-react";
+
 import { DeliveryDetails } from "../types/ticketDrawer"; // Correct import
 
 interface InputFieldProps {
