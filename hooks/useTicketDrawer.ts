@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Ticket, TicketType as EventTicketType, Seat as EventSeat } from "@/types/eventDetails"; // Use eventDetails types
-import { DeliveryDetails, TicketOrder } from "@/types/ticketDrawer";
+import { DeliveryDetails, TicketOrder, SeatData } from "@/types/ticketDrawer"
 import { TicketData } from "@/types/paymentStep";
 import { calculateTotal, applyCoupon } from "@/utils/ticketDrawerUtils";
 import toast from "react-hot-toast";
@@ -52,7 +52,7 @@ export const useTicketDrawer = (
   locationIndex: number,
   timeIndex: number,
   hasSeatTemplate: boolean | null,
-  seatData: { seats: { list_of_seat: EventSeat[] }; room_name: string; taken: string[] } | null, // Use EventSeat
+  seatData: SeatData | null,
   onClose: () => void
 ) => {
   const [selectedTickets, setSelectedTickets] = useState<{ [key: string]: number }>({});

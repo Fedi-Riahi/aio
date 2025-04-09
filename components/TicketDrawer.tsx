@@ -67,7 +67,7 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
     locationIndex,
     timeIndex,
     hasSeatTemplate,
-    seatData,
+    seatData, // Now matches the expected type
     onClose
   );
 
@@ -150,11 +150,12 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
     }
   }, [isOpen]);
 
-  const transformedSeats: TheatreSeat[] = seatData?.seats.list_of_seat.map((seat: EventSeat) => ({
+  const transformedSeats: TheatreSeat[] = (seatData?.seats.list_of_seat as EventSeat[] | undefined)?.map((seat) => ({
     _id: seat.id,
     seat_index: `${seat.row}-${seat.number}`,
     is_removed: false,
   })) || [];
+
 
   const stepTitles = {
     selectQuantity: "Sélectionner la quantité",
@@ -235,7 +236,7 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
 
           {step === "selectSeats" && hasSeatTemplate === false && (
             <div className="bg-gray-800/50 rounded-lg p-6 text-center">
-              <p className="text-gray-400">Aucun plan de salle disponible. Passage à l&apos;étape suivante.</p>
+              <p className="text-gray-400">Aucun plan de salle disponible. Passage à l'étape suivante.</p>
             </div>
           )}
 
@@ -283,7 +284,6 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
             <PaymentStep
               paymentMode={paymentMode}
               handlePaymentModeChange={handlePaymentModeChange}
-              // Remove deliveryDetails prop
               handleDeliveryChange={handleDeliveryChange}
               couponCode={couponCode}
               handleCouponChange={handleCouponChange}
@@ -299,7 +299,7 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
               timer={timer}
               timerError={timerError}
               paymentMethods={paymentMethods}
-              phoneNumber={deliveryDetails.phoneNumber} // Pass phoneNumber explicitly
+              phoneNumber={deliveryDetails.phoneNumber} // From alternative approach
               onPaymentSuccess={() => onClose()}
             />
           )}
