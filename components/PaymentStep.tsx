@@ -10,8 +10,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { useAuth } from "../context/AuthContext";
 import Timer from "@/components/Timer";
 import { useNavbar } from "@/hooks/useNavbar";
-import { Icon } from "@tabler/icons-react";
-import { DeliveryDetails as ImportedDeliveryDetails } from "c:/Users/fedir/Downloads/aiP/types/ticketDrawer";
 
 // Local DeliveryDetails for the form (matches usePaymentStep expectation)
 interface LocalDeliveryDetails {
