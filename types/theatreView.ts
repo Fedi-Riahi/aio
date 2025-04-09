@@ -1,7 +1,5 @@
-// ../types/theatreView.ts
-
 export interface Seat {
-  seat_index: string; // e.g., "A-1"
+  seat_index: string;
   is_removed: boolean;
   _id: string;
 }
@@ -35,9 +33,11 @@ export interface SeatMapProps {
   containerHeight: number;
 }
 
-export interface SeatProps extends Seat {
+export interface SeatProps {
+  seatId: string;
   taken: boolean;
   seatActive: boolean;
+  isRemoved: boolean;
   seatSize: number;
   onSelect: (seatId: string) => void;
 }

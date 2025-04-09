@@ -10,27 +10,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { useAuth } from "../context/AuthContext";
 import Timer from "@/components/Timer";
 import { useNavbar } from "@/hooks/useNavbar";
-import { Icon } from "@tabler/icons-react";
+;
 
-
-
-interface InputFieldProps {
-  label: string;
-  value: string; 
-  onChange: (name: string, value: string) => void;
-  placeholder?: string;
-  name: string;
-  disabled?: boolean;
-}
-
-const InputField = memo(
-  ({ label, value, onChange, placeholder, name, disabled }: InputFieldProps) => {
-    const handleChange = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        onChange(name, e.target.value);
-      },
-      [name, onChange]
-    );
+const InputField = memo(({ label, value, onChange, placeholder, name, disabled }: any) => {
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange(name, e.target.value);
+    },
+    [name, onChange]
+  );
 
   return (
     <div className="flex flex-col gap-2">
@@ -112,7 +100,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
 
   const memoizedHandleDeliveryChange = useCallback((field: string, value: string) => {
     setDeliveryForm(prev => {
-      if (prev[field as keyof typeof prev] === value) return prev;
+      if (prev[field] === value) return prev;
       return { ...prev, [field]: value };
     });
     parentHandleDeliveryChange(field, value);
@@ -179,7 +167,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
   }: {
     mode: string;
     label: string;
-    icon: Icon;
+    icon: any;
     isActive: boolean;
   }) => (
     <Button
@@ -235,7 +223,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
           <h2 className="text-xl font-semibold text-white">Mode de paiement</h2>
           <div className="flex flex-col md:flex-row gap-4">
             {paymentMethods.map((method) => {
-              const option = paymentOptions[method.toLowerCase() as keyof typeof paymentOptions];
+              const option = paymentOptions[method.toLowerCase()];
               if (!option) return null;
               return (
                 <PaymentModeButton
@@ -488,14 +476,16 @@ const PaymentStep: React.FC<PaymentStepProps & {
       <Dialog open={feedback.isOpen} onOpenChange={(open) => setFeedback(prev => ({...prev, isOpen: open}))}>
         <DialogContent className="sm:max-w-[500px] bg-gray-800 border border-gray-700 rounded-xl">
           <DialogHeader>
-            {/* Dialog Header */}
+            <DialogTitle className={feedback.isSuccess ? "text-green-400" : "text-red-400"}>
+              {feedback.title}
+            </DialogTitle>
           </DialogHeader>
           <div className="py-4 text-gray-300 space-y-6">
             {paymentMode === "delivery" && feedback.isSuccess ? (
               <>
                 <div className="flex flex-col items-center justify-center gap-4">
-                  <div className="p-4 bg-main/10 rounded-full">
-                    <IconTruckDelivery size={48} className="text-main"/>
+                  <div className="p-4 bg-green-600/20 rounded-full">
+                    <IconTruckDelivery size={48} className="text-green-400"/>
                   </div>
                   <p className="text-center">
                     Un agent vous contactera sous peu au{" "}
@@ -533,9 +523,9 @@ const PaymentStep: React.FC<PaymentStepProps & {
                 setFeedback(prev => ({...prev, isOpen: false}));
                 setOpenTicketDrawer(true);
               }}
-              className={`w-full py-4 text-lg font-semibold cursor-pointer ${
+              className={`w-full py-4 text-lg font-semibold ${
                 feedback.isSuccess
-                  ? "bg-gradient-to-r from-main to-main/90 hover:bg-main/90  text-white"
+                  ? "bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white"
                   : "bg-gray-700 text-white hover:bg-gray-600"
               }`}
             >
@@ -552,6 +542,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
   prevProps.discount === nextProps.discount &&
   prevProps.timer === nextProps.timer &&
   prevProps.timerError === nextProps.timerError &&
+  prevProps.isProcessingPayment === nextProps.isProcessingPayment &&
   prevProps.ticketDataList === nextProps.ticketDataList
 ));
 

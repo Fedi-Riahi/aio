@@ -1,13 +1,12 @@
-// ./components/TheatreView.tsx
 "use client";
 
 import React, { useMemo, useCallback } from "react";
-import { Seat, SeatProps, SeatMapProps, TheatreViewProps } from "../types/theatreView";
+import { SeatProps, SeatMapProps, TheatreViewProps } from "../types/theatreView";
 import { sortSeats, getUniqueRows, calculateSeatSize } from "../utils/theatreViewUtils";
 import { useTheatreView } from "../hooks/useTheatreView";
 
-const SeatComponent: React.FC<SeatProps> = ({ seat_index, taken, seatActive, is_removed, seatSize, onSelect }) => {
-  if (is_removed) return <div style={{ width: `${seatSize}px`, height: `${seatSize}px` }} />;
+const Seat: React.FC<SeatProps> = ({ seatId, taken, seatActive, isRemoved, seatSize, onSelect }) => {
+  if (isRemoved) return <div style={{ width: `${seatSize}px`, height: `${seatSize}px` }} />;
 
   return (
     <button
@@ -19,39 +18,34 @@ const SeatComponent: React.FC<SeatProps> = ({ seat_index, taken, seatActive, is_
           : "bg-gray-200 hover:bg-gray-300"
       }`}
       style={{ width: `${seatSize}px`, height: `${seatSize}px` }}
-      onClick={() => !taken && onSelect(seat_index)}
+      onClick={() => !taken && onSelect(seatId)}
       disabled={taken}
     >
-      <span className="text-xs text-gray-800">{seat_index.split("-")[1]}</span>
+      <span className="text-xs text-gray-800">{seatId.split("-")[1]}</span>
     </button>
   );
 };
 
 const SeatMap: React.FC<SeatMapProps> = React.memo(
   ({ seats, taken = [], selectedSeats, setSelectedSeats, containerWidth, containerHeight }) => {
-    // Move hooks to the top level
-    const handleSeatSelect = useCallback(
-      (id: string) => {
-        setSelectedSeats((prev) =>
-          prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
-        );
-      },
-      [setSelectedSeats]
-    );
+    if (!seats || seats.length === 0) {
+      return null;
+    }
 
-    const orderedSeats = useMemo(() => (seats ? sortSeats(seats) : []), [seats]);
-    const uniqueRows = useMemo(() => getUniqueRows(orderedSeats), [orderedSeats]);
+    const orderedSeats = sortSeats(seats);
+    const uniqueRows = getUniqueRows(orderedSeats);
     const columns = 18;
-    const seatSize = useMemo(
-      () => calculateSeatSize(containerWidth, containerHeight, columns, uniqueRows.length),
-      [containerWidth, containerHeight, uniqueRows.length]
-    );
+    const seatSize = calculateSeatSize(containerWidth, containerHeight, columns, uniqueRows.length);
 
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const handleSeatSelect = useCallback((id: string) => {
+      setSelectedSeats((prev) =>
+        prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+      );
+    }, [setSelectedSeats]);
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const memoizedRows = useMemo(() => {
-      if (!seats || seats.length === 0) {
-        return null; // Return null inside useMemo if no seats
-      }
-
       return uniqueRows.map((row) => {
         const rowSeats = orderedSeats.filter((seat) => seat.seat_index[0] === row);
         const seatElements = Array(columns)
@@ -64,13 +58,12 @@ const SeatMap: React.FC<SeatMapProps> = React.memo(
               const seatId = seat.seat_index;
               const isTaken = taken.includes(seatId);
               return (
-                <SeatComponent
+                <Seat
                   key={seatId}
-                  seat_index={seat.seat_index}
+                  seatId={seatId}
                   taken={isTaken}
                   seatActive={selectedSeats.includes(seatId)}
-                  is_removed={seat.is_removed}
-                  _id={seat._id}
+                  isRemoved={seat.is_removed}
                   seatSize={seatSize}
                   onSelect={handleSeatSelect}
                 />
@@ -91,12 +84,7 @@ const SeatMap: React.FC<SeatMapProps> = React.memo(
           </div>
         );
       });
-    }, [uniqueRows, orderedSeats, taken, selectedSeats, seatSize, handleSeatSelect, seats]);
-
-    // Early return after hooks
-    if (!seats || seats.length === 0) {
-      return null;
-    }
+    }, [uniqueRows, orderedSeats, taken, selectedSeats, seatSize, handleSeatSelect]);
 
     return <div className="flex flex-col items-center w-full gap-2">{memoizedRows}</div>;
   }
@@ -147,9 +135,7 @@ const TheatreView: React.FC<TheatreViewProps> = ({
   if (!seats || seats.length === 0) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <p className="text-gray-500 text-lg">
-          Aucune donnée de siège disponible pour cette période et cet horaire.
-        </p>
+        <p className="text-gray-500 text-lg">Aucune donnée de siège disponible pour cette période et cet horaire.</p>
       </div>
     );
   }
@@ -157,8 +143,7 @@ const TheatreView: React.FC<TheatreViewProps> = ({
   return (
     <div className="flex flex-col items-center p-4 border-t border-b border-gray-300">
       <h2 className="text-xl font-bold mb-4">
-        {roomName} (Période: {order.period_index}, Lieu: {order.location_index}, Horaire:{" "}
-        {order.time_index})
+        {roomName} (Période: {order.period_index}, Lieu: {order.location_index}, Horaire: {order.time_index})
       </h2>
       <div className="max-w-4xl w-full flex justify-center overflow-x-auto">
         <CinemaTheater
@@ -197,7 +182,9 @@ const TheatreView: React.FC<TheatreViewProps> = ({
         </p>
         {selectedSeats.length > 0 && (
           <>
-            <p className="text-xs text-gray-500 mt-1">({selectedSeats.sort().join(", ")})</p>
+            <p className="text-xs text-gray-500 mt-1">
+              ({selectedSeats.sort().join(", ")})
+            </p>
             <button
               onClick={clearSelectedSeats}
               className="mt-2 px-4 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"

@@ -1,32 +1,40 @@
-// ../hooks/useTicketDrawer.ts
-"use client";
-
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { Ticket as EventTicket, TicketType as EventTicketType, Seat as EventSeat } from "@/types/eventDetails";
-import { DeliveryDetails, TicketOrder, SeatData } from "@/types/ticketDrawer"; // Import SeatData
+import { Ticket } from "@/types/eventDetails";
+import { DeliveryDetails, TicketOrder } from "@/types/ticketDrawer";
 import { TicketData } from "@/types/paymentStep";
 import { calculateTotal, applyCoupon } from "@/utils/ticketDrawerUtils";
 import toast from "react-hot-toast";
 
+interface TicketType {
+  id: string;
+  name: string;
+  price: number;
+}
+
+interface Seat {
+  id: string;
+  name: string;
+}
+
 const buildTicketDataList = (
   selectedTickets: { [key: string]: number },
   userNames: { [key: string]: string[] },
-  tickets: EventTicket[],
-  ticketType: EventTicketType[],
+  tickets: Ticket[],
+  ticketType: TicketType[],
   hasSeatTemplate: boolean | null,
   selectedSeats: string[]
 ): TicketData[] => {
   const ticketDataList: TicketData[] = [];
   Object.entries(selectedTickets).forEach(([ticketId, quantity]) => {
-    const ticket = tickets.find((t) => t.ticket_id === ticketId);
-    const ticketTypeData = ticketType.find((tt) => tt.ticket._id === ticketId);
-    const ticketTypeIndex = ticketType.findIndex((tt) => tt.ticket._id === ticketId);
+    const ticket = tickets.find((t) => t.id === ticketId);
+    const ticketTypeData = ticketType.find((tt) => tt.id === ticketId);
+    const ticketTypeIndex = ticketType.findIndex((tt) => tt.id === ticketId);
     const names = userNames[ticketId] || [];
 
     for (let i = 0; i < quantity; i++) {
       ticketDataList.push({
         ticket_id: ticketId,
-        name: names[i] || ticketTypeData?.ticket.name || ticket?.type || "Unnamed",
+        name: names[i] || ticketTypeData?.name || ticket?.name || "Unnamed",
         ticket_index: ticketTypeIndex !== -1 ? ticketTypeIndex : 0,
         seat_index: hasSeatTemplate && selectedSeats[i] ? selectedSeats[i] : "N/A",
       });
@@ -36,14 +44,14 @@ const buildTicketDataList = (
 };
 
 export const useTicketDrawer = (
-  tickets: EventTicket[],
-  ticketType: EventTicketType[],
+  tickets: Ticket[],
+  ticketType: TicketType[],
   eventId: string,
   periodIndex: number,
   locationIndex: number,
   timeIndex: number,
   hasSeatTemplate: boolean | null,
-  seatData: SeatData | null, // Use imported SeatData
+  seatData: { seats: { list_of_seat: Seat[] }; room_name: string; taken: string[] } | null,
   onClose: () => void
 ) => {
   const [selectedTickets, setSelectedTickets] = useState<{ [key: string]: number }>({});

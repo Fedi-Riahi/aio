@@ -1,4 +1,4 @@
-import { Ticket, TicketType, TicketGroup, Seat as EventSeat } from "../types/eventDetails";
+import { Ticket, TicketType, TicketGroup } from "../types/eventDetails";
 
 export interface Seat {
   seat_index: string;
@@ -7,7 +7,7 @@ export interface Seat {
 }
 
 export interface SeatData {
-  seats: { list_of_seat: EventSeat[] };
+  seats: { list_of_seat: Seat[] };
   room_name: string;
   taken: string[];
 }

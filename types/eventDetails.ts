@@ -1,4 +1,3 @@
-// ../types/eventDetails.ts
 export interface TicketGroup {
   count: number;
   _id: {
@@ -52,9 +51,6 @@ export interface TicketType {
   ticket: { _id: string; name: string; price: number };
   discount: number;
   _id: string;
-  name: string;
-  description: string;
-  price: number;
 }
 
 export interface Event {
@@ -95,7 +91,6 @@ export interface SeatData {
   room_name: string;
   taken: string[];
 }
-
 export interface Comment {
   _id: string;
   content: string;
