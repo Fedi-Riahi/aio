@@ -1,17 +1,18 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { Ticket } from "@/types/eventDetails";
+import { Ticket, TicketType as EventTicketType, Seat as EventSeat } from "@/types/eventDetails"; // Use eventDetails types
 import { DeliveryDetails, TicketOrder } from "@/types/ticketDrawer";
 import { TicketData } from "@/types/paymentStep";
 import { calculateTotal, applyCoupon } from "@/utils/ticketDrawerUtils";
 import toast from "react-hot-toast";
 
-interface TicketType {
+// Define a simplified TicketType for internal use if needed, but align with eventDetails
+interface LocalTicketType {
   id: string;
   name: string;
   price: number;
 }
 
-interface Seat {
+interface LocalSeat {
   id: string;
   name: string;
 }
@@ -20,21 +21,21 @@ const buildTicketDataList = (
   selectedTickets: { [key: string]: number },
   userNames: { [key: string]: string[] },
   tickets: Ticket[],
-  ticketType: TicketType[],
+  ticketType: EventTicketType[],
   hasSeatTemplate: boolean | null,
   selectedSeats: string[]
 ): TicketData[] => {
   const ticketDataList: TicketData[] = [];
   Object.entries(selectedTickets).forEach(([ticketId, quantity]) => {
-    const ticket = tickets.find((t) => t.id === ticketId);
-    const ticketTypeData = ticketType.find((tt) => tt.id === ticketId);
-    const ticketTypeIndex = ticketType.findIndex((tt) => tt.id === ticketId);
+    const ticket = tickets.find((t) => t.ticket_id === ticketId); // Use ticket_id from Ticket
+    const ticketTypeData = ticketType.find((tt) => tt.ticket._id === ticketId); // Access nested ticket
+    const ticketTypeIndex = ticketType.findIndex((tt) => tt.ticket._id === ticketId);
     const names = userNames[ticketId] || [];
 
     for (let i = 0; i < quantity; i++) {
       ticketDataList.push({
         ticket_id: ticketId,
-        name: names[i] || ticketTypeData?.name || ticket?.name || "Unnamed",
+        name: names[i] || ticketTypeData?.ticket.name || ticket?.type || "Unnamed",
         ticket_index: ticketTypeIndex !== -1 ? ticketTypeIndex : 0,
         seat_index: hasSeatTemplate && selectedSeats[i] ? selectedSeats[i] : "N/A",
       });
@@ -45,13 +46,13 @@ const buildTicketDataList = (
 
 export const useTicketDrawer = (
   tickets: Ticket[],
-  ticketType: TicketType[],
+  ticketType: EventTicketType[], // Use EventTicketType from eventDetails
   eventId: string,
   periodIndex: number,
   locationIndex: number,
   timeIndex: number,
   hasSeatTemplate: boolean | null,
-  seatData: { seats: { list_of_seat: Seat[] }; room_name: string; taken: string[] } | null,
+  seatData: { seats: { list_of_seat: EventSeat[] }; room_name: string; taken: string[] } | null, // Use EventSeat
   onClose: () => void
 ) => {
   const [selectedTickets, setSelectedTickets] = useState<{ [key: string]: number }>({});
@@ -62,6 +63,9 @@ export const useTicketDrawer = (
     name: "",
     prename: "",
     address: "",
+    phoneNumber: "", // Add missing fields
+    city: "",
+    province: "",
   });
   const [couponCode, setCouponCode] = useState("");
   const [discount, setDiscount] = useState(0);
@@ -123,7 +127,14 @@ export const useTicketDrawer = (
     setSelectedTickets({});
     setUserNames({});
     setPaymentMode(null);
-    setDeliveryDetails({ name: "", prename: "", address: "" });
+    setDeliveryDetails({
+      name: "",
+      prename: "",
+      address: "",
+      phoneNumber: "",
+      city: "",
+      province: "",
+    });
     setCouponCode("");
     setDiscount(0);
     setSelectedSeats([]);

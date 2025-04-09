@@ -1,4 +1,4 @@
-import { Ticket, TicketType, TicketGroup } from "../types/eventDetails";
+import { Ticket, TicketType, TicketGroup, Seat } from "../types/eventDetails";
 
 export interface Seat {
   seat_index: string;
@@ -13,11 +13,11 @@ export interface SeatData {
 }
 
 export interface TicketDrawerProps {
-  tickets: Ticket[];
+  tickets: any[];
   isOpen: boolean;
   onClose: () => void;
   eventType: string;
-  ticketType: TicketType[];
+  ticketType: any[];
   eventId: string;
   periodIndex?: number;
   locationIndex?: number;

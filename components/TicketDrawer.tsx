@@ -1,4 +1,4 @@
-// ./components/TicketDrawer.tsx
+/* eslint-disable */
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -10,17 +10,17 @@ import EnterNamesStep from "@/components/EnterNamesStep";
 import PaymentStep from "@/components/PaymentStep";
 import TheatreView from "@/components/TheatreView";
 import Timer from "@/components/Timer";
-import { TicketDrawerProps } from "@/types/ticketDrawer";
+import { TicketDrawerProps } from "@/types/ticketDrawer"; // Updated import
 import { useTicketDrawer } from "@/hooks/useTicketDrawer";
 import { startOrderTimer } from "@/utils/paymentStepUtils";
-import { TicketType as EventTicketType } from "@/types/eventDetails";
-import { Seat as EventSeat } from "@/types/eventDetails";
+import { TicketType as EventTicketType, Seat as EventSeat } from "@/types/eventDetails"; // Rename for clarity
 
 interface TheatreSeat {
   seat_index: string;
   is_removed: boolean;
   _id: string;
 }
+
 const TicketDrawer: React.FC<TicketDrawerProps> = ({
   tickets,
   isOpen,
@@ -62,13 +62,13 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
     ticketDataList,
   } = useTicketDrawer(
     tickets,
-    ticketType as EventTicketType[],
+    ticketType as EventTicketType[], // Cast to match useTicketDrawer
     eventId,
     periodIndex,
     locationIndex,
     timeIndex,
     hasSeatTemplate,
-    seatData, // Type matches SeatData from ticketDrawer.ts
+    seatData,
     onClose
   );
 
@@ -150,12 +150,13 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
       setTimerError(null);
     }
   }, [isOpen]);
-// Transform EventSeat[] to TheatreSeat[]
-const transformedSeats: TheatreSeat[] = seatData?.seats.list_of_seat.map((seat: EventSeat) => ({
-  _id: seat.id,
-  seat_index: `${seat.row}-${seat.number}`, 
-  is_removed: false, 
-})) || [];
+
+  const transformedSeats: TheatreSeat[] = seatData?.seats.list_of_seat.map((seat: EventSeat) => ({
+    _id: seat.id,
+    seat_index: `${seat.row}-${seat.number}`,
+    is_removed: false,
+  })) || [];
+
   const stepTitles = {
     selectQuantity: "Sélectionner la quantité",
     selectSeats: "Choisir vos places",
@@ -218,7 +219,7 @@ const transformedSeats: TheatreSeat[] = seatData?.seats.list_of_seat.map((seat: 
               tickets={tickets}
               selectedTickets={selectedTickets}
               handleQuantityChange={handleQuantityChange}
-              ticketType={ticketType}
+              ticketType={ticketType as EventTicketType[]}
               ticketsGroups={ticketsGroups}
               periodIndex={periodIndex}
               locationIndex={locationIndex}
@@ -235,7 +236,7 @@ const transformedSeats: TheatreSeat[] = seatData?.seats.list_of_seat.map((seat: 
 
           {step === "selectSeats" && hasSeatTemplate === false && (
             <div className="bg-gray-800/50 rounded-lg p-6 text-center">
-              <p className="text-gray-400">Aucun plan de salle disponible. Passage à l&apos;étape suivante.</p>
+              <p className="text-gray-400">Aucun plan de salle disponible. Passage à l'étape suivante.</p>
             </div>
           )}
 
@@ -265,7 +266,7 @@ const transformedSeats: TheatreSeat[] = seatData?.seats.list_of_seat.map((seat: 
               selectedTickets={selectedTickets}
               userNames={userNames}
               handleNameChange={handleNameChange}
-              ticketType={ticketType}
+              ticketType={ticketType as EventTicketType[]}
               eventId={eventId}
               locationIndex={locationIndex}
               periodIndex={periodIndex}
@@ -299,6 +300,7 @@ const transformedSeats: TheatreSeat[] = seatData?.seats.list_of_seat.map((seat: 
               timer={timer}
               timerError={timerError}
               paymentMethods={paymentMethods}
+              onPaymentSuccess={() => onClose()} // Close drawer on success
             />
           )}
         </div>

@@ -30,6 +30,7 @@ export interface Coordinates {
     email?: string;
     phoneNumber?: string;
     mapRegion?: Coordinates;
+
     onPaymentSuccess: (response: any) => void;
     paymentMethods?: string[];
   }
