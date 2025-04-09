@@ -10,9 +10,42 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { useAuth } from "../context/AuthContext";
 import Timer from "@/components/Timer";
 import { useNavbar } from "@/hooks/useNavbar";
-;
+import { Icon } from "@tabler/icons-react";
+import { DeliveryDetails as ImportedDeliveryDetails } from "c:/Users/fedir/Downloads/aiP/types/ticketDrawer";
 
-const InputField = memo(({ label, value, onChange, placeholder, name, disabled }: any) => {
+// Local DeliveryDetails for the form (matches usePaymentStep expectation)
+interface LocalDeliveryDetails {
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  address: string;
+  city: string;
+  province: string;
+}
+
+interface InputFieldProps {
+  label: string;
+  value: string;
+  onChange: (name: keyof LocalDeliveryDetails, value: string) => void;
+  placeholder: string;
+  name: keyof LocalDeliveryDetails;
+  disabled?: boolean;
+}
+
+type PaymentMode = "delivery" | "online";
+
+type PaymentOptions = {
+  delivery: {
+    label: string;
+    icon: React.ComponentType<{ stroke?: number; size?: number }>;
+  };
+  online: {
+    label: string;
+    icon: React.ComponentType<{ stroke?: number; size?: number }>;
+  };
+};
+
+const InputField = memo(({ label, value, onChange, placeholder, name, disabled }: InputFieldProps) => {
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       onChange(name, e.target.value);
@@ -83,10 +116,10 @@ const PaymentStep: React.FC<PaymentStepProps & {
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-  const [deliveryForm, setDeliveryForm] = useState({
-    firstName,
-    lastName,
-    phoneNumber,
+  const [deliveryForm, setDeliveryForm] = useState<LocalDeliveryDetails>({
+    firstName: firstName,
+    lastName: lastName,
+    phoneNumber: phoneNumber,
     address: "",
     city: "",
     province: "",
@@ -98,12 +131,22 @@ const PaymentStep: React.FC<PaymentStepProps & {
     isSuccess: false,
   });
 
-  const memoizedHandleDeliveryChange = useCallback((field: string, value: string) => {
+  const memoizedHandleDeliveryChange = useCallback((field: keyof LocalDeliveryDetails, value: string) => {
     setDeliveryForm(prev => {
       if (prev[field] === value) return prev;
       return { ...prev, [field]: value };
     });
-    parentHandleDeliveryChange(field, value);
+
+    // Map local fields to imported DeliveryDetails fields
+    if (field === "firstName") {
+      parentHandleDeliveryChange("prename", value);
+    } else if (field === "lastName") {
+      parentHandleDeliveryChange("name", value);
+    } else if (field === "address") {
+      parentHandleDeliveryChange("address", value);
+    }
+    // Note: phoneNumber, city, and province are not passed to parentHandleDeliveryChange
+    // since they don’t exist in the imported DeliveryDetails
   }, [parentHandleDeliveryChange]);
 
   const {
@@ -129,9 +172,9 @@ const PaymentStep: React.FC<PaymentStepProps & {
     timeIndex,
     extraFields,
     email,
-    phoneNumber: deliveryForm.phoneNumber || phoneNumber,
-    firstName: deliveryForm.firstName || firstName,
-    lastName: deliveryForm.lastName || lastName,
+    phoneNumber: deliveryForm.phoneNumber,
+    firstName: deliveryForm.firstName,
+    lastName: deliveryForm.lastName,
     mapRegion,
     onPaymentSuccess: (response) => {
       if (response.success && response.data?.payUrl) {
@@ -159,15 +202,22 @@ const PaymentStep: React.FC<PaymentStepProps & {
   const defaultPosition = { latitude: 36.8065, longitude: 10.1815 };
   const initialPosition = mapRegion || defaultPosition;
 
+  interface PaymentModeButtonProps {
+    mode: string;
+    label: string;
+    icon: Icon;
+    isActive: boolean;
+  }
+
   const PaymentModeButtonComponent = ({
     mode,
     label,
     icon: Icon,
     isActive
   }: {
-    mode: string;
+    mode: PaymentMode;
     label: string;
-    icon: any;
+    icon: React.ComponentType<{ stroke?: number; size?: number }>;
     isActive: boolean;
   }) => (
     <Button
@@ -197,7 +247,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
         return { ...prev, [field.field]: value };
       })}
       placeholder={`Entrez ${field.field}`}
-      name={field.field}
+      name={field.field as keyof LocalDeliveryDetails} // Type assertion
       disabled={isProcessingPayment}
     />
   );
@@ -205,11 +255,10 @@ const PaymentStep: React.FC<PaymentStepProps & {
   ExtraFieldInputComponent.displayName = "ExtraFieldInput";
   const ExtraFieldInput = memo(ExtraFieldInputComponent);
 
-  const paymentOptions = {
+  const paymentOptions: PaymentOptions = {
     delivery: { label: "Livraison", icon: IconTruckDelivery },
     online: { label: "En ligne", icon: IconCreditCard },
   };
-
   const handleProceedClick = useCallback(() => setIsConfirmDialogOpen(true), []);
   const handleConfirmPayment = useCallback(() => {
     setIsConfirmDialogOpen(false);
@@ -223,12 +272,12 @@ const PaymentStep: React.FC<PaymentStepProps & {
           <h2 className="text-xl font-semibold text-white">Mode de paiement</h2>
           <div className="flex flex-col md:flex-row gap-4">
             {paymentMethods.map((method) => {
-              const option = paymentOptions[method.toLowerCase()];
+              const option = paymentOptions[method.toLowerCase() as PaymentMode];
               if (!option) return null;
               return (
                 <PaymentModeButton
                   key={method}
-                  mode={method.toLowerCase()}
+                  mode={method.toLowerCase() as PaymentMode}
                   label={option.label}
                   icon={option.icon}
                   isActive={paymentMode === method.toLowerCase()}
@@ -267,25 +316,41 @@ const PaymentStep: React.FC<PaymentStepProps & {
               name="phoneNumber"
               disabled={isProcessingPayment}
             />
+            <InputField
+              label="Adresse"
+              value={deliveryForm.address}
+              onChange={memoizedHandleDeliveryChange}
+              placeholder="Votre adresse"
+              name="address"
+              disabled={isProcessingPayment}
+            />
+            <InputField
+              label="Ville"
+              value={deliveryForm.city}
+              onChange={memoizedHandleDeliveryChange}
+              placeholder="Votre ville"
+              name="city"
+              disabled={isProcessingPayment}
+            />
+            <InputField
+              label="Province"
+              value={deliveryForm.province}
+              onChange={memoizedHandleDeliveryChange}
+              placeholder="Votre province"
+              name="province"
+              disabled={isProcessingPayment}
+            />
             <div className="flex flex-col gap-2 col-span-2">
-              <label className="text-sm font-medium text-gray-300">Adresse</label>
+              <label className="text-sm font-medium text-gray-300">Adresse sur la carte</label>
               <Button
                 onClick={() => setIsMapOpen(true)}
-                className="flex items-center gap-2 bg-gradient-to-r from-main to-main/90  text-white"
+                className="flex items-center gap-2 bg-gradient-to-r from-main to-main/90 text-white"
                 disabled={isProcessingPayment}
                 aria-label="Sélectionner une adresse sur la carte"
               >
                 <IconMapPin stroke={1.5} size={20} />
                 Sélectionner sur la carte
               </Button>
-              <InputField
-                label="Adresse complète"
-                value={deliveryForm.address}
-                onChange={memoizedHandleDeliveryChange}
-                placeholder="Votre adresse complète"
-                name="address"
-                disabled={isProcessingPayment}
-              />
               {addressError && <p className="text-sm text-red-400 mt-1">{addressError}</p>}
             </div>
           </div>
@@ -319,7 +384,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
             />
           </div>
           <Button
-            className="px-6 py-3 bg-gradient-to-r from-main to-main/90  text-white"
+            className="px-6 py-3 bg-gradient-to-r from-main to-main/90 text-white"
             onClick={applyCoupon}
             disabled={isProcessingPayment}
             aria-label="Appliquer le code promo"
@@ -372,53 +437,52 @@ const PaymentStep: React.FC<PaymentStepProps & {
       </Button>
 
       <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
-  <DialogContent className="sm:max-w-[500px] bg-background border border-offwhite">
-    <DialogHeader>
-      <DialogTitle className="text-foreground dark:text-gray-200 text-center">
-        Avez-vous tout vérifié ?
-      </DialogTitle>
-    </DialogHeader>
-    <div className="pt-4 text-foreground dark:text-gray-200">
-      {paymentMode === "delivery" ? (
-        <>
-          <p className="">
-            Vous serez contacté(e) par téléphone au <span className="font-semibold">{deliveryForm.phoneNumber || phoneNumber}</span>.
-          </p>
-          <p className="">Vos billets seront livrés à l&apos;adresse suivante :</p>
-          <p>
-            {deliveryForm.address ? (
-              <span className="font-semibold">{deliveryForm.address}</span>
+        <DialogContent className="sm:max-w-[500px] bg-background border border-offwhite">
+          <DialogHeader>
+            <DialogTitle className="text-foreground dark:text-gray-200 text-center">
+              Avez-vous tout vérifié ?
+            </DialogTitle>
+          </DialogHeader>
+          <div className="pt-4 text-foreground dark:text-gray-200">
+            {paymentMode === "delivery" ? (
+              <>
+                <p className="">
+                  Vous serez contacté(e) par téléphone au <span className="font-semibold">{deliveryForm.phoneNumber}</span>.
+                </p>
+                <p className="">Vos billets seront livrés à l'adresse suivante :</p>
+                <p>
+                  {deliveryForm.address ? (
+                    <span className="font-semibold">{`${deliveryForm.address}, ${deliveryForm.city}, ${deliveryForm.province}`}</span>
+                  ) : (
+                    <span className="text-gray-500">Aucune adresse sélectionnée</span>
+                  )}
+                </p>
+                <p className="text-sm opacity-80 mt-4">
+                  Vérifiez vos informations. En cas d'erreur, vous pouvez les modifier dans vos{" "}
+                  <span className="font-semibold text-main">Paramètres  Modifier le profil</span>{" "}
+                  avant de confirmer.
+                </p>
+              </>
             ) : (
-              <span className="text-gray-500">Aucune adresse sélectionnée</span>
+              <></>
             )}
-          </p>
-          <p className="text-sm opacity-80 mt-4">
-        Vérifiez vos informations. En cas d&apos;erreur, vous pouvez les modifier dans vos{" "}
-        <span className="font-semibold text-main">Paramètres &gt; Modifier le profil</span>{" "}
-        avant de confirmer.
-      </p>
-        </>
-      ) : (
-<></>
-      )}
-
-    </div>
-    <DialogFooter className="flex flex-col gap-2">
-      <Button
-        onClick={handleConfirmPayment}
-        className="w-full bg-main text-foreground hover:bg-main/90 py-6 text-lg"
-      >
-        Oui, c&apos;est fait !
-      </Button>
-      <Button
-        onClick={() => setIsConfirmDialogOpen(false)}
-        className="w-full bg-transparent text-foreground hover:text-main py-6 text-lg"
-      >
-        Vérifier à nouveau
-      </Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
+          </div>
+          <DialogFooter className="flex flex-col gap-2">
+            <Button
+              onClick={handleConfirmPayment}
+              className="w-full bg-main text-foreground hover:bg-main/90 py-6 text-lg"
+            >
+              Oui, c'est fait !
+            </Button>
+            <Button
+              onClick={() => setIsConfirmDialogOpen(false)}
+              className="w-full bg-transparent text-foreground hover:text-main py-6 text-lg"
+            >
+              Vérifier à nouveau
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={isMapOpen} onOpenChange={setIsMapOpen}>
         <DialogContent className="sm:max-w-[600px] bg-gray-800 border border-gray-700 rounded-xl">
@@ -434,7 +498,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
           <DialogFooter>
             <Button
               onClick={() => setIsMapOpen(false)}
-              className="bg-gradient-to-r from-main to-main/90 text-white "
+              className="bg-gradient-to-r from-main to-main/90 text-white"
             >
               Fermer
             </Button>
@@ -473,7 +537,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={feedback.isOpen} onOpenChange={(open) => setFeedback(prev => ({...prev, isOpen: open}))}>
+      <Dialog open={feedback.isOpen} onOpenChange={(open) => setFeedback(prev => ({ ...prev, isOpen: open }))}>
         <DialogContent className="sm:max-w-[500px] bg-gray-800 border border-gray-700 rounded-xl">
           <DialogHeader>
             <DialogTitle className={feedback.isSuccess ? "text-green-400" : "text-red-400"}>
@@ -485,15 +549,15 @@ const PaymentStep: React.FC<PaymentStepProps & {
               <>
                 <div className="flex flex-col items-center justify-center gap-4">
                   <div className="p-4 bg-green-600/20 rounded-full">
-                    <IconTruckDelivery size={48} className="text-green-400"/>
+                    <IconTruckDelivery size={48} className="text-green-400" />
                   </div>
                   <p className="text-center">
                     Un agent vous contactera sous peu au{" "}
-                    <span className="font-semibold text-white">{deliveryForm.phoneNumber || phoneNumber}</span>{" "}
+                    <span className="font-semibold text-white">{deliveryForm.phoneNumber}</span>{" "}
                     pour confirmer votre commande ! Gardez votre téléphone à portée de main.
                   </p>
                   <p className="text-center text-sm text-gray-400">
-                    En cas d&apos&apos;erreur sur votre numéro, vous pouvez annuler la commande avant confirmation
+                    En cas d'erreur sur votre numéro, vous pouvez annuler la commande avant confirmation
                     et en passer une nouvelle pour la livraison. Pas de stress !
                   </p>
                 </div>
@@ -502,17 +566,16 @@ const PaymentStep: React.FC<PaymentStepProps & {
               <>
                 <p className="text-center">{feedback.message}</p>
                 {feedback.message && (
-                    <>
-
-                  <p className="text-center text-sm text-gray-400">
-                  Félicitations ! Votre commande a été traitée avec succès. Nous vous
-          remercions d&apos;avoir choisi d&apos;utiliser votre carte de crédit pour votre
-          achat.
-                  </p>
-                  <p className="text-center text-sm text-gray-400">
-                    Vous pouvez voir vos billets dans la section Billets.
-                  </p>
-                    </>
+                  <>
+                    <p className="text-center text-sm text-gray-400">
+                      Félicitations ! Votre commande a été traitée avec succès. Nous vous
+                      remercions d'avoir choisi d'utiliser votre carte de crédit pour votre
+                      achat.
+                    </p>
+                    <p className="text-center text-sm text-gray-400">
+                      Vous pouvez voir vos billets dans la section Billets.
+                    </p>
+                  </>
                 )}
               </>
             )}
@@ -520,7 +583,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
           <DialogFooter>
             <Button
               onClick={() => {
-                setFeedback(prev => ({...prev, isOpen: false}));
+                setFeedback(prev => ({ ...prev, isOpen: false }));
                 setOpenTicketDrawer(true);
               }}
               className={`w-full py-4 text-lg font-semibold ${
@@ -542,7 +605,6 @@ const PaymentStep: React.FC<PaymentStepProps & {
   prevProps.discount === nextProps.discount &&
   prevProps.timer === nextProps.timer &&
   prevProps.timerError === nextProps.timerError &&
-  prevProps.isProcessingPayment === nextProps.isProcessingPayment &&
   prevProps.ticketDataList === nextProps.ticketDataList
 ));
 

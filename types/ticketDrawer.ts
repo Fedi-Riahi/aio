@@ -34,6 +34,9 @@ export interface DeliveryDetails {
   name: string;
   prename: string;
   address: string;
+  phoneNumber: string;
+  city: string;
+  province: string;
 }
 
 export interface TicketOrder {
