@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
+import { UserData } from '../types/user';
 
 export const useNavbar = () => {
   const { userData, unreadNotificationsCount } = useAuth();
@@ -36,9 +37,11 @@ export const useNavbar = () => {
       return;
     }
 
+
+    
     const isOrg = userData.is_org ?? false;
     const hasOrganizerDetails =
-      (userData.organization_name?.trim() || "") !== "" &&
+      (userData?.organization_name?.trim() || "") !== "" &&
       (userData.details?.trim() || "") !== "" &&
       (userData.social_medias?.length || 0) > 0;
 

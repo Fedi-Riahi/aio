@@ -24,7 +24,7 @@ interface UserData {
   premuim_status: boolean;
   events: number;
   _id: string;
-  id_org: string | null;
+  is_org: string | null;
   e_account_id: string;
   n_account_id: string;
   liked_events: string[];
@@ -39,6 +39,8 @@ interface AuthContextType {
   refreshToken: () => Promise<AuthTokens | null>;
   loading: boolean;
 }
+
+
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
