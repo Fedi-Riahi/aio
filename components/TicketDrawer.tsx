@@ -236,7 +236,7 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
 
           {step === "selectSeats" && hasSeatTemplate === false && (
             <div className="bg-gray-800/50 rounded-lg p-6 text-center">
-              <p className="text-gray-400">Aucun plan de salle disponible. Passage à l'étape suivante.</p>
+              <p className="text-gray-400">Aucun plan de salle disponible. Passage à l&apos;étape suivante.</p>
             </div>
           )}
 
