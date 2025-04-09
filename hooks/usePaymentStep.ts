@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { PaymentStepProps, Coordinates } from "../types/paymentStep";
+import { DeliveryDetails } from "../types/ticketDrawer"; // Import the shared type
 import { createOrderRequestBody, processOrder } from "../utils/paymentStepUtils";
 import toast from "react-hot-toast";
 
@@ -15,24 +16,13 @@ export const usePaymentStep = ({
   extraFields,
   email,
   phoneNumber,
-  firstName,
-  lastName,
   couponCode,
   onPaymentSuccess,
   deliveryForm,
 }: Omit<PaymentStepProps, "discount" | "walletId" | "currency"> & {
   mapRegion?: Coordinates;
-  firstName: string;
-  lastName: string;
   phoneNumber: string;
-  deliveryForm: {
-    firstName: string;
-    lastName: string;
-    phoneNumber: string;
-    address: string;
-    city: string;
-    province: string;
-  };
+  deliveryForm: DeliveryDetails; // Use the imported DeliveryDetails
 }) => {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [addressError, setAddressError] = useState<string | null>(null);
@@ -59,7 +49,7 @@ export const usePaymentStep = ({
         const address = data.items[0].address.label || "Unknown Address";
         const city = data.items[0].address.city || "Unknown City";
         const province = data.items[0].address.county || data.items[0].address.city;
-        console.log(data.items[0])
+        console.log(data.items[0]);
         handleDeliveryChange("address", address);
         handleDeliveryChange("city", city);
         handleDeliveryChange("province", province);
@@ -107,15 +97,13 @@ export const usePaymentStep = ({
         extraFields,
         email,
         phoneNumber,
-        firstName,
-        lastName,
         couponCode,
         calculateTotal,
       });
 
       if (orderRequestBody.delivery) {
         const deliveryData = {
-          name: `${deliveryForm.firstName || firstName} ${deliveryForm.lastName || lastName}`.trim(),
+          name: `${deliveryForm.prename || ""} ${deliveryForm.name || ""}`.trim(), // Use prename and name
           address: deliveryForm.address || "",
           city: deliveryForm.city || "",
           province: deliveryForm.province || "",
@@ -134,18 +122,17 @@ export const usePaymentStep = ({
       const response = await processOrder(orderRequestBody);
 
       if (response.success) {
-
         const isOrderFinished = response.data?.message === "Order Finished" || response.data?.status === "finished";
-        if(paymentMode === "delivery"){
-            toast.success("Order Finished")
+        if (paymentMode === "delivery") {
+          toast.success("Order Finished");
         }
         onPaymentSuccess({
           ...response,
-          nextStep: isOrderFinished ? "confirmation" : undefined, 
+          nextStep: isOrderFinished ? "confirmation" : undefined,
         });
       } else {
         alert(response.error?.details || "Failed to process order");
-        toast.error("Failed to process order")
+        toast.error("Failed to process order");
       }
     } catch (error) {
       alert(error instanceof Error ? error.message : "An unknown error occurred");
@@ -162,8 +149,6 @@ export const usePaymentStep = ({
     extraFields,
     email,
     phoneNumber,
-    firstName,
-    lastName,
     couponCode,
     calculateTotal,
     onPaymentSuccess,

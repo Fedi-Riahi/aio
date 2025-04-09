@@ -10,23 +10,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { useAuth } from "../context/AuthContext";
 import Timer from "@/components/Timer";
 import { useNavbar } from "@/hooks/useNavbar";
-
-// Local DeliveryDetails for the form (matches usePaymentStep expectation)
-interface LocalDeliveryDetails {
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  address: string;
-  city: string;
-  province: string;
-}
+import { Icon } from "@tabler/icons-react";
+import { DeliveryDetails } from "../types/ticketDrawer"; // Correct import
 
 interface InputFieldProps {
   label: string;
   value: string;
-  onChange: (name: keyof LocalDeliveryDetails, value: string) => void;
+  onChange: (name: keyof DeliveryDetails, value: string) => void;
   placeholder: string;
-  name: keyof LocalDeliveryDetails;
+  name: keyof DeliveryDetails;
   disabled?: boolean;
 }
 
@@ -114,9 +106,9 @@ const PaymentStep: React.FC<PaymentStepProps & {
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-  const [deliveryForm, setDeliveryForm] = useState<LocalDeliveryDetails>({
-    firstName: firstName,
-    lastName: lastName,
+  const [deliveryForm, setDeliveryForm] = useState<DeliveryDetails>({
+    prename: firstName,
+    name: lastName,
     phoneNumber: phoneNumber,
     address: "",
     city: "",
@@ -129,27 +121,12 @@ const PaymentStep: React.FC<PaymentStepProps & {
     isSuccess: false,
   });
 
-  const memoizedHandleDeliveryChange = useCallback((field: keyof LocalDeliveryDetails, value: string) => {
+  const memoizedHandleDeliveryChange = useCallback((field: keyof DeliveryDetails, value: string) => {
     setDeliveryForm(prev => {
       if (prev[field] === value) return prev;
       return { ...prev, [field]: value };
     });
-
-    // Map LocalDeliveryDetails fields to ImportedDeliveryDetails fields
-    switch (field) {
-      case "firstName":
-        parentHandleDeliveryChange("prename", value);
-        break;
-      case "lastName":
-        parentHandleDeliveryChange("name", value);
-        break;
-      case "address":
-        parentHandleDeliveryChange("address", value);
-        break;
-      default:
-        // phoneNumber, city, and province are not in ImportedDeliveryDetails, so they’re ignored
-        break;
-    }
+    parentHandleDeliveryChange(field, value);
   }, [parentHandleDeliveryChange]);
 
   const {
@@ -176,8 +153,6 @@ const PaymentStep: React.FC<PaymentStepProps & {
     extraFields,
     email,
     phoneNumber: deliveryForm.phoneNumber,
-    firstName: deliveryForm.firstName,
-    lastName: deliveryForm.lastName,
     mapRegion,
     onPaymentSuccess: (response) => {
       if (response.success && response.data?.payUrl) {
@@ -205,6 +180,12 @@ const PaymentStep: React.FC<PaymentStepProps & {
   const defaultPosition = { latitude: 36.8065, longitude: 10.1815 };
   const initialPosition = mapRegion || defaultPosition;
 
+  interface PaymentModeButtonProps {
+    mode: string;
+    label: string;
+    icon: Icon;
+    isActive: boolean;
+  }
 
   const PaymentModeButtonComponent = ({
     mode,
@@ -244,7 +225,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
         return { ...prev, [field.field]: value };
       })}
       placeholder={`Entrez ${field.field}`}
-      name={field.field as keyof LocalDeliveryDetails} // Type assertion
+      name={field.field as keyof DeliveryDetails} // Type assertion
       disabled={isProcessingPayment}
     />
   );
@@ -291,18 +272,18 @@ const PaymentStep: React.FC<PaymentStepProps & {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField
               label="Prénom"
-              value={deliveryForm.firstName}
+              value={deliveryForm.prename}
               onChange={memoizedHandleDeliveryChange}
               placeholder="Votre prénom"
-              name="firstName"
+              name="prename"
               disabled={isProcessingPayment}
             />
             <InputField
               label="Nom"
-              value={deliveryForm.lastName}
+              value={deliveryForm.name}
               onChange={memoizedHandleDeliveryChange}
               placeholder="Votre nom"
-              name="lastName"
+              name="name"
               disabled={isProcessingPayment}
             />
             <InputField
@@ -446,7 +427,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
                 <p className="">
                   Vous serez contacté(e) par téléphone au <span className="font-semibold">{deliveryForm.phoneNumber}</span>.
                 </p>
-                <p className="">Vos billets seront livrés à l&apos;adresse suivante :</p>
+                <p className="">Vos billets seront livrés à l'adresse suivante :</p>
                 <p>
                   {deliveryForm.address ? (
                     <span className="font-semibold">{`${deliveryForm.address}, ${deliveryForm.city}, ${deliveryForm.province}`}</span>
@@ -455,7 +436,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
                   )}
                 </p>
                 <p className="text-sm opacity-80 mt-4">
-                  Vérifiez vos informations. En cas d&apos;erreur, vous pouvez les modifier dans vos{" "}
+                  Vérifiez vos informations. En cas d'erreur, vous pouvez les modifier dans vos{" "}
                   <span className="font-semibold text-main">Paramètres  Modifier le profil</span>{" "}
                   avant de confirmer.
                 </p>
@@ -469,7 +450,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
               onClick={handleConfirmPayment}
               className="w-full bg-main text-foreground hover:bg-main/90 py-6 text-lg"
             >
-              Oui, c&apos;est fait !
+              Oui, c'est fait !
             </Button>
             <Button
               onClick={() => setIsConfirmDialogOpen(false)}
@@ -554,7 +535,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
                     pour confirmer votre commande ! Gardez votre téléphone à portée de main.
                   </p>
                   <p className="text-center text-sm text-gray-400">
-                    En cas d&apos;erreur sur votre numéro, vous pouvez annuler la commande avant confirmation
+                    En cas d'erreur sur votre numéro, vous pouvez annuler la commande avant confirmation
                     et en passer une nouvelle pour la livraison. Pas de stress !
                   </p>
                 </div>
@@ -566,7 +547,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
                   <>
                     <p className="text-center text-sm text-gray-400">
                       Félicitations ! Votre commande a été traitée avec succès. Nous vous
-                      remercions d&apos;avoir choisi d&apos;utiliser votre carte de crédit pour votre
+                      remercions d'avoir choisi d'utiliser votre carte de crédit pour votre
                       achat.
                     </p>
                     <p className="text-center text-sm text-gray-400">
