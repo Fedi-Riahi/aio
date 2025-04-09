@@ -1,4 +1,3 @@
-/* eslint-disable */
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -10,10 +9,10 @@ import EnterNamesStep from "@/components/EnterNamesStep";
 import PaymentStep from "@/components/PaymentStep";
 import TheatreView from "@/components/TheatreView";
 import Timer from "@/components/Timer";
-import { TicketDrawerProps } from "@/types/ticketDrawer"; // Updated import
+import { TicketDrawerProps } from "@/types/ticketDrawer";
 import { useTicketDrawer } from "@/hooks/useTicketDrawer";
 import { startOrderTimer } from "@/utils/paymentStepUtils";
-import { TicketType as EventTicketType, Seat as EventSeat } from "@/types/eventDetails"; // Rename for clarity
+import { TicketType as EventTicketType, Seat as EventSeat } from "@/types/eventDetails";
 
 interface TheatreSeat {
   seat_index: string;
@@ -62,7 +61,7 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
     ticketDataList,
   } = useTicketDrawer(
     tickets,
-    ticketType as EventTicketType[], // Cast to match useTicketDrawer
+    ticketType as EventTicketType[],
     eventId,
     periodIndex,
     locationIndex,
@@ -284,7 +283,7 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
             <PaymentStep
               paymentMode={paymentMode}
               handlePaymentModeChange={handlePaymentModeChange}
-              deliveryDetails={deliveryDetails}
+              // Remove deliveryDetails prop
               handleDeliveryChange={handleDeliveryChange}
               couponCode={couponCode}
               handleCouponChange={handleCouponChange}
@@ -300,7 +299,8 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
               timer={timer}
               timerError={timerError}
               paymentMethods={paymentMethods}
-              onPaymentSuccess={() => onClose()} // Close drawer on success
+              phoneNumber={deliveryDetails.phoneNumber} // Pass phoneNumber explicitly
+              onPaymentSuccess={() => onClose()}
             />
           )}
         </div>

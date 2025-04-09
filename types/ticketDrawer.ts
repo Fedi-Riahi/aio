@@ -1,4 +1,4 @@
-import { Ticket, TicketType, TicketGroup, Seat } from "../types/eventDetails";
+import { Ticket, TicketType, TicketGroup } from "../types/eventDetails";
 
 export interface Seat {
   seat_index: string;
