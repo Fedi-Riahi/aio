@@ -137,16 +137,21 @@ const PaymentStep: React.FC<PaymentStepProps & {
       return { ...prev, [field]: value };
     });
 
-    // Map local fields to imported DeliveryDetails fields
-    if (field === "firstName") {
-      parentHandleDeliveryChange("prename", value);
-    } else if (field === "lastName") {
-      parentHandleDeliveryChange("name", value);
-    } else if (field === "address") {
-      parentHandleDeliveryChange("address", value);
+    // Map LocalDeliveryDetails fields to ImportedDeliveryDetails fields
+    switch (field) {
+      case "firstName":
+        parentHandleDeliveryChange("prename", value);
+        break;
+      case "lastName":
+        parentHandleDeliveryChange("name", value);
+        break;
+      case "address":
+        parentHandleDeliveryChange("address", value);
+        break;
+      default:
+        // phoneNumber, city, and province are not in ImportedDeliveryDetails, so they’re ignored
+        break;
     }
-    // Note: phoneNumber, city, and province are not passed to parentHandleDeliveryChange
-    // since they don’t exist in the imported DeliveryDetails
   }, [parentHandleDeliveryChange]);
 
   const {
@@ -202,12 +207,6 @@ const PaymentStep: React.FC<PaymentStepProps & {
   const defaultPosition = { latitude: 36.8065, longitude: 10.1815 };
   const initialPosition = mapRegion || defaultPosition;
 
-  interface PaymentModeButtonProps {
-    mode: string;
-    label: string;
-    icon: Icon;
-    isActive: boolean;
-  }
 
   const PaymentModeButtonComponent = ({
     mode,
@@ -449,7 +448,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
                 <p className="">
                   Vous serez contacté(e) par téléphone au <span className="font-semibold">{deliveryForm.phoneNumber}</span>.
                 </p>
-                <p className="">Vos billets seront livrés à l'adresse suivante :</p>
+                <p className="">Vos billets seront livrés à l&apos;adresse suivante :</p>
                 <p>
                   {deliveryForm.address ? (
                     <span className="font-semibold">{`${deliveryForm.address}, ${deliveryForm.city}, ${deliveryForm.province}`}</span>
@@ -458,7 +457,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
                   )}
                 </p>
                 <p className="text-sm opacity-80 mt-4">
-                  Vérifiez vos informations. En cas d'erreur, vous pouvez les modifier dans vos{" "}
+                  Vérifiez vos informations. En cas d&apos;erreur, vous pouvez les modifier dans vos{" "}
                   <span className="font-semibold text-main">Paramètres  Modifier le profil</span>{" "}
                   avant de confirmer.
                 </p>
@@ -472,7 +471,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
               onClick={handleConfirmPayment}
               className="w-full bg-main text-foreground hover:bg-main/90 py-6 text-lg"
             >
-              Oui, c'est fait !
+              Oui, c&apos;est fait !
             </Button>
             <Button
               onClick={() => setIsConfirmDialogOpen(false)}
@@ -557,7 +556,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
                     pour confirmer votre commande ! Gardez votre téléphone à portée de main.
                   </p>
                   <p className="text-center text-sm text-gray-400">
-                    En cas d'erreur sur votre numéro, vous pouvez annuler la commande avant confirmation
+                    En cas d&apos;erreur sur votre numéro, vous pouvez annuler la commande avant confirmation
                     et en passer une nouvelle pour la livraison. Pas de stress !
                   </p>
                 </div>
@@ -569,7 +568,7 @@ const PaymentStep: React.FC<PaymentStepProps & {
                   <>
                     <p className="text-center text-sm text-gray-400">
                       Félicitations ! Votre commande a été traitée avec succès. Nous vous
-                      remercions d'avoir choisi d'utiliser votre carte de crédit pour votre
+                      remercions d&apos;avoir choisi d&apos;utiliser votre carte de crédit pour votre
                       achat.
                     </p>
                     <p className="text-center text-sm text-gray-400">

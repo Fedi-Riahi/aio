@@ -153,8 +153,8 @@ const TicketDrawer: React.FC<TicketDrawerProps> = ({
 // Transform EventSeat[] to TheatreSeat[]
 const transformedSeats: TheatreSeat[] = seatData?.seats.list_of_seat.map((seat: EventSeat) => ({
   _id: seat.id,
-  seat_index: `${seat.row}-${seat.number}`, // Example transformation; adjust as needed
-  is_removed: false, // Default value; adjust if data provides this
+  seat_index: `${seat.row}-${seat.number}`, 
+  is_removed: false, 
 })) || [];
   const stepTitles = {
     selectQuantity: "Sélectionner la quantité",

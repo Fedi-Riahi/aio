@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useCallback } from "react";
-import { SeatProps, SeatMapProps, TheatreViewProps } from "../types/theatreView";
+import { SeatProps, SeatMapProps, TheatreViewProps, Seat as SeatE } from "../types/theatreView";
 import { sortSeats, getUniqueRows, calculateSeatSize } from "../utils/theatreViewUtils";
 import { useTheatreView } from "../hooks/useTheatreView";
 
@@ -93,7 +93,7 @@ const SeatMap: React.FC<SeatMapProps> = React.memo(
 SeatMap.displayName = "SeatMap";
 
 const CinemaTheater: React.FC<{
-  seats: Seat[];
+  seats: SeatE[];
   taken: string[];
   selectedSeats: string[];
   setSelectedSeats: React.Dispatch<React.SetStateAction<string[]>>;
