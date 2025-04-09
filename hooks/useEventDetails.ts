@@ -220,15 +220,18 @@ export const useEventDetails = () => {
 
       return isNowLiked;
     } catch (err) {
-
       setEvent(prev => prev ? {
         ...prev,
         likes: wasLiked
           ? [...prev.likes, userId]
           : prev.likes.filter(id => id !== userId)
       } : null);
-
-      console.warn("Like operation:", err.message);
+    
+      if (err instanceof Error) {
+        console.warn("Like operation:", err.message);
+      } else {
+        console.warn("Like operation failed with unknown error");
+      }
       throw err;
     }
   };
